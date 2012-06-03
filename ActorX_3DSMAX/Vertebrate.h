@@ -176,28 +176,22 @@ struct VMaterial
 	}	
 
 	// Copy a name and properly zero-terminate it.
-	void SetName( char* NewName)
+	void SetName( const TCHAR* NewName)
 	{
-		INT c=0;
-		for(c=0; c<64; c++)
-		{
-			MaterialName[c]=NewName[c];
-			if( MaterialName[c] == 0 ) 
-				break;
-		}
-		// fill out
-		while( c<64)
-		{
-			MaterialName[c] = 0;
-			c++;
-		}	
+		memset(MaterialName, 0, 64);
+	#if _UNICODE
+		wcstombs(MaterialName, NewName, 64);
+	#else
+		strncpy(MaterialName, NewName, 64);
+	#endif
+		MaterialName[63] = 0;
 	}
 };
 
 struct VBitmapOrigin
 {
-	char RawBitmapName[MAX_PATH];
-	char RawBitmapPath[MAX_PATH];
+	TCHAR RawBitmapName[MAX_PATH];
+	TCHAR RawBitmapPath[MAX_PATH];
 
 	VBitmapOrigin()
 	{
@@ -642,7 +636,7 @@ public:
 		// Header
 		VChunkHdr ChunkHdr;
 		Memzero( &ChunkHdr, sizeof( ChunkHdr ) );
-		_tcscpy(ChunkHdr.ChunkID,"ACTRHEAD");
+		strcpy(ChunkHdr.ChunkID,"ACTRHEAD");
 		ChunkHdr.DataCount = 0;
 		ChunkHdr.DataSize  = 0;
 		ChunkHdr.TypeFlag  = PSA_VERSION; 
@@ -655,7 +649,7 @@ public:
 
 		// Skin: 3D Points
 		Memzero( &ChunkHdr, sizeof( ChunkHdr ) );
-		_tcscpy(ChunkHdr.ChunkID,("PNTS0000"));
+		strcpy(ChunkHdr.ChunkID,("PNTS0000"));
 		ChunkHdr.DataCount = SkinData.Points.Num();
 		ChunkHdr.DataSize  = sizeof ( VPoint );
 		OutFile.Write( &ChunkHdr, sizeof (ChunkHdr));
@@ -672,7 +666,7 @@ public:
 
 		// Skin: VERTICES (wedges)
 		Memzero( &ChunkHdr, sizeof( ChunkHdr ) );
-		_tcscpy(ChunkHdr.ChunkID,("VTXW0000"));
+		strcpy(ChunkHdr.ChunkID,("VTXW0000"));
 		ChunkHdr.DataCount = SkinData.Wedges.Num();
 		ChunkHdr.DataSize  = sizeof (VVertexExport);
 		OutFile.Write( &ChunkHdr, sizeof (ChunkHdr));
@@ -703,7 +697,7 @@ public:
 
 		// Skin: TRIANGLES (faces)
 		Memzero( &ChunkHdr, sizeof( ChunkHdr ) );
-		_tcscpy(ChunkHdr.ChunkID,("FACE0000"));
+		strcpy(ChunkHdr.ChunkID,("FACE0000"));
 		ChunkHdr.DataCount = SkinData.Faces.Num();
 		ChunkHdr.DataSize  = sizeof( VTriangle );
 		OutFile.Write( &ChunkHdr, sizeof (ChunkHdr));
@@ -715,7 +709,7 @@ public:
 
 		// Skin: Materials
 		Memzero( &ChunkHdr, sizeof( ChunkHdr ) );
-		_tcscpy(ChunkHdr.ChunkID,("MATT0000"));
+		strcpy(ChunkHdr.ChunkID,("MATT0000"));
 		ChunkHdr.DataCount = SkinData.Materials.Num();
 		ChunkHdr.DataSize  = sizeof( VMaterial );
 		OutFile.Write( &ChunkHdr, sizeof (ChunkHdr));
@@ -727,7 +721,7 @@ public:
 
 		// Reference Skeleton: Refskeleton.TotalBones times a VBone.
 		Memzero( &ChunkHdr, sizeof( ChunkHdr ) );
-		_tcscpy(ChunkHdr.ChunkID,("REFSKELT"));
+		strcpy(ChunkHdr.ChunkID,("REFSKELT"));
 		ChunkHdr.DataCount = RefSkeletonBones.Num();
 		ChunkHdr.DataSize  = sizeof ( FNamedBoneBinary ) ;
 		OutFile.Write( &ChunkHdr, sizeof (ChunkHdr));
@@ -739,7 +733,7 @@ public:
 
 		// Reference Skeleton: Refskeleton.TotalBones times a VBone.
 		Memzero( &ChunkHdr, sizeof( ChunkHdr ) );
-		_tcscpy(ChunkHdr.ChunkID,("RAWWEIGHTS"));
+		strcpy(ChunkHdr.ChunkID,("RAWWEIGHTS"));
 		ChunkHdr.DataCount = SkinData.RawWeights.Num(); 
 		ChunkHdr.DataSize  = sizeof ( VRawBoneInfluence ) ;
 		OutFile.Write( &ChunkHdr, sizeof (ChunkHdr));
@@ -755,7 +749,7 @@ public:
 		if( VertexColors.Num() > 0 )
 		{
 			Memzero( &ChunkHdr, sizeof( ChunkHdr ) );
-			_tcscpy_s( ChunkHdr.ChunkID, ("VERTEXCOLOR"));
+			strcpy( ChunkHdr.ChunkID, ("VERTEXCOLOR"));
 			ChunkHdr.DataCount = VertexColors.Num();
 			ChunkHdr.DataSize = sizeof( VColor );
 			OutFile.Write( &ChunkHdr, sizeof(ChunkHdr) );
@@ -770,7 +764,7 @@ public:
 		{
 			Memzero( &ChunkHdr, sizeof( ChunkHdr ) );
 
-			_stprintf_s( ChunkHdr.ChunkID, ("EXTRAUVS%d"), UVIndex );
+			sprintf( ChunkHdr.ChunkID, ("EXTRAUVS%d"), UVIndex );
 			ChunkHdr.DataCount = ExtraUVCoords[UVIndex].Num();
 			ChunkHdr.DataSize = sizeof( FUVCoord );
 			OutFile.Write( &ChunkHdr, sizeof(ChunkHdr) );
@@ -791,7 +785,7 @@ public:
 		// Header :
 		VChunkHdr ChunkHdr;
 		Memzero( &ChunkHdr, sizeof( ChunkHdr ) );
-		_tcscpy(ChunkHdr.ChunkID,("ANIMHEAD"));
+		strcpy(ChunkHdr.ChunkID,("ANIMHEAD"));
 		ChunkHdr.DataCount = 0;
 		ChunkHdr.DataSize  = 0;
 		ChunkHdr.TypeFlag  = 2003321; // "21  march 03"
@@ -799,7 +793,7 @@ public:
 
 		// Bone names (+flags) list:
 		Memzero( &ChunkHdr, sizeof( ChunkHdr ) );
-		_tcscpy(ChunkHdr.ChunkID,("BONENAMES"));
+		strcpy(ChunkHdr.ChunkID,("BONENAMES"));
 		ChunkHdr.DataCount = RefSkeletonBones.Num(); 
 		ChunkHdr.DataSize  = sizeof ( FNamedBoneBinary ); 
 		OutFile.Write(&ChunkHdr, sizeof (ChunkHdr));
@@ -821,7 +815,7 @@ public:
 		}
 	
 		Memzero( &ChunkHdr, sizeof( ChunkHdr ) );
-		_tcscpy(ChunkHdr.ChunkID,("ANIMINFO"));
+		strcpy(ChunkHdr.ChunkID,("ANIMINFO"));
 	    ChunkHdr.DataCount = OutAnims.Num();
 		ChunkHdr.DataSize  = sizeof( AnimInfoBinary  ); // heap of angaxis/pos/length, 8 floats #debug
 		OutFile.Write( &ChunkHdr, sizeof (ChunkHdr));
@@ -831,7 +825,7 @@ public:
 		}
 		
 		Memzero( &ChunkHdr, sizeof( ChunkHdr ) );
-		_tcscpy(ChunkHdr.ChunkID,("ANIMKEYS"));
+		strcpy(ChunkHdr.ChunkID,("ANIMKEYS"));
 	    ChunkHdr.DataCount = TotalAnimKeys;            // RefSkeletonBones.Num() * RawNumFrames; 
 		ChunkHdr.DataSize  = sizeof( VQuatAnimKey );   // Heap of angaxis/pos/length, 8 floats #debug
 		OutFile.Write( &ChunkHdr, sizeof (ChunkHdr));
@@ -848,7 +842,7 @@ public:
 
 		// Scalers chunk.
 		Memzero( &ChunkHdr, sizeof( ChunkHdr ) );
-		_tcscpy(ChunkHdr.ChunkID,("SCALEKEYS"));
+		strcpy(ChunkHdr.ChunkID,("SCALEKEYS"));
 		ChunkHdr.DataCount = TotalScaleKeys;            // RefSkeletonBones.Num() * RawNumFrames; 
 		ChunkHdr.DataSize  = sizeof( VScaleAnimKey );   // Heap of angaxis/pos/length, 8 floats #debug
 		OutFile.Write( &ChunkHdr, sizeof (ChunkHdr));
@@ -977,9 +971,13 @@ public:
 						}
 						else
 						{
-							char SeqName[65];
+							TCHAR SeqName[65];
+						#if _UNICODE
+							mbstowcs( SeqName, OutAnims[s].AnimInfo.Name, 65 );
+						#else
 							_tcscpy( SeqName, OutAnims[s].AnimInfo.Name );
-							PopupBox(" Error: more animation scaling keys were expected for sequence [%s]", SeqName );
+						#endif
+							PopupBox(_T(" Error: more animation scaling keys were expected for sequence [%s]"), SeqName );
 						}
 					}
 				}
@@ -988,7 +986,7 @@ public:
 
 
 		if( OutAnims.Num() &&  (AnimationBoneNumber > 0) && (AnimationBoneNumber != OutAnims[0].AnimInfo.TotalBones ) )
-			PopupBox(" ERROR !! Loaded animation bone number [%i] \n inconsistent with digested bone number [%i] ",OutAnims[0].AnimInfo.TotalBones,AnimationBoneNumber);
+			PopupBox(_T(" ERROR !! Loaded animation bone number [%i] \n inconsistent with digested bone number [%i] "),OutAnims[0].AnimInfo.TotalBones,AnimationBoneNumber);
 
 		return 1;
 	}
@@ -1019,7 +1017,7 @@ public:
 			}
 			else if ( AnimationBoneNumber != RawNumBones )
 			{				
-				PopupBox("ERROR !! Inconsistent number of bones detected: %i instead of %i",RawNumBones,AnimationBoneNumber );
+				PopupBox(_T("ERROR !! Inconsistent number of bones detected: %i instead of %i"),RawNumBones,AnimationBoneNumber );
 				return 0;
 			}
 
@@ -1040,9 +1038,9 @@ public:
 			}
 
 			// get name
-			_tcscpy( Animations[ThisIndex].AnimInfo.Name, RawAnimName );
+			strcpy( Animations[ThisIndex].AnimInfo.Name, RawAnimName );
 			// get group name
-			_tcscpy( Animations[ThisIndex].AnimInfo.Group, ("None") );
+			strcpy( Animations[ThisIndex].AnimInfo.Group, ("None") );
 			
 			INT TotalKeys = Animations[ThisIndex].KeyTrack.Num();					
 			RawNumFrames = 0;
@@ -1061,7 +1059,7 @@ public:
 		}
 	}
 
-	DWORD FlagsFromName(char* pName )
+	DWORD FlagsFromName(const TCHAR* pName )
 	{
 
 		BOOL	two=FALSE;
@@ -1131,7 +1129,13 @@ public:
 	{
 		for(INT t=0; SkinData.Materials.Num(); t++)
 		{
-			SkinData.Materials[t].PolyFlags = FlagsFromName(SkinData.Materials[t].MaterialName);
+#if _UNICODE
+			TCHAR MaterialName[64];
+			mbstowcs(MaterialName, SkinData.Materials[t].MaterialName, 64);
+#else
+			char *MaterialName = SkinData.Materials[t].MaterialName;
+#endif
+			SkinData.Materials[t].PolyFlags = FlagsFromName(MaterialName);
 		}	
 		return 1;
 	}
@@ -1143,7 +1147,7 @@ public:
 		//	PopupBox("MATERIAL OUTPUT SIZES: [%i] %i %i",m,SkinData.MaterialUSize[m],SkinData.MaterialVSize[m]);
 
 
-		OutFile.Print("Begin PolyList\r\n");
+		OutFile.Print(_T("Begin PolyList\r\n"));
 		// Write all faces.
 		for(INT i=0; i<SkinData.Faces.Num(); i++)
 		{

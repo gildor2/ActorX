@@ -31,12 +31,12 @@ int _EnableCheckBox( HWND hWnd, int CheckID, int Switch )
 	return( SendMessage( HBox, BM_SETCHECK, Switch ? BST_UNCHECKED:BST_INDETERMINATE, 0 ) );		
 }
 
-int GetNameFromPath(char* Dest, const char* Src, int MaxChars )
+int GetNameFromPath(TCHAR* Dest, const TCHAR* Src, int MaxChars )
 {
 	// Process filename: get position of last "\" or "/" and . then copy what's between.
-	char* ChStart  = (char*)strrchr(Src,char(92));    // \ 92 
-	char* ChStart2 = (char*)strrchr(Src,char(47));    // / 47 
-	char* ChEnd    = (char*)strrchr(Src,char(46));    // . 46
+	const TCHAR* ChStart  = _tcsrchr(Src,char(92));    // \ 92 
+	const TCHAR* ChStart2 = _tcsrchr(Src,char(47));    // / 47 
+	const TCHAR* ChEnd    = _tcsrchr(Src,char(46));    // . 46
 	if( ChStart < ChStart2) ChStart = ChStart2;
 
 	if( !ChEnd || !ChStart)
@@ -59,7 +59,7 @@ int GetNameFromPath(char* Dest, const char* Src, int MaxChars )
 	}
 	Dest[t] = 0;
 
-	return ( int )strlen(Dest);
+	return ( int )_tcslen(Dest);
 }
 
 int GetFolderFromPath(char* Dest, const char* Src, int MaxChars)
@@ -139,9 +139,9 @@ int ResizeString(char* Src, int Size)
 }
 
 // Copy a string up to MaxChars, zero-terminate if necessary. MaxChars includes the zero terminator.
-int strcpysafe(char* Dest, const char* Src, int MaxChars )
+int strcpysafe(TCHAR* Dest, const TCHAR* Src, int MaxChars )
 {	
-	INT CopySize = ( INT )strlen(Src);
+	INT CopySize = ( INT )_tcslen(Src);
 	if( CopySize >= MaxChars )
 	{
 		CopySize = MaxChars <= 0 ? 0 : MaxChars-1;
@@ -162,23 +162,32 @@ int appGetVarArgs( char* Dest, INT Count, const char* Fmt, va_list ArgPtr )
 	return Result;
 }
 
+#if _UNICODE
+int appGetVarArgs( TCHAR* Dest, INT Count, const TCHAR* Fmt, va_list ArgPtr )
+{
+	INT Result = _vsntprintf( Dest, Count, Fmt, ArgPtr );
+	va_end( ArgPtr );
+	return Result;
+}
+#endif
+
 int PrintWindowNum(HWND hWnd,int IDC, int Num)
 {
-	char strbuf[80];
-	int CharCount = sprintf(strbuf, "%i", Num);
+	TCHAR strbuf[80];
+	int CharCount = _stprintf(strbuf, _T("%i"), Num);
 	SetWindowText(GetDlgItem(hWnd,IDC),strbuf );
 	return CharCount;
 };
 
 int PrintWindowNum(HWND hWnd,int IDC, FLOAT Num)
 {
-	char strbuf[80];
-	int CharCount = sprintf(strbuf, "%5.3f", Num);
+	TCHAR strbuf[80];
+	int CharCount = _stprintf(strbuf, _T("%5.3f"), Num);
 	SetWindowText(GetDlgItem(hWnd,IDC),strbuf );
 	return CharCount;
 };
 
-int PrintWindowString(HWND hWnd,int IDC, char* String)
+int PrintWindowString(HWND hWnd,int IDC, TCHAR* String)
 {
 	// char strbuf[80];
 	// int CharCount = sprintf(strbuf, "%i", Num);
@@ -187,25 +196,25 @@ int PrintWindowString(HWND hWnd,int IDC, char* String)
 };
 
 
-void PopupBox(char* PrintboxString, ... )
+void PopupBox(TCHAR* PrintboxString, ... )
 {
-	char TempStr[4096];
+	TCHAR TempStr[4096];
 	GET_VARARGS(TempStr,4096,PrintboxString,PrintboxString);
-	MessageBox(GetActiveWindow(),TempStr, " Note: ", MB_OK);
+	MessageBox(GetActiveWindow(),TempStr, _T(" Note: "), MB_OK);
 }
 
-void WarningBox(char* PrintboxString, ... )
+void WarningBox(TCHAR* PrintboxString, ... )
 {
-	char TempStr[4096];
+	TCHAR TempStr[4096];
 	GET_VARARGS(TempStr,4096,PrintboxString,PrintboxString);
-	MessageBox(GetActiveWindow(),TempStr, " Warning: ", MB_OK);
+	MessageBox(GetActiveWindow(),TempStr, _T(" Warning: "), MB_OK);
 }
 
-void ErrorBox(char* PrintboxString, ... )
+void ErrorBox(TCHAR* PrintboxString, ... )
 {
-	char TempStr[4096];
+	TCHAR TempStr[4096];
 	GET_VARARGS(TempStr,4096,PrintboxString,PrintboxString);
-	MessageBox(GetActiveWindow(),TempStr, " Error: ", MB_OK);
+	MessageBox(GetActiveWindow(),TempStr, _T(" Error: "), MB_OK);
 }
 
 void DebugBox(char* PrintboxString, ... )
@@ -213,24 +222,32 @@ void DebugBox(char* PrintboxString, ... )
 	if (!DEBUGMSGS) return;
 	char TempStr[4096];
 	GET_VARARGS(TempStr,4096,PrintboxString,PrintboxString);
-	MessageBox(GetActiveWindow(),TempStr, " Debug: ", MB_OK);
+	MessageBoxA(GetActiveWindow(),TempStr, " Debug: ", MB_OK);
 }
 
-
-void GetBatchFileName(HWND hWnd, char* filename, char* workpath )
+#if _UNICODE
+void DebugBox(TCHAR* PrintboxString, ... )
 {
-	static char filterlist[] = "txt Files (*.txt)\0*.txt\0"\
-								"txt Files (*.txt)\0*.txt\0";						 
+	if (!DEBUGMSGS) return;
+	TCHAR TempStr[4096];
+	GET_VARARGS(TempStr,4096,PrintboxString,PrintboxString);
+	MessageBox(GetActiveWindow(),TempStr, _T(" Debug: "), MB_OK);
+}
+#endif
+
+void GetBatchFileName(HWND hWnd, TCHAR* filename, TCHAR* workpath )
+{
+	static TCHAR filterlist[] = _T("txt Files (*.txt)\0*.txt\0txt Files (*.txt)\0*.txt\0");
 	OPENFILENAME ofn;
 	memset(&ofn, 0, sizeof(OPENFILENAME));
 
-	char tempfilename[MAXPATHCHARS];
+	TCHAR tempfilename[MAXPATHCHARS];
 	tempfilename[0] = 0;
 	ofn.lpstrFile		= tempfilename;
 	ofn.nMaxFile		= MAXPATHCHARS;
 
 	ofn.lpstrFilter		= filterlist;
-	ofn.lpstrTitle		= ("Load batch file: ");
+	ofn.lpstrTitle		= _T("Load batch file: ");
 	ofn.Flags			= OFN_HIDEREADONLY | OFN_PATHMUSTEXIST;
 	ofn.lStructSize		= sizeof(OPENFILENAME);
 	ofn.hwndOwner		= hWnd;
@@ -238,7 +255,7 @@ void GetBatchFileName(HWND hWnd, char* filename, char* workpath )
 	if (workpath[0])
 		ofn.lpstrInitialDir	= workpath;
 	else
-		ofn.lpstrInitialDir = ("");
+		ofn.lpstrInitialDir = _T("");
 	/*
 	// Max-specific...
 	else
@@ -267,10 +284,9 @@ void GetBatchFileName(HWND hWnd, char* filename, char* workpath )
 }
 
 
-static char Skeletalfilterlist[] = "PSA Files (*.psa)\0*.psa\0"\
-								"PSA Files (*.psa)\0*.psa\0";
+static TCHAR Skeletalfilterlist[] = _T("PSA Files (*.psa)\0*.psa\0PSA Files (*.psa)\0*.psa\0");
 
-void GetSaveName(HWND hWnd, char* filename, char* workpath, char* filterlist, char* defaultextension )
+void GetSaveName(HWND hWnd, TCHAR* filename, TCHAR* workpath, const TCHAR* filterlist, TCHAR* defaultextension )
 {
 	if( filterlist == NULL )
 		filterlist = &Skeletalfilterlist[0];
@@ -278,13 +294,13 @@ void GetSaveName(HWND hWnd, char* filename, char* workpath, char* filterlist, ch
 	OPENFILENAME ofn;
 	memset(&ofn, 0, sizeof(OPENFILENAME));
 
-	char tempfilename[MAX_PATH];
+	TCHAR tempfilename[MAX_PATH];
 	tempfilename[0] = 0;
 	ofn.lpstrFile		= tempfilename;
 	ofn.nMaxFile		= MAX_PATH;
 
 	ofn.lpstrFilter		= filterlist;
-	ofn.lpstrTitle		= ("Save file As");
+	ofn.lpstrTitle		= _T("Save file As");
 	ofn.Flags			= OFN_HIDEREADONLY | OFN_PATHMUSTEXIST;
 	ofn.lStructSize		= sizeof(OPENFILENAME);
 	ofn.hwndOwner		= hWnd;
@@ -292,7 +308,7 @@ void GetSaveName(HWND hWnd, char* filename, char* workpath, char* filterlist, ch
 	if (workpath[0])
 		ofn.lpstrInitialDir	= workpath;
 	else
-		ofn.lpstrInitialDir = ("");
+		ofn.lpstrInitialDir = _T("");
 	/*
 	// Max-specific...
 	else
@@ -316,10 +332,10 @@ void GetSaveName(HWND hWnd, char* filename, char* workpath, char* filterlist, ch
 			// Does it exist ? -> for now ignore overwriting.
 			if (0) // (BMMIsFile(ofn.lpstrFile)) 
 			{
-				char text[MAX_PATH];
-				wsprintf(text,("Overwrite ? "),ofn.lpstrFile);
+				TCHAR text[MAX_PATH];
+				wsprintf(text,_T("Overwrite ? "),ofn.lpstrFile);
 
-				char* tit = ("Overwrite ? "); //GetString(IDS_OVERWRITE_TIT);
+				TCHAR* tit = _T("Overwrite ? "); //GetString(IDS_OVERWRITE_TIT);
 				if (MessageBox(hWnd,text,tit,MB_APPLMODAL | MB_ICONQUESTION | MB_YESNO) != IDYES)
 				{
 					ofn.lpstrFile[0]=0;
@@ -334,19 +350,19 @@ void GetSaveName(HWND hWnd, char* filename, char* workpath, char* filterlist, ch
 }
 
 
-void GetLoadName(HWND hWnd, char* filename, char* workpath, char* filterlist )
+void GetLoadName(HWND hWnd, TCHAR* filename, TCHAR* workpath, const TCHAR* filterlist )
 {
 							 
-	OPENFILENAMEA ofn;
+	OPENFILENAME ofn;
 	memset(&ofn, 0, sizeof(OPENFILENAMEA));
 
-	char tempfilename[MAX_PATH];
+	TCHAR tempfilename[MAX_PATH];
 	tempfilename[0] = 0;
 	ofn.lpstrFile		= tempfilename;
 	ofn.nMaxFile		= MAX_PATH;
 
 	ofn.lpstrFilter		= filterlist;
-	ofn.lpstrTitle		= ("Load file from :");
+	ofn.lpstrTitle		= _T("Load file from :");
 	ofn.Flags			= OFN_HIDEREADONLY | OFN_NOCHANGEDIR; //OFN_HIDEREADONLY | OFN_PATHMUSTEXIST;
 	ofn.lStructSize		= sizeof(OPENFILENAMEA);
 	ofn.hwndOwner		= hWnd;
@@ -354,7 +370,7 @@ void GetLoadName(HWND hWnd, char* filename, char* workpath, char* filterlist )
 	if (workpath[0])
 		ofn.lpstrInitialDir	= workpath;
 	else
-		ofn.lpstrInitialDir = ("");
+		ofn.lpstrInitialDir = _T("");
 	/*
 	// Max-specific...
 	else
@@ -363,7 +379,7 @@ void GetLoadName(HWND hWnd, char* filename, char* workpath, char* filterlist )
 
 	while (1) 
 	{		
-		if (GetOpenFileNameA(&ofn)) 
+		if (GetOpenFileName(&ofn)) 
 		{
 
 			//-- Make sure there is an extension ----------
@@ -371,7 +387,7 @@ void GetLoadName(HWND hWnd, char* filename, char* workpath, char* filterlist )
 			if (!l)
 				return;
 			if (l==ofn.nFileExtension || !ofn.nFileExtension) 
-			_tcscat(ofn.lpstrFile,(".psa"));  
+			_tcscat(ofn.lpstrFile,_T(".psa"));  
 			
 		}
 		break;
@@ -380,20 +396,20 @@ void GetLoadName(HWND hWnd, char* filename, char* workpath, char* filterlist )
 	_tcscpy(filename,ofn.lpstrFile);
 }
 
-int GetFolderName(HWND hWnd, char* PathResult )
+int GetFolderName(HWND hWnd, TCHAR* PathResult )
 {
     LPMALLOC pMalloc;
     /* Gets the Shell's default allocator */
     if (::SHGetMalloc(&pMalloc) == NOERROR)
     {
         BROWSEINFO bi;
-        char pszBuffer[MAX_PATH];
+        TCHAR pszBuffer[MAX_PATH];
         LPITEMIDLIST pidl;
         // Get help on BROWSEINFO struct - it's got all the bit settings.
         bi.hwndOwner = hWnd;
         bi.pidlRoot = NULL;
         bi.pszDisplayName = pszBuffer;
-        bi.lpszTitle = ("Select a folder:");
+        bi.lpszTitle = _T("Select a folder:");
         bi.ulFlags = BIF_RETURNFSANCESTORS | BIF_RETURNONLYFSDIRS;
         bi.lpfn = NULL;
         bi.lParam = 0;

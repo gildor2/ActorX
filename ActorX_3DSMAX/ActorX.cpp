@@ -93,31 +93,31 @@ WinRegistry  PluginReg;
 MaxPluginClass* GlobalPluginObject;
 
 #ifdef MAYA
-char    PluginRegPath[] = ("Software\\Epic Games\\ActorXMaya");
+TCHAR   PluginRegPath[] = _T("Software\\Epic Games\\ActorXMaya");
 #endif
 
 #ifdef MAX
-char    PluginRegPath[] = ("Software\\Epic Games\\ActorXMax");
+TCHAR   PluginRegPath[] = _T("Software\\Epic Games\\ActorXMax");
 #endif
 
 // Path globals
 
-char	DestPath[MAX_PATH], 
-		LogPath[MAX_PATH],
-  		to_path[MAX_PATH],
-		to_animfile[MAX_PATH],
-		to_skinfile[MAX_PATH],
-		to_brushfile[MAX_PATH],
-		to_brushpath[MAX_PATH],
-		to_pathvtx[MAX_PATH],
-		to_skinfilevtx[MAX_PATH],
-		framerangestring[MAXINPUTCHARS],
-		vertframerangestring[MAXINPUTCHARS],
-		classname[MAX_PATH],		
-		basename[MAX_PATH],	
-		batchfoldername[MAX_PATH],
-		materialnames[8][MAX_PATH],
-		newsequencename[MAX_PATH];
+TCHAR	DestPath[MAX_PATH];
+TCHAR	LogPath[MAX_PATH];
+TCHAR	to_path[MAX_PATH];
+TCHAR	to_animfile[MAX_PATH];
+TCHAR	to_skinfile[MAX_PATH];
+//char	to_brushfile[MAX_PATH],
+//		to_brushpath[MAX_PATH];
+TCHAR	to_pathvtx[MAX_PATH];
+TCHAR	to_skinfilevtx[MAX_PATH];
+TCHAR	framerangestring[MAXINPUTCHARS];
+TCHAR	vertframerangestring[MAXINPUTCHARS];
+TCHAR	classname[MAX_PATH];
+TCHAR	basename[MAX_PATH];
+TCHAR	batchfoldername[MAX_PATH];
+char	materialnames[8][MAX_PATH];
+TCHAR	newsequencename[MAX_PATH];
 
 void ResetPlugin()
 {
@@ -141,54 +141,54 @@ void ResetPlugin()
 		memset(materialnames[t], 0 ,MAX_PATH);
 
 	// Set access to our registry path
-	PluginReg.SetRegistryPath( (char*) &PluginRegPath );
+	PluginReg.SetRegistryPath( PluginRegPath );
 	
 
 	// Get all relevant ones from the registry....
 	INT SwitchPersistent;
-	PluginReg.GetKeyValue("PERSISTSETTINGS", SwitchPersistent);
+	PluginReg.GetKeyValue(_T("PERSISTSETTINGS"), SwitchPersistent);
 	
 	if( SwitchPersistent )
 	{
-		PluginReg.GetKeyValue("DOPCX", OurScene.DoTexPCX);
-		PluginReg.GetKeyValue("DOFIXROOT",OurScene.DoFixRoot );
-		PluginReg.GetKeyValue("DOCULLDUMMIES",OurScene.DoCullDummies );
-		PluginReg.GetKeyValue("DOTEXGEOM",OurScene.DoTexGeom );
-		PluginReg.GetKeyValue("DOPHYSGEOM",OurScene.DoSkinGeom );
-		PluginReg.GetKeyValue("DOSELGEOM",OurScene.DoSelectedGeom);
-		PluginReg.GetKeyValue("DOSKIPSEL",OurScene.DoSkipSelectedGeom);
-		PluginReg.GetKeyValue("DOEXPSEQ",OurScene.DoExplicitSequences);
-		PluginReg.GetKeyValue("DOLOG",OurScene.DoLog);
+		PluginReg.GetKeyValue(_T("DOPCX"), OurScene.DoTexPCX);
+		PluginReg.GetKeyValue(_T("DOFIXROOT"),OurScene.DoFixRoot );
+		PluginReg.GetKeyValue(_T("DOCULLDUMMIES"),OurScene.DoCullDummies );
+		PluginReg.GetKeyValue(_T("DOTEXGEOM"),OurScene.DoTexGeom );
+		PluginReg.GetKeyValue(_T("DOPHYSGEOM"),OurScene.DoSkinGeom );
+		PluginReg.GetKeyValue(_T("DOSELGEOM"),OurScene.DoSelectedGeom);
+		PluginReg.GetKeyValue(_T("DOSKIPSEL"),OurScene.DoSkipSelectedGeom);
+		PluginReg.GetKeyValue(_T("DOEXPSEQ"),OurScene.DoExplicitSequences);
+		PluginReg.GetKeyValue(_T("DOLOG"),OurScene.DoLog);
 		
 		// Maya specific ?
-		//PluginReg.GetKeyValue("QUICKSAVEDISK",OurScene.QuickSaveDisk);
-		//PluginReg.GetKeyValue("DOFORCERATE",OurScene.DoForceRate);
-		//PluginReg.GetKeyValue("PERSISTENTRATE",OurScene.PersistentRate);
-		//PluginReg.GetKeyValue("DOREPLACEUNDERSCORES",OurScene.DoReplaceUnderscores);
+		//PluginReg.GetKeyValue(_T("QUICKSAVEDISK"),OurScene.QuickSaveDisk);
+		//PluginReg.GetKeyValue(_T("DOFORCERATE"),OurScene.DoForceRate);
+		//PluginReg.GetKeyValue(_T("PERSISTENTRATE"),OurScene.PersistentRate);
+		//PluginReg.GetKeyValue(_T("DOREPLACEUNDERSCORES"),OurScene.DoReplaceUnderscores);
 
-		PluginReg.GetKeyValue("DOUNSMOOTH",OurScene.DoUnSmooth);
-		PluginReg.GetKeyValue("DOEXPORTSCALE",OurScene.DoExportScale);
-		PluginReg.GetKeyValue("DOTANGENTS",OurScene.DoTangents);
-		PluginReg.GetKeyValue("DOAPPENDVERTEX",OurScene.DoAppendVertex);
-		PluginReg.GetKeyValue("DOSCALEVERTEX",OurScene.DoScaleVertex);
+		PluginReg.GetKeyValue(_T("DOUNSMOOTH"),OurScene.DoUnSmooth);
+		PluginReg.GetKeyValue(_T("DOEXPORTSCALE"),OurScene.DoExportScale);
+		PluginReg.GetKeyValue(_T("DOTANGENTS"),OurScene.DoTangents);
+		PluginReg.GetKeyValue(_T("DOAPPENDVERTEX"),OurScene.DoAppendVertex);
+		PluginReg.GetKeyValue(_T("DOSCALEVERTEX"),OurScene.DoScaleVertex);
 
 	}
 
 	INT SwitchPersistPaths;
-	PluginReg.GetKeyValue("PERSISTPATHS", SwitchPersistPaths);
+	PluginReg.GetKeyValue(_T("PERSISTPATHS"), SwitchPersistPaths);
 
 	if( SwitchPersistPaths )
 	{
-		PluginReg.GetKeyString("BASENAME", basename );
-		PluginReg.GetKeyString("CLASSNAME", classname );
+		PluginReg.GetKeyString(_T("BASENAME"), basename );
+		PluginReg.GetKeyString(_T("CLASSNAME"), classname );
 
-		PluginReg.GetKeyString("TOPATH", to_path );
+		PluginReg.GetKeyString(_T("TOPATH"), to_path );
 		_tcscpy(LogPath,to_path);
-		PluginReg.GetKeyString("TOANIMFILE", to_animfile );
-		PluginReg.GetKeyString("TOSKINFILE", to_skinfile );
+		PluginReg.GetKeyString(_T("TOANIMFILE"), to_animfile );
+		PluginReg.GetKeyString(_T("TOSKINFILE"), to_skinfile );
 
-		PluginReg.GetKeyString("TOPATHVTX", to_pathvtx );
-		PluginReg.GetKeyString("TOSKINFILEVTX", to_skinfilevtx );
+		PluginReg.GetKeyString(_T("TOPATHVTX"), to_pathvtx );
+		PluginReg.GetKeyString(_T("TOSKINFILEVTX"), to_skinfilevtx );
 	}
 
 }

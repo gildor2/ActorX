@@ -106,11 +106,11 @@ int AnimCompare( const void *arg1, const void *arg2 )
 // Save the animation set to DestPath (complete path+filename)
 //
 
-UBOOL SaveAnimSet( char* DestPath )
+UBOOL SaveAnimSet( TCHAR* DestPath )
 {
 	if ( TempActor.OutAnims.Num() == 0)
 	{
-		PopupBox(" No stored animations available. ");
+		PopupBox(_T(" No stored animations available. "));
 		return false;
 	}
 	else
@@ -118,7 +118,7 @@ UBOOL SaveAnimSet( char* DestPath )
 		FastFileClass OutFile;
 		if ( OutFile.CreateNewFile(DestPath) != 0) // Error!
 		{
-			ErrorBox("AnimSet File creation error for [%s]",DestPath);
+			ErrorBox(_T("AnimSet File creation error for [%s]"),DestPath);
 			return false;
 		}
 		else
@@ -128,7 +128,7 @@ UBOOL SaveAnimSet( char* DestPath )
 			OutFile.CloseFlush();
 			if( OutFile.GetError())
 			{
-				ErrorBox("Animation Save Error.");
+				ErrorBox(_T("Animation Save Error."));
 				return false;
 			}
 		}
@@ -142,7 +142,7 @@ UBOOL SaveAnimSet( char* DestPath )
 
 		if( !OurScene.DoSuppressAnimPopups )
 		{
-			PopupBox( "OK: Animation file %s.PSA written. Bones total: %i  Sequences: %i", to_animfile, WrittenBones, TempActor.OutAnims.Num() );				
+			PopupBox( _T("OK: Animation file %s.PSA written. Bones total: %i  Sequences: %i"), to_animfile, WrittenBones, TempActor.OutAnims.Num() );				
 		}
 	}
 
@@ -376,18 +376,26 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 									for( INT c=0; c<InSelBufferNum; c++)
 									{
 										INT AnimIdx=InSelBuffer[c];									
-										_tcscpy(instr1, TempActor.Animations[AnimIdx].AnimInfo.Group );									
+										strcpy(instr1, TempActor.Animations[AnimIdx].AnimInfo.Group );									
 										if( c>0 ) 
 										{
 											if( strcmp(instr1,instr2) != 0)
 												SameAnimGroups = false;
 										}
-										_tcscpy(instr2,instr1);
+										strcpy(instr2,instr1);
 									}								
 									if( SameAnimGroups )
+									{
+								#if _UNICODE
+										TCHAR AnimGroup[255];
+										mbstowcs(AnimGroup, TempActor.Animations[InSelBuffer[0]].AnimInfo.Group, 255);
+										PrintWindowString( hWnd,IDC_EDITGROUP, AnimGroup );
+								#else
 										PrintWindowString( hWnd,IDC_EDITGROUP, TempActor.Animations[InSelBuffer[0]].AnimInfo.Group );
+								#endif
+									}
 									else
-										PrintWindowString( hWnd,IDC_EDITGROUP,(""));
+										PrintWindowString( hWnd,IDC_EDITGROUP,_T(""));
 								}
 								//////////			
 								{
@@ -398,7 +406,7 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 									for( INT c=0; c<InSelBufferNum; c++)
 									{
 										INT AnimIdx=InSelBuffer[c];									
-										_tcscpy(instr1, TempActor.Animations[AnimIdx].AnimInfo.Name );									
+										strcpy(instr1, TempActor.Animations[AnimIdx].AnimInfo.Name );									
 										if( c>0 ) 
 										{
 											if( strcmp(instr1,instr2) != 0)
@@ -408,12 +416,20 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 											}
 
 										}
-										_tcscpy(instr2,instr1);
+										strcpy(instr2,instr1);
 									}
 									if( SameAnimNames )
+									{
+								#if _UNICODE
+										TCHAR AnimName[255];
+										mbstowcs(AnimName, TempActor.Animations[InSelBuffer[0]].AnimInfo.Name, 255);
+										PrintWindowString( hWnd,IDC_EDITGROUP, AnimName );
+								#else
 										PrintWindowString( hWnd, IDC_EDITNAME, TempActor.Animations[InSelBuffer[0]].AnimInfo.Name );
+								#endif
+									}
 									else
-										PrintWindowString( hWnd, IDC_EDITNAME,(""));
+										PrintWindowString( hWnd, IDC_EDITNAME,_T(""));
 								}
 
 								////////////////////////////////////////
@@ -438,7 +454,7 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 								if( SameAnimRates )
 									PrintWindowNum( hWnd, IDC_EDITRATE, TempActor.Animations[InSelBuffer[0]].AnimInfo.AnimRate );
 								else
-									PrintWindowString( hWnd, IDC_EDITRATE,(""));
+									PrintWindowString( hWnd, IDC_EDITRATE,_T(""));
 
 								//////////////////////////////
 								UBOOL SameKeyReductions = true;								
@@ -459,7 +475,7 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 								if( SameKeyReductions )
 									PrintWindowNum( hWnd, IDC_EDITKEYREDUCTION, TempActor.Animations[InSelBuffer[0]].AnimInfo.KeyReduction );
 								else
-									PrintWindowString( hWnd, IDC_EDITKEYREDUCTION,(""));
+									PrintWindowString( hWnd, IDC_EDITKEYREDUCTION,_T(""));
 
 								//////////////////////////////
 								UBOOL SameStartBones = true;								
@@ -482,7 +498,7 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 								if( SameStartBones )
 									PrintWindowNum( hWnd, IDC_EDITSTARTBONE, TempActor.Animations[InSelBuffer[0]].AnimInfo.StartBone );
 								else
-									PrintWindowString( hWnd, IDC_EDITSTARTBONE,(""));
+									PrintWindowString( hWnd, IDC_EDITSTARTBONE,_T(""));
 
 								//////////////////////////////
 								/*
@@ -513,11 +529,11 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 							else
 							{ 
 								// None selected; clear everything.
-								PrintWindowString( hWnd, IDC_EDITSTARTBONE,(""));
-								PrintWindowString( hWnd, IDC_EDITGROUP,(""));
-								PrintWindowString( hWnd, IDC_EDITKEYREDUCTION,(""));
-								PrintWindowString( hWnd, IDC_EDITRATE,(""));
-								PrintWindowString( hWnd, IDC_EDITNAME,(""));
+								PrintWindowString( hWnd, IDC_EDITSTARTBONE,_T(""));
+								PrintWindowString( hWnd, IDC_EDITGROUP,_T(""));
+								PrintWindowString( hWnd, IDC_EDITKEYREDUCTION,_T(""));
+								PrintWindowString( hWnd, IDC_EDITRATE,_T(""));
+								PrintWindowString( hWnd, IDC_EDITNAME,_T(""));
 								_SetCheckBox( hWnd, IDC_CHECKROOT, 0);
 							}
 						}
@@ -616,9 +632,9 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 							else
 							{
 								if(! NameUnique )
-								    PopupBox("ERROR !! Aborting the move, duplicate name detected.");
+								    PopupBox(_T("ERROR !! Aborting the move, duplicate name detected."));
 								if(! ConsistentBones )
-									PopupBox("ERROR !! Aborting the move, inconsistent bone counts detected.");
+									PopupBox(_T("ERROR !! Aborting the move, inconsistent bone counts detected."));
 							}
 						}					
 					}
@@ -701,12 +717,10 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 				// Load the same name and folder as specified. 
 				case IDC_ANIMLOAD:
 				{	
-					char to_ext[32];
-					_tcscpy(to_ext, ("PSA"));
-					sprintf(DestPath,"%s\\%s.%s",(char*)to_path,(char*)to_animfile,to_ext);
+					_stprintf(DestPath,_T("%s\\%s.psa"),to_path,to_animfile);
 					FastFileClass InFile;
 					if ( InFile.OpenExistingFileForReading(DestPath) != 0) // Error!
-						ErrorBox("File [%s] does not exist yet.", DestPath);
+						ErrorBox(_T("File [%s] does not exist yet."), DestPath);
 					else // Load all relevant chunks into TempActor and its arrays.
 					{
 						INT DebugBytes = TempActor.LoadAnimation(InFile);
@@ -714,7 +728,7 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 						// Log input 
 						if( !OurScene.DoSuppressAnimPopups )
 						{
-							PopupBox("Total animation sequences loaded:  %i", TempActor.OutAnims.Num());
+							PopupBox(_T("Total animation sequences loaded:  %i"), TempActor.OutAnims.Num());
 						}
 					}
 					InFile.Close();
@@ -727,9 +741,9 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 					//_tcscpy(to_ext, ("PSA"));
 					//sprintf(DestPath,"%s\\%s.%s",(char*)to_path,(char*)to_animfile,to_ext);
 
-					char filterList[] = "PSA Files (*.psa)\0*.psa\0PSA Files (*.psa)\0*.psa\0";
+					static const TCHAR filterList[] = _T("PSA Files (*.psa)\0*.psa\0PSA Files (*.psa)\0*.psa\0");
 
-					char newname[MAX_PATH];
+					TCHAR newname[MAX_PATH];
 					newname[0] = 0;
 					GetLoadName( hWnd, newname, to_path, filterList);
 					GetNameFromPath(to_animfile,newname, MAX_PATH );
@@ -744,7 +758,7 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 
 					FastFileClass InFile;
 					if ( InFile.OpenExistingFileForReading(DestPath) != 0) // Error!
-						ErrorBox("File [%s] does not exist yet.", DestPath);
+						ErrorBox(_T("File [%s] does not exist yet."), DestPath);
 					else // Load all relevant chunks into TempActor and its arrays.
 					{
 						//PopupBox(" Starting to load file : %s ",DestPath);
@@ -755,7 +769,7 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 						// Log input 
 						if( !OurScene.DoSuppressAnimPopups )
 						{
-							PopupBox("Total animation sequences loaded:  %i", TempActor.OutAnims.Num());
+							PopupBox(_T("Total animation sequences loaded:  %i"), TempActor.OutAnims.Num());
 						}
 					}
 					InFile.Close();
@@ -767,9 +781,9 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 				// Interactive browsing for destination path.
 				case IDC_ANIMSAVEAS:
 					{						
-						char newname[MAX_PATH];
-						_tcscpy(newname,("XX"));
-						char defaultextension[]=".psa";
+						TCHAR newname[MAX_PATH];
+						_tcscpy(newname,_T("XX"));
+						TCHAR defaultextension[]=_T(".psa");
 						GetSaveName( hWnd, newname, to_path, NULL, defaultextension );
 
 						SaveAnimSet( newname );					
@@ -779,9 +793,7 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 					// Save with interface-specified name & output path.
 				case IDC_ANIMSAVE:
 					{
-						char to_ext[32];
-						_tcscpy(to_ext, ("PSA"));
-						sprintf(DestPath,"%s\\%s.%s",(char*)to_path,(char*)to_animfile,to_ext);
+						_stprintf(DestPath,_T("%s\\%s.psa"),(char*)to_path,(char*)to_animfile);
 
 						SaveAnimSet( DestPath ); 
 					}
@@ -801,12 +813,12 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 	{
 		
 
-		char in_string[MAX_PATH];
+		TCHAR in_string[MAX_PATH];
 		// Multiple selection changes:
 		if( UpdateStartBone )
 		{
 			GetWindowText( GetDlgItem( hWnd, IDC_EDITSTARTBONE ), in_string, 300 );
-			INT SetStartBone = atoi( in_string );
+			INT SetStartBone = _tstoi( in_string );
 			if(  SetStartBone >= 0 )
 			for( INT c=0; c<InSelBufferNum; c++)
 			{
@@ -818,7 +830,7 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 		if( UpdateRate )
 		{
 			GetWindowText( GetDlgItem( hWnd, IDC_EDITRATE ), in_string, 300 );
-			FLOAT SetRate = atof( in_string );
+			FLOAT SetRate = _tstof( in_string );
 			if(  SetRate > 0.f )
 			for( INT c=0; c<InSelBufferNum; c++)
 			{
@@ -830,7 +842,7 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 		if( UpdateKeyReduction )
 		{
 			GetWindowText( GetDlgItem( hWnd, IDC_EDITKEYREDUCTION ), in_string, 300 );
-			FLOAT SetKeyReduction = atof( in_string );
+			FLOAT SetKeyReduction = _tstof( in_string );
 			if(  SetKeyReduction > 0.f )
 			for( INT c=0; c<InSelBufferNum; c++)
 			{
@@ -842,22 +854,30 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 		if( UpdateGroup )
 		{
 			GetWindowText( GetDlgItem( hWnd, IDC_EDITGROUP ), in_string, 300 );
-			if( strlen(in_string) > 0 )			
+			if( _tcslen(in_string) > 0 )			
 			for( INT c=0; c<InSelBufferNum; c++)
 			{
 				INT AnimIdx=InSelBuffer[c];
-				_tcscpy( TempActor.Animations[AnimIdx].AnimInfo.Group, in_string );
+			#if _UNICODE
+				wcstombs( TempActor.Animations[AnimIdx].AnimInfo.Group, in_string, 64 );
+			#else
+				strcpy( TempActor.Animations[AnimIdx].AnimInfo.Group, in_string );
+			#endif
 			}
 		}
 
 		if( UpdateName )
 		{
 			GetWindowText( GetDlgItem( hWnd, IDC_EDITNAME ), in_string, 300 );			
-			if( strlen(in_string) > 0  && (InSelBufferNum == 1) )		 // Necessary: cannot rename more than 1 animation !	
+			if( in_string[0] && (InSelBufferNum == 1) )		 // Necessary: cannot rename more than 1 animation !	
 			for( INT c=0; c<InSelBufferNum; c++)
 			{
 				INT AnimIdx=InSelBuffer[c];
-				_tcscpy( TempActor.Animations[AnimIdx].AnimInfo.Name, in_string );
+			#if _UNICODE
+				wcstombs( TempActor.Animations[AnimIdx].AnimInfo.Name, in_string, 64 );
+			#else
+				strcpy( TempActor.Animations[AnimIdx].AnimInfo.Name, in_string );
+			#endif
 			}
 			UpdateInBox = true; // Necessary for names to be updated :-)
 		}

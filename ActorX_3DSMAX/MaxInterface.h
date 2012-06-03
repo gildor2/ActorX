@@ -1,5 +1,5 @@
 /**************************************************************************
- 
+
 	MaxInterface.h - MAX-specific exporter scene interface code.
 
 	Copyright 1998-2011 Epic Games, Inc. All Rights Reserved.
@@ -65,7 +65,7 @@
 
 
 // Misc: platform independent.
-UBOOL SaveAnimSet( char* DestPath );
+UBOOL SaveAnimSet( TCHAR* DestPath );
 
 
 // MAX PLUGIN interface code
@@ -75,10 +75,10 @@ void ToggleControlEnable( HWND hWnd, int control, BOOL state );
 #define ACTORX_CLASS_ID	Class_ID( 0xaadac57c, 0x95526bf7 )
 
 // Forward decl.
-char *GetString(int id);
+TCHAR *GetString(int id);
 
 // Derive utility plugin class from UtilityObj
-class MaxPluginClass : public UtilityObj 
+class MaxPluginClass : public UtilityObj
 {
 	public:
 		IUtil *iu;
@@ -131,60 +131,60 @@ class MaxPluginClass : public UtilityObj
 
 
 
-// UNIFORM_MATRIX REMOVES 
+// UNIFORM_MATRIX REMOVES
 // NON-UNIFORM SCALING FROM MATRIX
-     
+
 inline Matrix3 Uniform_Matrix(Matrix3 orig_cur_mat)
-{          
-    AffineParts   parts;  
-    Matrix3       mat;   
+{
+    AffineParts   parts;
+    Matrix3       mat;
  	///Remove  scaling  from orig_cur_mat
 	//1) Decompose original and get decomposition info
-    decomp_affine(orig_cur_mat, &parts); 
- 
+    decomp_affine(orig_cur_mat, &parts);
+
 	//2) construct 3x3 rotation from quaternion parts.q
     parts.q.MakeMatrix(mat);
- 
-	//3) construct position row from translation parts.t  
+
+	//3) construct position row from translation parts.t
     mat.SetRow(3,  parts.t);
- 
+
    return(mat);
 }
 
 // From the Biped sdk documentation ( BipExp.rtf )
 inline Matrix3 Get_Relative_Matrix(INode *node, int t)
-{          
-     /* Note: This function removes the non-uniform scaling 
-     from MAX node transformations. before multiplying the 
-     current node by  the inverse of its parent. The 
-     removal  must be done on both nodes before the 
-     multiplication and Inverse are applied. This is especially 
-     useful for Biped export (which uses non-uniform scaling on 
+{
+     /* Note: This function removes the non-uniform scaling
+     from MAX node transformations. before multiplying the
+     current node by  the inverse of its parent. The
+     removal  must be done on both nodes before the
+     multiplication and Inverse are applied. This is especially
+     useful for Biped export (which uses non-uniform scaling on
      its body parts.) */
-     
+
       INode *p_node  =    node->GetParentNode();
-     
-      Matrix3     orig_cur_mat;  // for current and parent 
-      Matrix3     orig_par_mat;  // original matrices 
-     
-      Matrix3     cur_mat;       // for current and parent 
-      Matrix3     par_mat;       // decomposed matrices 
-                                                                         
+
+      Matrix3     orig_cur_mat;  // for current and parent
+      Matrix3     orig_par_mat;  // original matrices
+
+      Matrix3     cur_mat;       // for current and parent
+      Matrix3     par_mat;       // decomposed matrices
+
       //Get transformation matrices
       orig_cur_mat   =      node->GetNodeTM(t);
-      orig_par_mat   =    p_node->GetNodeTM(t); 
-          
+      orig_par_mat   =    p_node->GetNodeTM(t);
+
       //Decompose each matrix
       cur_mat =  Uniform_Matrix(orig_cur_mat);
       par_mat =  Uniform_Matrix(orig_par_mat);
-     
+
       //then return relative matrix in coordinate space of parent
-      return(cur_mat * Inverse( par_mat)); 
+      return(cur_mat * Inverse( par_mat));
 }
 
 
 // Make Max strings safe.
-char* CleanString(TCHAR* name);
+TCHAR* CleanString(const TCHAR* name);
 
 
 

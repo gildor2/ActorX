@@ -67,7 +67,7 @@ class TextFile
 	INT LastError;
 	UBOOL ObeyTabs;
 	
-	int Open(char* LogToPath, char* LogName, int Enabled)
+	int Open(const char* LogToPath, const char* LogName, int Enabled)
 	{	
 		if( Enabled && (LogName[0] != 0) )
 		{
@@ -88,7 +88,7 @@ class TextFile
 		return 0;
 	}
 
-	void Logf(char* LogString, ... )
+	void Logf(const char* LogString, ... )
 	{
 		if( ObeyTabs ) doTabs();
 		char TempStr[4096];

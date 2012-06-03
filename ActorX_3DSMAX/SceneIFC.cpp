@@ -25,13 +25,13 @@
 #include "ActorX.h"
 
 
-int	SceneIFC::LogAnimInfo(VActor *Thing, char* AnimName)
+int	SceneIFC::LogAnimInfo(VActor *Thing, TCHAR* AnimName)
 {	
-	char LogFileName[MAX_PATH]; // = _T("\\X_AnimInfo_")+ _T(AnimName) +_T(".LOG");
-	sprintf(LogFileName,("\\X_AnimInfo_%s%s"),AnimName,".LOG");	
+	TCHAR LogFileName[MAX_PATH]; // = _T("\\X_AnimInfo_")+ _T(AnimName) +_T(".LOG");
+	_stprintf(LogFileName,_T("\\X_AnimInfo_%s%s"),AnimName,_T(".LOG"));	
 	DLog.Open( LogPath, LogFileName,DOLOGFILE);
 	
-   	DLog.Logf("\n\n Unreal skeletal exporter for 3DS Max - Animation information for [%s.psa] \n\n",AnimName );	
+   	DLog.Logf(_T("\n\n Unreal skeletal exporter for 3DS Max - Animation information for [%s.psa] \n\n"),AnimName );	
 	// DLog.Logf(" Frames: %i\n", Thing->BetaNumFrames);
 	// DLog.Logf(" Time Total: %f\n seconds", Thing->FrameTimeInfo * 0.001 );
 	DLog.Logf(" Bones: %i\n", Thing->RefSkeletonBones.Num() );	
@@ -50,15 +50,15 @@ int	SceneIFC::LogAnimInfo(VActor *Thing, char* AnimName)
 
 
 // Log skin data including materials to file.
-int	SceneIFC::LogSkinInfo( VActor *Thing, char* SkinName ) // char* ModelName )
+int	SceneIFC::LogSkinInfo( VActor *Thing, TCHAR* SkinName ) // char* ModelName )
 {
 	if( !LogPath[0] )
 	{
 		return 1; // Prevent logs getting lost in root.
 	}
 
-	char LogFileName[MAX_PATH];
-	sprintf(LogFileName,"\\X_ModelInfo_%s%s",SkinName,(".LOG"));
+	TCHAR LogFileName[MAX_PATH];
+	_stprintf(LogFileName,_T("\\X_ModelInfo_%s%s"),SkinName,_T(".LOG"));
 	
 	DLog.Open(LogPath,LogFileName,DOLOGFILE);
 
@@ -87,14 +87,20 @@ int	SceneIFC::LogSkinInfo( VActor *Thing, char* SkinName ) // char* ModelName )
 	{
 		DebugBox("Start printing skin [%i]",i);
 
-		char MaterialName[256];
-		_tcscpy(MaterialName,CleanString( Thing->SkinData.Materials[i].MaterialName ));
+		TCHAR MaterialName[256];
+	#if _UNICODE
+		TCHAR tmp[256];
+		mbstowcs(tmp, Thing->SkinData.Materials[i].MaterialName, 256);
+		_tcscpy(MaterialName, CleanString(tmp));
+	#else
+		strcpy(MaterialName, CleanString( Thing->SkinData.Materials[i].MaterialName ));
+	#endif
 
 		DebugBox("Start printing bitmap");
 
 		// Find bitmap:		
-		char BitmapName[MAX_PATH];
-		char BitmapPath[MAX_PATH];
+		TCHAR BitmapName[MAX_PATH];
+		TCHAR BitmapPath[MAX_PATH];
 
 		if( (Thing->SkinData.RawMaterials.Num()>i) && Thing->SkinData.RawMaterials[i] )
 		{
@@ -103,15 +109,15 @@ int	SceneIFC::LogSkinInfo( VActor *Thing, char* SkinName ) // char* ModelName )
 		}
 		else
 		{
-			sprintf(BitmapName,"[Internal material]");
-			BitmapPath[MAX_PATH];
+			_stprintf(BitmapName,_T("[Internal material]"));
 		}
 
 		DebugBox("Retrieved bitmapname");
 		// Log.
 		DLog.Logf(" * Index: [%2i]  name: %s  \n",i, MaterialName);
-									 if( BitmapName[0] ) DLog.Logf("   Original bitmap: %s  Path: %s\n ",BitmapName,BitmapPath);
-			                         DLog.Logf("   - Skin Index: %2i\n",Thing->SkinData.Materials[i].TextureIndex );
+		if( BitmapName[0] )
+			DLog.Logf(_T("   Original bitmap: %s  Path: %s\n "),BitmapName,BitmapPath);
+		DLog.Logf("   - Skin Index: %2i\n",Thing->SkinData.Materials[i].TextureIndex );
 									 
 
 		DebugBox("End printing bitmap");
@@ -148,9 +154,7 @@ int	SceneIFC::LogSkinInfo( VActor *Thing, char* SkinName ) // char* ModelName )
 
 	for( INT b=0; b < Thing->RefSkeletonBones.Num(); b++)
 	{
-		char BoneName[65];
-		_tcscpy( BoneName, Thing->RefSkeletonBones[b].Name );
-		DLog.Logf("  [%3i ]    [%s]      (%3i ) \n",b,BoneName, Thing->RefSkeletonBones[b].ParentIndex );
+		DLog.Logf("  [%3i ]    [%s]      (%3i ) \n",b, Thing->RefSkeletonBones[b].Name, Thing->RefSkeletonBones[b].ParentIndex );
 	}
 	
 	DLog.Logf(" \n\n");
@@ -164,48 +168,48 @@ int	SceneIFC::LogSkinInfo( VActor *Thing, char* SkinName ) // char* ModelName )
 // Output a template .uc file.....
 //
 //int	SceneIFC::WriteScriptFile( VActor *Thing, char* ScriptName, char* BaseName, char* SkinFileName, char* AnimFileName ) 
-int	SceneIFC::WriteScriptFile( VActor *Thing, char* ScriptName, char* BaseName, char* SkinFileName, char* AnimFileName ) 
+int	SceneIFC::WriteScriptFile( VActor *Thing, TCHAR* ScriptName, TCHAR* BaseName, TCHAR* SkinFileName, TCHAR* AnimFileName ) 
 {		
 	if( !LogPath[0] )
 	{
 		return 1; // Prevent logs getting lost in root. 
 	}
 	
-	char LogFileName[MAX_PATH];
-	sprintf(LogFileName,"\\%s%s",ScriptName,".uc");
+	TCHAR LogFileName[MAX_PATH];
+	_stprintf(LogFileName,_T("\\%s%s"),ScriptName,_T(".uc"));
 
 	DLog.Open(LogPath,LogFileName,1);
 	if( DLog.Error() ) return 0;
 
 	//PopupBox("Assigning script names...");
-	char MeshName[200];
-	char AnimName[200];
-	sprintf(MeshName,"%s%s",ScriptName,"Mesh");
-	sprintf(AnimName,"%s%s",ScriptName,"Anims");
+	TCHAR MeshName[200];
+	TCHAR AnimName[200];
+	_stprintf(MeshName,_T("%s%s"),ScriptName,_T("Mesh"));
+	_stprintf(AnimName,_T("%s%s"),ScriptName,_T("Anims"));
 
 	//PopupBox(" Writing header lines.");
 
-	DLog.Logf("//===============================================================================\n");
-   	DLog.Logf("//  [%s] \n",ScriptName );	   	
-	DLog.Logf("//===============================================================================\n\n");
+	DLog.Logf(_T("//===============================================================================\n"));
+   	DLog.Logf(_T("//  [%s] \n"),ScriptName );	   	
+	DLog.Logf(_T("//===============================================================================\n\n"));
 
 	//PopupBox(" Writing import #execs.");
 
-	DLog.Logf("class %s extends %s;\n",ScriptName,BaseName );
+	DLog.Logf(_T("class %s extends %s;\n"),ScriptName,BaseName );
 
-	DLog.Logf("#exec MESH  MODELIMPORT MESH=%s MODELFILE=models\\%s.PSK LODSTYLE=10\n", MeshName, SkinFileName );
-	DLog.Logf("#exec MESH  ORIGIN MESH=%s X=0 Y=0 Z=0 YAW=0 PITCH=0 ROLL=0\n", MeshName );
-	DLog.Logf("#exec ANIM  IMPORT ANIM=%s ANIMFILE=models\\%s.PSA COMPRESS=1 MAXKEYS=999999", AnimName, AnimFileName );
-	if (!DoExplicitSequences) DLog.Logf(" IMPORTSEQS=1" );
-	DLog.Logf("\n");
-	DLog.Logf("#exec MESHMAP   SCALE MESHMAP=%s X=1.0 Y=1.0 Z=1.0\n", MeshName );
-	DLog.Logf("#exec MESH  DEFAULTANIM MESH=%s ANIM=%s\n",MeshName,AnimName );
+	DLog.Logf(_T("#exec MESH  MODELIMPORT MESH=%s MODELFILE=models\\%s.PSK LODSTYLE=10\n"), MeshName, SkinFileName );
+	DLog.Logf(_T("#exec MESH  ORIGIN MESH=%s X=0 Y=0 Z=0 YAW=0 PITCH=0 ROLL=0\n"), MeshName );
+	DLog.Logf(_T("#exec ANIM  IMPORT ANIM=%s ANIMFILE=models\\%s.PSA COMPRESS=1 MAXKEYS=999999"), AnimName, AnimFileName );
+	if (!DoExplicitSequences) DLog.Logf(_T(" IMPORTSEQS=1"));
+	DLog.Logf(_T("\n"));
+	DLog.Logf(_T("#exec MESHMAP   SCALE MESHMAP=%s X=1.0 Y=1.0 Z=1.0\n"), MeshName );
+	DLog.Logf(_T("#exec MESH  DEFAULTANIM MESH=%s ANIM=%s\n"),MeshName,AnimName );
 	
 	// Explicit sequences?
 	if( DoExplicitSequences )
 	{
 		// PopupBox(" Writing explicit sequence info.");
-		DLog.Logf("\n// Animation sequences. These can replace or override the implicit (exporter-defined) sequences.\n");
+		DLog.Logf(_T("\n// Animation sequences. These can replace or override the implicit (exporter-defined) sequences.\n"));
 		for( INT i=0; i< Thing->OutAnims.Num(); i++)
 		{
 			// Prepare strings from implicit sequence info; default strings when none present.
@@ -225,7 +229,7 @@ int	SceneIFC::WriteScriptFile( VActor *Thing, char* ScriptName, char* BaseName, 
 	DLog.Logf("\n");
 	DLog.Logf("// Digest and compress the animation data. Must come after the sequence declarations.\n");
 	DLog.Logf("// 'VERBOSE' gives more debugging info in UCC.log \n");
-	DLog.Logf("#exec ANIM DIGEST ANIM=%s %s VERBOSE", AnimName, DoExplicitSequences ? "" : "USERAWINFO" );
+	DLog.Logf(_T("#exec ANIM DIGEST ANIM=%s %s VERBOSE"), AnimName, DoExplicitSequences ? _T("") : _T("USERAWINFO") );
 	DLog.Logf("\n\n");
 
 	//
@@ -246,15 +250,15 @@ int	SceneIFC::WriteScriptFile( VActor *Thing, char* ScriptName, char* BaseName, 
 
 	{for( INT i=0; i < Thing->SkinData.Materials.Num(); i++)
 	{				
-		char BitmapName[MAX_PATH];
-		char BitmapPath[MAX_PATH];
+		TCHAR BitmapName[MAX_PATH];
+		TCHAR BitmapPath[MAX_PATH];
 		_tcscpy(BitmapName,Thing->SkinData.RawBMPaths[i].RawBitmapName);
 		_tcscpy(BitmapPath,Thing->SkinData.RawBMPaths[i].RawBitmapPath);
 
 		if( DoTexPCX ) // force PCX texture extension
 		{
 			// Not elegant...
-			int j = ( int )strlen(BitmapName);
+			int j = ( int )_tcslen(BitmapName);
 			if( (j>4) && (BitmapName[j-4] == char(".")))
 			{								
 				BitmapName[j-3] = 112;//char("p"); // 112
@@ -263,12 +267,10 @@ int	SceneIFC::WriteScriptFile( VActor *Thing, char* ScriptName, char* BaseName, 
 			}			
 		}
 
-		char NumStr[10];
-		char TexName[MAX_PATH];
-		_itoa(i,NumStr,10);
-		sprintf(TexName,"%s%s%s",ScriptName,"Tex",NumStr);
+		TCHAR TexName[MAX_PATH];
+		_stprintf(TexName,_T("%sTex%d"),ScriptName,i);
 			
-		DLog.Logf("#EXEC TEXTURE IMPORT NAME=%s  FILE=TEXTURES\\%s  GROUP=Skins\n",TexName,BitmapName);
+		DLog.Logf(_T("#EXEC TEXTURE IMPORT NAME=%s  FILE=TEXTURES\\%s  GROUP=Skins\n"),TexName,BitmapName);
 	}}
 	DLog.Logf("\n");
 
@@ -286,10 +288,15 @@ int	SceneIFC::WriteScriptFile( VActor *Thing, char* ScriptName, char* BaseName, 
 	// Full material list for debugging purposes.
 	{for( INT i=0; i < Thing->SkinData.Materials.Num(); i++)
 	{
+	#if _UNICODE
 		char BitmapName[MAX_PATH];
 		char BitmapPath[MAX_PATH];
-		_tcscpy(BitmapName,Thing->SkinData.RawBMPaths[i].RawBitmapName);
-		_tcscpy(BitmapPath,Thing->SkinData.RawBMPaths[i].RawBitmapPath);		
+		wcstombs(BitmapName,Thing->SkinData.RawBMPaths[i].RawBitmapName, MAX_PATH);
+		wcstombs(BitmapPath,Thing->SkinData.RawBMPaths[i].RawBitmapPath, MAX_PATH);
+	#else
+		char *BitmapName = Thing->SkinData.RawBMPaths[i].RawBitmapName;
+		char *BitmapPath = Thing->SkinData.RawBMPaths[i].RawBitmapPath;
+	#endif
 		DLog.Logf("// Original material [%i] is [%s] SkinIndex: %i Bitmap: %s  Path: %s \n",i,Thing->SkinData.Materials[i].MaterialName,Thing->SkinData.Materials[i].TextureIndex,BitmapName,BitmapPath );
 		
 	}}
@@ -297,7 +304,7 @@ int	SceneIFC::WriteScriptFile( VActor *Thing, char* ScriptName, char* BaseName, 
 
 	// defaultproperties
 	DLog.Logf("defaultproperties\n{\n");
-	DLog.Logf("    Mesh=%s\n",MeshName);
+	DLog.Logf(_T("    Mesh=%s\n"),MeshName);
 	DLog.Logf("    DrawType=DT_Mesh\n");
 	DLog.Logf("    bStatic=False\n");
 	DLog.Logf("}\n\n");
@@ -355,16 +362,16 @@ void SceneIFC::FixRootMotion(VActor *Thing) //, BOOL Fix, BOOL Lock )
 //
 // Animation range parser - based on code by Steve Sinclair, Digital Extremes
 //
-void SceneIFC::ParseFrameRange(char *pString,INT startFrame,INT endFrame )
+void SceneIFC::ParseFrameRange(TCHAR *pString,INT startFrame,INT endFrame )
 {
-	char*	pSeek;
-	char*	pPos;
+	TCHAR*	pSeek;
+	TCHAR*	pPos;
 	int		lastPos = 0;
 	int		curPos = 0;
 	UBOOL	rangeStart=false;
 	int		start=0;
 	int		val;
-	char    LocalString[600];
+	TCHAR	LocalString[600];
 
 	FrameList.StartFrame = startFrame;
 	FrameList.EndFrame   = endFrame;
@@ -396,7 +403,7 @@ void SceneIFC::ParseFrameRange(char *pString,INT startFrame,INT endFrame )
 				*pSeek=0;
 				pSeek++;
 			}
-			start = atoi( pPos );							
+			start = _tstoi( pPos );							
 			pPos = pSeek;			
 			rangeStart=true;
 		}
@@ -405,7 +412,7 @@ void SceneIFC::ParseFrameRange(char *pString,INT startFrame,INT endFrame )
 		{
 			*pSeek=0; // terminate this position for atoi
 			pSeek++;			
-			val = atoi( pPos );			
+			val = _tstoi( pPos );			
 			pPos = pSeek;			
 			// Single frame or end of range?
 			if( rangeStart )
@@ -434,7 +441,7 @@ void SceneIFC::ParseFrameRange(char *pString,INT startFrame,INT endFrame )
 		{
 			if (pSeek!=pPos)
 			{
-				val = atoi ( pPos );
+				val = _tstoi ( pPos );
 				if( rangeStart )
 				{	
 					// Allow reversed ranges.

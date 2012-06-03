@@ -26,22 +26,22 @@ extern TextFile DLog;
 extern TextFile AuxLog;
 extern TextFile MemLog;
 
-extern char PluginRegPath[];
-extern char DestPath[MAX_PATH];
-extern char LogPath[MAX_PATH];
-extern char to_path[MAX_PATH];
-extern char to_animfile[MAX_PATH];
-extern char to_skinfile[MAX_PATH];
+extern TCHAR PluginRegPath[];
+extern TCHAR DestPath[MAX_PATH];
+extern TCHAR LogPath[MAX_PATH];
+extern TCHAR to_path[MAX_PATH];
+extern TCHAR to_animfile[MAX_PATH];
+extern TCHAR to_skinfile[MAX_PATH];
 
-extern char to_pathvtx[MAX_PATH];
-extern char to_skinfilevtx[MAX_PATH];
+extern TCHAR to_pathvtx[MAX_PATH];
+extern TCHAR to_skinfilevtx[MAX_PATH];
 
-extern char newsequencename[MAX_PATH];
-extern char framerangestring[MAXINPUTCHARS];
-extern char classname[MAX_PATH];
-extern char basename[MAX_PATH];
-extern char batchfoldername[MAX_PATH];
-extern char vertframerangestring[MAXINPUTCHARS];
+extern TCHAR newsequencename[MAX_PATH];
+extern TCHAR framerangestring[MAXINPUTCHARS];
+extern TCHAR classname[MAX_PATH];
+extern TCHAR basename[MAX_PATH];
+extern TCHAR batchfoldername[MAX_PATH];
+extern TCHAR vertframerangestring[MAXINPUTCHARS];
 
 
 //===========================================
@@ -148,13 +148,13 @@ public:
 	int         DigestBrush( VActor *Thing );
 	int         FixMaterials( VActor *Thing ); // internal
 	int	        ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin& LocalSkin, INT SmoothSkin, SkinInf* SkinHandle );
-	int         LogSkinInfo( VActor *Thing, char* SkinName);	
-	int			WriteScriptFile( VActor *Thing, char* ScriptName, char* BaseName, char* SkinFileName, char* AnimFileName );
-	int         DigestAnim(VActor *Thing, char* AnimName, char* RangeString );
-	int         LogAnimInfo( VActor *Thing, char* AnimName);
+	int         LogSkinInfo( VActor *Thing, TCHAR* SkinName);	
+	int			WriteScriptFile( VActor *Thing, TCHAR* ScriptName, TCHAR* BaseName, TCHAR* SkinFileName, TCHAR* AnimFileName );
+	int         DigestAnim(VActor *Thing, TCHAR* AnimName, TCHAR* RangeString );
+	int         LogAnimInfo( VActor *Thing, TCHAR* AnimName);
 	void        FixRootMotion( VActor *Thing );
 	int	        DoUnSmoothVerts(VActor *Thing, INT DoTangentVectorSeams );
-	int			WriteVertexAnims( VActor *Thing, char* DestFileName, char* RangeString );	 
+	int			WriteVertexAnims( VActor *Thing, TCHAR* DestFileName, TCHAR* RangeString );	 
 
 	int			MarkBonesOfSystem(int RIndex);
 	int         RecurseValidBones(int RIndex, int &BoneCount);
@@ -290,7 +290,7 @@ public:
 	private:
 	void		StoreNodeTree(AXNode* node);
 	int			SerializeSceneTree();
-	void        ParseFrameRange(char* pString, INT startFrame,INT endFrame);
+	void        ParseFrameRange(TCHAR* pString, INT startFrame,INT endFrame);
 
 };
 

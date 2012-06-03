@@ -23,33 +23,39 @@
 #include "UnSkeletal.h"
 
 // String support.
-int GetNameFromPath(char* Dest, const char* Src, int MaxChars );
+int GetNameFromPath(TCHAR* Dest, const TCHAR* Src, int MaxChars );
 int GetExtensionFromPath(char* Dest, const char* Src, int MaxChars );
 int GetFolderFromPath(char* Dest, const char* Src, int MaxChars );
-int strcpysafe(char* Dest, const char* Src, int MaxChars );
+int strcpysafe(TCHAR* Dest, const TCHAR* Src, int MaxChars );
 int ResizeString(char* Src, int Size);
 
 // Forwards.
 INT appGetVarArgs( char* Dest, INT Count, const char* Fmt, va_list ArgPtr );
+#if _UNICODE
+INT appGetVarArgs( TCHAR* Dest, INT Count, const TCHAR* Fmt, va_list ArgPtr );
+#endif
 #define GET_VARARGS(msg,len,lastarg,fmt) {va_list ap; va_start(ap,lastarg);appGetVarArgs(msg,len,fmt,ap);}
 
 int  PrintWindowNum(HWND hWnd,int IDC, int Num);
 int  PrintWindowNum(HWND hWnd,int IDC, FLOAT Num);
-int  PrintWindowString(HWND hWnd,int IDC, char* String);
+int  PrintWindowString(HWND hWnd,int IDC, TCHAR* String);
 
-void ErrorBox(char* PrintboxString, ... );
-void WarningBox(char* PrintboxString, ... );
-void PopupBox(char* PrintboxString, ... );
+void ErrorBox(TCHAR* PrintboxString, ... );
+void WarningBox(TCHAR* PrintboxString, ... );
+void PopupBox(TCHAR* PrintboxString, ... );
 void DebugBox(char* PrintboxString, ... );
+#if _UNICODE
+void DebugBox(TCHAR* PrintboxString, ... );
+#endif
 
 int _GetCheckBox( HWND hWnd, int CheckID );
 int _SetCheckBox( HWND hWnd, int CheckID, int Switch );
 int _EnableCheckBox( HWND hWnd, int CheckID, int Switch );
 
-int  GetFolderName(HWND hWnd, char* PathResult);
-void GetLoadName(HWND hWnd, char* filename, char* workpath, char* filterlist );
-void GetSaveName(HWND hWnd, char* filename, char* workpath, char* filterList, char* defaultextension );
-void GetBatchFileName(HWND hWnd, char* filename, char* workpath ); 
+int  GetFolderName(HWND hWnd, TCHAR* PathResult);
+void GetLoadName(HWND hWnd, TCHAR* filename, TCHAR* workpath, const TCHAR* filterlist );
+void GetSaveName(HWND hWnd, TCHAR* filename, TCHAR* workpath, const TCHAR* filterList, TCHAR* defaultextension );
+void GetBatchFileName(HWND hWnd, TCHAR* filename, TCHAR* workpath ); 
 
 
 inline void Memzero( void* Dest, INT Count )
@@ -67,16 +73,16 @@ class TextFile
 	INT LastError;
 	UBOOL ObeyTabs;
 	
-	int Open(char* LogToPath, char* LogName, int Enabled)
+	int Open(const TCHAR* LogToPath, const TCHAR* LogName, int Enabled)
 	{	
 		if( Enabled && (LogName[0] != 0) )
 		{
-			char LogFileName[MAX_PATH];
+			TCHAR LogFileName[MAX_PATH];
 			LogFileName[0] = 0;
 			Tabs = 0;
-			if( LogToPath ) strcat( LogFileName, LogToPath ); 
-			if( LogName )   strcat( LogFileName, LogName ); // May contain path.
-			LStream = fopen(LogFileName,"wt"); // Open for writing.
+			if( LogToPath ) _tcscat( LogFileName, LogToPath ); 
+			if( LogName )   _tcscat( LogFileName, LogName ); // May contain path.
+			LStream = _tfopen(LogFileName,_T("wt")); // Open for writing.
 			if (!LStream) 
 			{
 				return 0;
@@ -86,28 +92,57 @@ class TextFile
 		return 0;
 	}
 
-	void Logf(char* LogString, ... )
+	void Logf(const char* LogString, ... )
 	{
 		if( ObeyTabs ) doTabs();
 		char TempStr[4096];
 		GET_VARARGS(TempStr,4096,LogString,LogString);
 		if( LStream )
 		{
-			fprintf(LStream,TempStr);
+			fprintf(LStream, "%s", TempStr);
 		}
 	}
 
-	void LogfLn(char* LogString, ... )
+#if _UNICODE
+	void Logf(const TCHAR* LogString, ... )
+	{
+		if( ObeyTabs ) doTabs();
+		TCHAR TempStr[4096];
+		GET_VARARGS(TempStr,4096,LogString,LogString);
+		char TempStr2[4096];
+		wcstombs(TempStr2, TempStr, 4096);
+		if( LStream )
+		{
+			fprintf(LStream, "%s", TempStr);
+		}
+	}
+#endif
+
+	void LogfLn(const char* LogString, ... )
 	{
 		if( LStream )
 		{
 			if( ObeyTabs ) doTabs();
 			char TempStr[4096];
 			GET_VARARGS(TempStr,4096,LogString,LogString);
-			strcat( TempStr, "\n");		
-			fprintf(LStream,TempStr);
+			fprintf(LStream, "%s\n", TempStr);
 		}
 	}
+
+#if _UNICODE
+	void LogfLn(const TCHAR* LogString, ... )
+	{
+		if( LStream )
+		{
+			if( ObeyTabs ) doTabs();
+			TCHAR TempStr[4096];
+			GET_VARARGS(TempStr,4096,LogString,LogString);
+			char TempStr2[4096];
+			wcstombs(TempStr2, TempStr, 4096);
+			fprintf(LStream, "%s\n", TempStr2);
+		}
+	}
+#endif
 
 	void doTabs()
 	{
@@ -115,7 +150,7 @@ class TextFile
 		{
 			for (INT i =0; i < Tabs; i++ )
 			{
-				fprintf(LStream, " ");
+				_ftprintf(LStream, _T(" "));
 			}
 		}
 	}
@@ -129,7 +164,7 @@ class TextFile
 	{
 		if ( LStream )
 		{
-			fprintf(LStream,"\r\n");
+			_ftprintf(LStream,_T("\r\n"));
 		}
 	}
 
@@ -192,7 +227,7 @@ public:
 		if( Buffer )delete Buffer;
 	}
 
-	int CreateNewFile(char *FileName)
+	int CreateNewFile(TCHAR *FileName)
 	{
 		Error = 0;
 		if ((FileHandle = CreateFile(FileName, GENERIC_WRITE,FILE_SHARE_WRITE,NULL,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL))
@@ -260,8 +295,19 @@ public:
 	{
 		char TempStr[4096];
 		GET_VARARGS(TempStr,4096,OutString,OutString);
-		Write(&TempStr, ( int )strlen(TempStr));		
+		Write(&TempStr, ( int )strlen(TempStr));
 	}
+
+#if _UNICODE
+	inline void Print(TCHAR* OutString, ... )
+	{
+		TCHAR TempStr[4096];
+		GET_VARARGS(TempStr,4096,OutString,OutString);
+		char TempStr2[4096];
+		wcstombs(TempStr2, TempStr, 4096);
+		Write(&TempStr, ( int )strlen(TempStr2));
+	}
+#endif
 
 	int GetError()
 	{
@@ -302,7 +348,7 @@ public:
 		return Error;
 	}
 
-	int OpenExistingFile(char *FileName)
+	int OpenExistingFile(TCHAR *FileName)
 	{
 		ReadPos = 0;
 		Error = 0;
@@ -316,7 +362,7 @@ public:
 	}
 
 	// Open for read only: will succeeed with write-protected files.
-	int OpenExistingFileForReading(char *FileName)
+	int OpenExistingFileForReading(TCHAR *FileName)
 	{
 		ReadPos = 0;
 		Error = 0;
@@ -386,7 +432,7 @@ class WinRegistry
 public:
 	
     HKEY    hKey;     
-	char    RegPath[400];
+	TCHAR   RegPath[400];
 
 	WinRegistry()
 	{
@@ -394,18 +440,18 @@ public:
 	}
 
 	// Set path
-	void SetRegistryPath( char* NewPath)
+	void SetRegistryPath( TCHAR* NewPath)
 	{
 		strcpysafe( RegPath, NewPath, 400 );
 	}
 
-	void SetKeyString( char* KeyName, void* ValString )
+	void SetKeyString( TCHAR* KeyName, TCHAR* ValString )
 	{
 		DWORD ValSize = ( DWORD )strlen( (char*)ValString ) + 1;
 
 		DWORD Res;
 		LONG KeyError;
-		KeyError = ::RegCreateKeyEx( HKEY_CURRENT_USER, (char*)&RegPath, 0L, REG_NONE, REG_OPTION_NON_VOLATILE, KEY_WRITE, 0, &hKey, &Res );
+		KeyError = ::RegCreateKeyEx( HKEY_CURRENT_USER, RegPath, 0L, REG_NONE, REG_OPTION_NON_VOLATILE, KEY_WRITE, 0, &hKey, &Res );
 		if( KeyError == ERROR_SUCCESS ) 
 		{
 			::RegSetValueEx( hKey, KeyName, 0L, REG_SZ, (CONST BYTE*)ValString, ValSize ); //#DEBUG size
@@ -418,12 +464,12 @@ public:
 		}
 	}
 
-	void GetKeyString( char* KeyName, void* ValString )
+	void GetKeyString( TCHAR* KeyName, TCHAR* ValString )
 	{
 		*(char*)ValString = '\0';
 
 		LONG  KeyError;		    
-		KeyError = ::RegOpenKeyEx( HKEY_CURRENT_USER, (const char*)&RegPath, 0L, KEY_READ, &hKey );
+		KeyError = ::RegOpenKeyEx( HKEY_CURRENT_USER, RegPath, 0L, KEY_READ, &hKey );
 		if( KeyError == ERROR_SUCCESS ) 
 		{
 			DWORD Type;
@@ -445,12 +491,12 @@ public:
 		}
 	}
 
-	void SetKeyValue( char* KeyName, DWORD Value ) // set any 32-bit value...
+	void SetKeyValue( TCHAR* KeyName, DWORD Value ) // set any 32-bit value...
 	{
 		DWORD Res;
 		LONG KeyError;
 		DWORD Val = Value;
-		KeyError = ::RegCreateKeyEx( HKEY_CURRENT_USER, (char*)&RegPath, 0L, REG_NONE, REG_OPTION_NON_VOLATILE, KEY_WRITE, 0, &hKey, &Res );
+		KeyError = ::RegCreateKeyEx( HKEY_CURRENT_USER, RegPath, 0L, REG_NONE, REG_OPTION_NON_VOLATILE, KEY_WRITE, 0, &hKey, &Res );
 		if( KeyError == ERROR_SUCCESS ) 
 		{
 			::RegSetValueEx( hKey, KeyName, 0L, REG_DWORD, (CONST BYTE*)&Val, sizeof(DWORD) ); //#DEBUG size
@@ -463,22 +509,22 @@ public:
 		}
 	}
 
-	void SetKeyValue( char* KeyName, FLOAT FloatValue ) // FLOAT overload
+	void SetKeyValue( TCHAR* KeyName, FLOAT FloatValue ) // FLOAT overload
 	{
 		SetKeyValue( KeyName, *((DWORD*)&FloatValue) );
 	}
 
-	void SetKeyValue( char* KeyName, UBOOL UBOOLValue ) // UBOOL overload
+	void SetKeyValue( TCHAR* KeyName, UBOOL UBOOLValue ) // UBOOL overload
 	{
 		SetKeyValue( KeyName, *((DWORD*)&UBOOLValue) );
 	}
 
-	void GetKeyValue( char* KeyName, INT& Value )    // set any 32-bit value...
+	void GetKeyValue( TCHAR* KeyName, INT& Value )    // set any 32-bit value...
 	{
 
 		Value = 0;
 		LONG  KeyError;		    
-		KeyError = ::RegOpenKeyEx( HKEY_CURRENT_USER, (const char*)&RegPath, 0L, KEY_READ, &hKey );
+		KeyError = ::RegOpenKeyEx( HKEY_CURRENT_USER, RegPath, 0L, KEY_READ, &hKey );
 		if( KeyError == ERROR_SUCCESS ) 
 		{
 			DWORD Type;
@@ -498,19 +544,19 @@ public:
 		}
 	}
 
-	void GetKeyValue( char* KeyName, FLOAT& FloatValue ) // FLOAT overload
+	void GetKeyValue( TCHAR* KeyName, FLOAT& FloatValue ) // FLOAT overload
 	{
 		GetKeyValue( KeyName, *((INT*)&FloatValue) );
 	}
 
-	void GetKeyValue( char* KeyName, UBOOL& UBOOLValue ) // UBOOL overload
+	void GetKeyValue( TCHAR* KeyName, UBOOL& UBOOLValue ) // UBOOL overload
 	{
 		GetKeyValue( KeyName, *((INT*)&UBOOLValue) );
 	}
 
 
 	// Remove settings 
-	void DeleteRegistryKey( const char* KeyName )
+	void DeleteRegistryKey( const TCHAR* KeyName )
 	{
 		::RegDeleteKey( hKey, KeyName );
 		::RegCloseKey( hKey );
