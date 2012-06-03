@@ -1,0 +1,78 @@
+/*
+
+	ActorX_autoExportSkinned.mel
+
+		author : Sebastian Woldanski PCF (swoldansk@peoplecanfly.com)
+
+	Description:
+		Automates exporting to psa or psk formats
+		Exports current scene to psk or  psa  with path name taken from maya scene and saves to maya scene path
+
+	usage:
+		for PSA export add to shelf:
+			source ActorX_AutoExport;ActorX_PSA();
+		and fro PSK:
+			source ActorX_AutoExport;ActorX_PSK;
+
+	Notes:
+		needs plug-in ver 1.44 or newer ("fixes export flags bug")
+		tested with maya 7.0
+
+
+*/
+
+
+proc string quote(string $aa)
+{
+	return ("\"" +$aa + "\"");
+}
+
+global proc ActorX_PSA()
+{
+	ActorX_AutoExport( "animation");
+}
+global proc ActorX_PSK()
+{
+	ActorX_AutoExport( "mesh");
+}
+
+global proc ActorX_AutoExport(string $mode)
+{
+
+	string $path = `file -q -exn`;
+	string $dir = `match "^.*[/\\]" $path`;
+	string $filepart = `match "[^/\\]*$" $path`;
+	string $filename = `match "^[^\.]*" $filepart`;
+	int $min = `playbackOptions -q -min `;
+	int $max = `playbackOptions -q -max `;
+
+
+	$dir =quote($dir);
+	$filename  =quote($filename );
+
+
+
+	string $cmd = "axexecute -path " + $dir;
+
+	if ($mode == "animation")
+	{
+		$cmd += " -saveanim -animfile " + $filename;
+		$cmd += " -sequence " + $filename;
+		$cmd += " -range " +$min  + " " + $max;
+
+	}
+	else if ($mode == "mesh")
+	{
+		$cmd += " -skinfile " +$filename;
+	}
+	else
+		error ("no flag for ActorX_PSA_DO()");
+
+
+	evalEcho($cmd);
+
+
+
+}
+
+

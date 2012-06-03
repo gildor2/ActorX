@@ -1,0 +1,42 @@
+Pcf additions:
+
+	tested on maya 70
+
+	Mel scripts:
+
+		ActorXToolCmd.mel -  Simple window to display list of tools for ActorX plug-in
+		ActorX_AutoExport.mel - Automates exporting to psa or psk formats
+		ActorY.mel - Wrapper for new static mesh export function from ActorX plug-in
+
+
+		(look into source files to read more detailed description)
+
+		to install mel scripts:
+
+			1.put mels files into your scripts directory
+				eg : C:\Documents and Settings\{USER NAME}\My Documents\maya\{MAYA VERSION}\scripts
+			2.source them or restart maya
+			3.then type in script editor or add to shelf:
+				ActorXToolCmd;
+				or
+				ActorY;
+
+
+
+		ActorXTool.mll:
+
+
+				-triangulation of static and skinned mesh with support of smoothing groups
+
+				actory command to export static mesh
+					-per mesh export to ase
+					-static mesh export in object space
+					-static mesh global scale
+
+
+				skinned mesh
+					- optional export for second uv set added
+					- fixed directory path flags for batch mel export
+
+
+

@@ -1,0 +1,31 @@
+LIBRARY ActorX
+EXPORTS
+	XSILoadPlugin			@1
+	XSIUnloadPlugin			@2
+	ActorX_Init				@3
+	ActorX_Execute			@4
+	ActorManager_Init		@5
+	ActorManager_Execute	@6
+	ActorXSetup_Init		@7
+	ActorXSetup_Execute		@8
+	ActorXVertex_Init		@9
+	ActorXVertex_Execute	@10
+	ActorXAbout_Init		@11
+	ActorXAbout_Execute		@12
+	ActorXSceneInfo_Init	@13
+	ActorXSceneInfo_Execute @14
+	ActorXSaveMesh_Init		@15
+	ActorXSaveMesh_Execute	@16
+	ActorXDigestAnimation_Init	@17
+	ActorXDigestAnimation_Execute	@18
+	ActorXSetValue_Init		@19
+	ActorXSetValue_Execute	@20
+	ActorXExportStaticMesh_Init	@21
+	ActorXExportStaticMesh_Execute	@22
+	ActorXStaticMesh_Init			@23
+	OnExportASE						@24
+	ActorXMenu_Init					@25
+	OnActorX						@26
+	
+SECTIONS
+	.data READ WRITE 

@@ -1,0 +1,112 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ActorX_Max", "ActorX_3DSMAX\ActorX_Max.vcproj", "{E7CB76AA-6113-46BA-8EBC-8AE1D2B81210}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ActorX_Maya", "ActorX_MAYA\ActorX_Maya.vcproj", "{C656E47F-07FC-4238-8612-6338CBC6D21F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug_Max2008|Win32 = Debug_Max2008|Win32
+		Debug_Max2008|x64 = Debug_Max2008|x64
+		Debug_Max2009|Win32 = Debug_Max2009|Win32
+		Debug_Max2009|x64 = Debug_Max2009|x64
+		Debug_Max9.0|Win32 = Debug_Max9.0|Win32
+		Debug_Max9.0|x64 = Debug_Max9.0|x64
+		Debug_Maya2008|Win32 = Debug_Maya2008|Win32
+		Debug_Maya2008|x64 = Debug_Maya2008|x64
+		Debug_Maya2009|Win32 = Debug_Maya2009|Win32
+		Debug_Maya2009|x64 = Debug_Maya2009|x64
+		Debug_Maya8.5|Win32 = Debug_Maya8.5|Win32
+		Debug_Maya8.5|x64 = Debug_Maya8.5|x64
+		Release_Max2008|Win32 = Release_Max2008|Win32
+		Release_Max2008|x64 = Release_Max2008|x64
+		Release_Max2009|Win32 = Release_Max2009|Win32
+		Release_Max2009|x64 = Release_Max2009|x64
+		Release_Max9.0|Win32 = Release_Max9.0|Win32
+		Release_Max9.0|x64 = Release_Max9.0|x64
+		Release_Maya2008|Win32 = Release_Maya2008|Win32
+		Release_Maya2008|x64 = Release_Maya2008|x64
+		Release_Maya2009|Win32 = Release_Maya2009|Win32
+		Release_Maya2009|x64 = Release_Maya2009|x64
+		Release_Maya8.5|Win32 = Release_Maya8.5|Win32
+		Release_Maya8.5|x64 = Release_Maya8.5|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E7CB76AA-6113-46BA-8EBC-8AE1D2B81210}.Debug_Max2008|Win32.ActiveCfg = Debug_Max2008|Win32
+		{E7CB76AA-6113-46BA-8EBC-8AE1D2B81210}.Debug_Max2008|Win32.Build.0 = Debug_Max2008|Win32
+		{E7CB76AA-6113-46BA-8EBC-8AE1D2B81210}.Debug_Max2008|x64.ActiveCfg = Debug_Max2008|x64
+		{E7CB76AA-6113-46BA-8EBC-8AE1D2B81210}.Debug_Max2008|x64.Build.0 = Debug_Max2008|x64
+		{E7CB76AA-6113-46BA-8EBC-8AE1D2B81210}.Debug_Max2009|Win32.ActiveCfg = Debug_Max2009|Win32
+		{E7CB76AA-6113-46BA-8EBC-8AE1D2B81210}.Debug_Max2009|Win32.Build.0 = Debug_Max2009|Win32
+		{E7CB76AA-6113-46BA-8EBC-8AE1D2B81210}.Debug_Max2009|x64.ActiveCfg = Debug_Max2009|x64
+		{E7CB76AA-6113-46BA-8EBC-8AE1D2B81210}.Debug_Max2009|x64.Build.0 = Debug_Max2009|x64
+		{E7CB76AA-6113-46BA-8EBC-8AE1D2B81210}.Debug_Max9.0|Win32.ActiveCfg = Debug_Max9.0|Win32
+		{E7CB76AA-6113-46BA-8EBC-8AE1D2B81210}.Debug_Max9.0|Win32.Build.0 = Debug_Max9.0|Win32
+		{E7CB76AA-6113-46BA-8EBC-8AE1D2B81210}.Debug_Max9.0|x64.ActiveCfg = Debug_Max9.0|x64
+		{E7CB76AA-6113-46BA-8EBC-8AE1D2B81210}.Debug_Max9.0|x64.Build.0 = Debug_Max9.0|x64
+		{E7CB76AA-6113-46BA-8EBC-8AE1D2B81210}.Debug_Maya2008|Win32.ActiveCfg = Debug_Max2009|x64
+		{E7CB76AA-6113-46BA-8EBC-8AE1D2B81210}.Debug_Maya2008|x64.ActiveCfg = Debug_Max2009|x64
+		{E7CB76AA-6113-46BA-8EBC-8AE1D2B81210}.Debug_Maya2009|Win32.ActiveCfg = Debug_Max2009|x64
+		{E7CB76AA-6113-46BA-8EBC-8AE1D2B81210}.Debug_Maya2009|x64.ActiveCfg = Debug_Max2009|x64
+		{E7CB76AA-6113-46BA-8EBC-8AE1D2B81210}.Debug_Maya8.5|Win32.ActiveCfg = Debug_Max2009|x64
+		{E7CB76AA-6113-46BA-8EBC-8AE1D2B81210}.Debug_Maya8.5|x64.ActiveCfg = Debug_Max2009|x64
+		{E7CB76AA-6113-46BA-8EBC-8AE1D2B81210}.Release_Max2008|Win32.ActiveCfg = Release_Max2008|Win32
+		{E7CB76AA-6113-46BA-8EBC-8AE1D2B81210}.Release_Max2008|Win32.Build.0 = Release_Max2008|Win32
+		{E7CB76AA-6113-46BA-8EBC-8AE1D2B81210}.Release_Max2008|x64.ActiveCfg = Release_Max2008|x64
+		{E7CB76AA-6113-46BA-8EBC-8AE1D2B81210}.Release_Max2008|x64.Build.0 = Release_Max2008|x64
+		{E7CB76AA-6113-46BA-8EBC-8AE1D2B81210}.Release_Max2009|Win32.ActiveCfg = Release_Max2009|Win32
+		{E7CB76AA-6113-46BA-8EBC-8AE1D2B81210}.Release_Max2009|Win32.Build.0 = Release_Max2009|Win32
+		{E7CB76AA-6113-46BA-8EBC-8AE1D2B81210}.Release_Max2009|x64.ActiveCfg = Release_Max2009|x64
+		{E7CB76AA-6113-46BA-8EBC-8AE1D2B81210}.Release_Max2009|x64.Build.0 = Release_Max2009|x64
+		{E7CB76AA-6113-46BA-8EBC-8AE1D2B81210}.Release_Max9.0|Win32.ActiveCfg = Release_Max9.0|Win32
+		{E7CB76AA-6113-46BA-8EBC-8AE1D2B81210}.Release_Max9.0|Win32.Build.0 = Release_Max9.0|Win32
+		{E7CB76AA-6113-46BA-8EBC-8AE1D2B81210}.Release_Max9.0|x64.ActiveCfg = Release_Max9.0|x64
+		{E7CB76AA-6113-46BA-8EBC-8AE1D2B81210}.Release_Max9.0|x64.Build.0 = Release_Max9.0|x64
+		{E7CB76AA-6113-46BA-8EBC-8AE1D2B81210}.Release_Maya2008|Win32.ActiveCfg = Release_Max2009|x64
+		{E7CB76AA-6113-46BA-8EBC-8AE1D2B81210}.Release_Maya2008|x64.ActiveCfg = Release_Max2009|x64
+		{E7CB76AA-6113-46BA-8EBC-8AE1D2B81210}.Release_Maya2009|Win32.ActiveCfg = Release_Max2009|x64
+		{E7CB76AA-6113-46BA-8EBC-8AE1D2B81210}.Release_Maya2009|x64.ActiveCfg = Release_Max2009|x64
+		{E7CB76AA-6113-46BA-8EBC-8AE1D2B81210}.Release_Maya8.5|Win32.ActiveCfg = Release_Max2009|x64
+		{E7CB76AA-6113-46BA-8EBC-8AE1D2B81210}.Release_Maya8.5|x64.ActiveCfg = Release_Max2009|x64
+		{C656E47F-07FC-4238-8612-6338CBC6D21F}.Debug_Max2008|Win32.ActiveCfg = Debug_Maya2009|Win32
+		{C656E47F-07FC-4238-8612-6338CBC6D21F}.Debug_Max2008|x64.ActiveCfg = Debug_Maya2009|x64
+		{C656E47F-07FC-4238-8612-6338CBC6D21F}.Debug_Max2009|Win32.ActiveCfg = Debug_Maya2009|x64
+		{C656E47F-07FC-4238-8612-6338CBC6D21F}.Debug_Max2009|x64.ActiveCfg = Debug_Maya2009|x64
+		{C656E47F-07FC-4238-8612-6338CBC6D21F}.Debug_Max9.0|Win32.ActiveCfg = Debug_Maya2009|x64
+		{C656E47F-07FC-4238-8612-6338CBC6D21F}.Debug_Max9.0|x64.ActiveCfg = Debug_Maya2009|x64
+		{C656E47F-07FC-4238-8612-6338CBC6D21F}.Debug_Maya2008|Win32.ActiveCfg = Debug_Maya2008|Win32
+		{C656E47F-07FC-4238-8612-6338CBC6D21F}.Debug_Maya2008|Win32.Build.0 = Debug_Maya2008|Win32
+		{C656E47F-07FC-4238-8612-6338CBC6D21F}.Debug_Maya2008|x64.ActiveCfg = Debug_Maya2008|x64
+		{C656E47F-07FC-4238-8612-6338CBC6D21F}.Debug_Maya2008|x64.Build.0 = Debug_Maya2008|x64
+		{C656E47F-07FC-4238-8612-6338CBC6D21F}.Debug_Maya2009|Win32.ActiveCfg = Debug_Maya2009|Win32
+		{C656E47F-07FC-4238-8612-6338CBC6D21F}.Debug_Maya2009|Win32.Build.0 = Debug_Maya2009|Win32
+		{C656E47F-07FC-4238-8612-6338CBC6D21F}.Debug_Maya2009|x64.ActiveCfg = Debug_Maya2009|x64
+		{C656E47F-07FC-4238-8612-6338CBC6D21F}.Debug_Maya2009|x64.Build.0 = Debug_Maya2009|x64
+		{C656E47F-07FC-4238-8612-6338CBC6D21F}.Debug_Maya8.5|Win32.ActiveCfg = Debug_Maya8.5|Win32
+		{C656E47F-07FC-4238-8612-6338CBC6D21F}.Debug_Maya8.5|Win32.Build.0 = Debug_Maya8.5|Win32
+		{C656E47F-07FC-4238-8612-6338CBC6D21F}.Debug_Maya8.5|x64.ActiveCfg = Debug_Maya8.5|x64
+		{C656E47F-07FC-4238-8612-6338CBC6D21F}.Debug_Maya8.5|x64.Build.0 = Debug_Maya8.5|x64
+		{C656E47F-07FC-4238-8612-6338CBC6D21F}.Release_Max2008|Win32.ActiveCfg = Release_Maya2009|x64
+		{C656E47F-07FC-4238-8612-6338CBC6D21F}.Release_Max2008|x64.ActiveCfg = Release_Maya2009|x64
+		{C656E47F-07FC-4238-8612-6338CBC6D21F}.Release_Max2009|Win32.ActiveCfg = Release_Maya2009|x64
+		{C656E47F-07FC-4238-8612-6338CBC6D21F}.Release_Max2009|x64.ActiveCfg = Release_Maya2009|x64
+		{C656E47F-07FC-4238-8612-6338CBC6D21F}.Release_Max9.0|Win32.ActiveCfg = Release_Maya2009|x64
+		{C656E47F-07FC-4238-8612-6338CBC6D21F}.Release_Max9.0|x64.ActiveCfg = Release_Maya2009|x64
+		{C656E47F-07FC-4238-8612-6338CBC6D21F}.Release_Maya2008|Win32.ActiveCfg = Release_Maya2008|Win32
+		{C656E47F-07FC-4238-8612-6338CBC6D21F}.Release_Maya2008|Win32.Build.0 = Release_Maya2008|Win32
+		{C656E47F-07FC-4238-8612-6338CBC6D21F}.Release_Maya2008|x64.ActiveCfg = Release_Maya2008|x64
+		{C656E47F-07FC-4238-8612-6338CBC6D21F}.Release_Maya2008|x64.Build.0 = Release_Maya2008|x64
+		{C656E47F-07FC-4238-8612-6338CBC6D21F}.Release_Maya2009|Win32.ActiveCfg = Release_Maya2009|Win32
+		{C656E47F-07FC-4238-8612-6338CBC6D21F}.Release_Maya2009|Win32.Build.0 = Release_Maya2009|Win32
+		{C656E47F-07FC-4238-8612-6338CBC6D21F}.Release_Maya2009|x64.ActiveCfg = Release_Maya2009|x64
+		{C656E47F-07FC-4238-8612-6338CBC6D21F}.Release_Maya2009|x64.Build.0 = Release_Maya2009|x64
+		{C656E47F-07FC-4238-8612-6338CBC6D21F}.Release_Maya8.5|Win32.ActiveCfg = Release_Maya8.5|Win32
+		{C656E47F-07FC-4238-8612-6338CBC6D21F}.Release_Maya8.5|Win32.Build.0 = Release_Maya8.5|Win32
+		{C656E47F-07FC-4238-8612-6338CBC6D21F}.Release_Maya8.5|x64.ActiveCfg = Release_Maya8.5|x64
+		{C656E47F-07FC-4238-8612-6338CBC6D21F}.Release_Maya8.5|x64.Build.0 = Release_Maya8.5|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,421 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_PANEL DIALOGEX 0, 0, 108, 354
+STYLE DS_SETFONT | WS_CHILD | WS_VISIBLE | WS_BORDER
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    PUSHBUTTON      "Scene Info",IDC_EVAL,5,90,96,9
+    PUSHBUTTON      "Browse",IDC_BROWSE,54,108,41,15
+    EDITTEXT        IDC_DEFOUTPATH,5,125,96,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_SKINFILENAME,5,155,96,12,ES_AUTOHSCROLL
+    PUSHBUTTON      "Save mesh/refpose",IDC_SAVESKIN,12,174,81,14
+    EDITTEXT        IDC_ANIMFILENAME,5,243,96,12,ES_AUTOHSCROLL
+    PUSHBUTTON      "Digest animation",IDC_DIGESTANIM,12,265,81,14
+    EDITTEXT        IDC_ANIMNAME,5,291,96,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ANIMRANGE,5,316,96,12,ES_AUTOHSCROLL
+    PUSHBUTTON      "Animation manager",IDC_ANIMMANAGER,12,333,81,14
+    CONTROL         127,IDC_LOGOUNREAL,"Static",SS_BITMAP | SS_NOTIFY | 
+                    SS_SUNKEN,5,7,99,39
+    CTEXT           "Version XSI 0.00 \n © 2005  Epic Games",IDC_STATIC2,5,
+                    62,96,19
+    LTEXT           "output folder",IDC_STATIC,5,114,40,8
+    LTEXT           "animation sequence name",IDC_STATIC,11,282,84,8
+    LTEXT           "mesh file name",IDC_STATIC,5,145,48,8
+    LTEXT           "animation range",IDC_STATIC,11,307,51,8
+    LTEXT           "animation file name",IDC_STATIC,5,230,61,8
+    GROUPBOX        "",IDC_STATIC,5,194,96,30
+END
+
+IDD_AUXPANEL DIALOGEX 0, 0, 108, 415
+STYLE DS_SETFONT | WS_CHILD | WS_VISIBLE | WS_BORDER
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    CONTROL         "all selected",IDC_CHECKSKINALLS,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,7,67,53,10
+    CONTROL         "cull unused dummies",IDC_CHECKCULLDUMMIES,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,7,119,88,10
+    LTEXT           "- Skin Export -",IDC_STATIC,11,33,45,8
+    LTEXT           "- Bones -",IDC_STATIC,11,107,29,8
+    LTEXT           "- Logfiles - ",IDC_STATIC,11,162,35,8
+    CONTROL         "no log files",IDC_CHECKNOLOG,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,7,174,49,10
+    CONTROL         "persistent settings",IDC_CHECKPERSISTSETTINGS,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,9,4,72,10
+    CONTROL         "persistent paths",IDC_CHECKPERSISTPATHS,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,9,17,65,10
+    CONTROL         "bake smoothing groups",IDC_CHECKDOUNSMOOTH,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,7,91,89,10
+    CONTROL         "(invert)",IDC_CHECKSKINNOS,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,63,68,37,10
+    LTEXT           "- Global scale factor -",IDC_STATIC,11,132,68,8
+    EDITTEXT        IDC_EDITGLOBALSCALE,7,144,72,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    CONTROL         "all textured",IDC_CHECKSKINALLT,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,7,55,50,10
+    CONTROL         "all skin-type",IDC_CHECKSKINALLP,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,7,43,53,10
+    CONTROL         "tangent UV splits",IDC_CHECKDOTANGENTS,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,7,79,69,10
+END
+
+IDD_ABOUTBOX DIALOG  0, 0, 151, 200
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About ActorX"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,48,179,50,14
+    CTEXT           "Unreal Actor Exporter\n\n Version: Max 2.15 \n\n (c) 2003  Epic Games, Inc.\n\n All Rights Reserved.",
+                    IDC_STATIC2,20,95,108,62
+    CONTROL         127,IDC_STATIC,"Static",SS_BITMAP | SS_SUNKEN,29,14,93,
+                    66
+END
+
+IDD_ACTORMANAGER DIALOG  0, 0, 465, 274
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "ActorX Animation Manager"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "animations",IDC_STATIC,151,13,34,8
+    LTEXT           "Animation Properties",IDC_STATIC,31,15,65,8
+    GROUPBOX        "",IDC_STATIC,7,7,211,261
+    PUSHBUTTON      "OK",IDCANCEL,363,244,68,16
+    LISTBOX         IDC_LISTIN,134,23,80,219,LBS_SORT | LBS_NOINTEGRALHEIGHT | 
+                    LBS_EXTENDEDSEL | WS_VSCROLL | WS_TABSTOP
+    LISTBOX         IDC_LISTOUT,257,23,80,219,LBS_SORT | 
+                    LBS_NOINTEGRALHEIGHT | LBS_EXTENDEDSEL | WS_VSCROLL | 
+                    WS_TABSTOP
+    LTEXT           "Output Package",IDC_STATIC,267,7,53,8
+    PUSHBUTTON      "Save",IDC_ANIMSAVE,363,170,68,16
+    PUSHBUTTON      "Save As..",IDC_ANIMSAVEAS,363,192,68,16
+    PUSHBUTTON      "Load",IDC_ANIMLOAD,363,126,68,16
+    PUSHBUTTON      "-->",IDC_MOVEOUT,222,57,31,14
+    PUSHBUTTON      "<--",IDC_MOVEIN,222,73,31,14
+    PUSHBUTTON      "==>",IDC_COPYOUT,222,110,31,14
+    PUSHBUTTON      "<==",IDC_COPYIN,222,126,31,14
+    LTEXT           "move",IDC_STATIC,228,46,18,8
+    LTEXT           "copy",IDC_STATIC,230,98,16,8
+    LTEXT           "-",IDC_ANIMFRAMES,21,87,34,8
+    LTEXT           "Total keys",IDC_STATIC,21,111,34,8
+    LTEXT           "-",IDC_TOTALSIZE,65,111,31,8
+    LTEXT           "-",IDC_ANIMSECONDS,21,99,34,8
+    LTEXT           "frames",IDC_STATIC,61,87,22,8
+    LTEXT           "seconds",IDC_STATIC,61,99,28,8
+    PUSHBUTTON      "delete",IDC_DELIN,138,247,31,14
+    EDITTEXT        IDC_EDITRATE,15,58,39,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDITGROUP,15,43,58,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDITNAME,15,28,58,12,ES_AUTOHSCROLL
+    LTEXT           "rate (frames/sec)",IDC_STATIC,58,61,54,8
+    LTEXT           "groupname",IDC_STATIC,79,46,36,8
+    LTEXT           "name",IDC_STATIC,81,31,18,8
+    LTEXT           "Animation Package",IDC_STATIC,353,56,92,8
+    PUSHBUTTON      "delete",IDC_DELOUT,265,249,31,14
+    GROUPBOX        "file name",IDC_STATIC,363,214,68,25
+    CONTROL         "Spin1",IDC_INSHUF,"msctls_updown32",UDS_WRAP | 
+                    UDS_ARROWKEYS | WS_DISABLED,202,246,11,16
+    CONTROL         "Spin2",IDC_OUTSHUF,"msctls_updown32",UDS_ARROWKEYS | 
+                    WS_DISABLED,327,246,11,16
+    CTEXT           "Static",IDC_PACKAGENAME,367,225,61,8
+    PUSHBUTTON      "sort",IDC_ANIMSORT,100,247,31,14
+    CONTROL         127,IDC_LOGOUNREAL,"Static",SS_BITMAP | SS_NOTIFY | 
+                    SS_SUNKEN,351,7,95,52
+    PUSHBUTTON      "Load As..",IDC_LOADANIMAS,364,148,68,16
+    LTEXT           "Scale keys ",IDC_STATIC,22,126,38,8
+    LTEXT           "-",IDC_TOTALSCALERS,65,126,31,8
+END
+
+IDD_SCENEINFO DIALOG  0, 0, 195, 263
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "scene info"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,138,242,50,14
+    LTEXT           "Number of physique meshes:",IDC_STATIC,19,20,92,8
+    LTEXT           "Total geometric objects:",IDC_STATIC,35,33,76,8
+    LTEXT           "Bones in main skeleton:",IDC_STATIC,35,46,76,8
+    GROUPBOX        "Stats",IDC_STATIC,7,7,181,56
+    GROUPBOX        "Skin",IDC_STATIC,7,65,181,70
+    GROUPBOX        "Skeleton",IDC_STATIC,7,140,181,44
+    GROUPBOX        "Animation",IDC_STATIC,7,187,181,52
+    LTEXT           "000",IDC_PHYMESHES,113,20,30,8
+    LTEXT           "000",IDC_MESHES,113,33,30,8
+    LTEXT           "000",IDC_BONESCURRENT,113,46,30,8
+    LTEXT           "Total elements",IDC_STATIC,17,155,47,8
+    LTEXT           "000",IDC_TOTALBONES,67,155,17,8
+    LTEXT           "Geom/Biped bones",IDC_BIPEDBONES,89,155,62,8
+    LTEXT           "000",IDC_BIPBONES,160,155,22,8
+    LTEXT           "Dummies",IDC_STATIC,89,168,30,8
+    LTEXT           "000",IDC_DUMMIES,160,168,22,8
+    LTEXT           "MAX bones",IDC_TRIANGLES3,17,168,38,8
+    LTEXT           "000",IDC_MAXBONES,67,168,18,8
+    LTEXT           "Faces",IDC_STATIC,27,77,20,8
+    LTEXT           "000",IDC_FACES,75,77,40,8
+    LTEXT           "Vertices",IDC_TRIANGLES4,26,88,26,8
+    LTEXT           "000",IDC_VERTS,75,88,40,8
+    LTEXT           "Frames (+0th)",IDC_STATIC,53,200,44,8
+    LTEXT           "Ticks per frame",IDC_STATIC,47,212,50,8
+    LTEXT           "Total time",IDC_STATIC,65,224,32,8
+    LTEXT           "000",IDC_FRAMES,109,200,55,8
+    LTEXT           "000",IDC_TICKSFRAME,109,212,55,8
+    LTEXT           "000",IDC_TOTALTIME,109,224,55,8
+    LTEXT           "Skeletal elements linked to skin:",IDC_STATIC,17,102,
+                    103,8
+    LTEXT           "Total # of links to skin:",IDC_STATIC,45,117,75,8
+    LTEXT           "000",IDC_LINKEDBONES,129,102,35,8
+    LTEXT           "000",IDC_TOTALLINKS,129,117,35,8
+END
+
+IDD_VERTEX DIALOG  0, 0, 108, 191
+STYLE DS_SETFONT | WS_CHILD | WS_BORDER
+FONT 8, "MS Sans Serif"
+BEGIN
+    PUSHBUTTON      "Export",IDC_EXPORTVERTEX,7,99,34,26
+    EDITTEXT        IDC_EDITVERTEXRANGE,47,110,52,13,ES_AUTOHSCROLL
+    LTEXT           "frame range",IDC_STATIC,52,99,43,8
+    EDITTEXT        IDC_EDITFIXEDSCALE,72,129,25,12,ES_AUTOHSCROLL
+    CONTROL         "  fixed scale:",IDC_CHECKFIXEDSCALE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,9,132,55,10
+    CONTROL         " append to existing",IDC_CHECKAPPENDVERTEX,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,9,142,75,10
+    PUSHBUTTON      "Browse",IDC_BROWSEVTX,54,28,41,14
+    EDITTEXT        IDC_PATHVTX,10,44,89,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_FILENAMEVTX,10,74,89,12,ES_AUTOHSCROLL
+    LTEXT           "output folder",IDC_STATIC,10,33,40,8
+    LTEXT           "mesh file name",IDC_STATIC,10,64,48,8
+END
+
+IDD_XSIPANEL DIALOGEX 0, 0, 154, 449
+STYLE DS_SETFONT | DS_MODALFRAME | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_TOOLWINDOW
+CAPTION "ActorX"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    CONTROL         "Tab1",IDC_TAB1,"SysTabControl32",0x0,7,7,140,435
+END
+
+IDD_STATICMESH DIALOGEX 0, 0, 132, 238
+STYLE DS_SETFONT | WS_CHILD | WS_VISIBLE | WS_BORDER
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    DEFPUSHBUTTON   "Export Mesh",ID_EXPORTMESH,5,201,88,26
+    CONTROL         "Convert underscores to spaces",IDC_CHECKUNDERSCORE,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,73,114,10
+    CONTROL         "Selected items only",IDC_CHECKSELECTEDSTATIC,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,5,87,77,10
+    EDITTEXT        IDC_EDITOUTPATH,5,176,82,14,ES_AUTOHSCROLL
+    CONTROL         "Use geometry names as filename",IDC_CHECKGEOMNAME,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,101,120,10
+    CONTROL         "Obey hard edges",IDC_CHECKSMOOTH,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,5,131,70,10
+    CONTROL         "No popup confirmations",IDC_CHECKSUPPRESS,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,5,59,91,10
+    PUSHBUTTON      "...",IDC_BROWSEOUT,89,176,19,14
+    LTEXT           "- Mesh -",IDC_STATIC,9,120,26,8
+    LTEXT           "- Exporter -",IDC_STATIC,9,46,35,8
+    CONTROL         127,IDC_STATIC,"Static",SS_BITMAP,5,7,93,38
+    CONTROL         "Consolidate output geometry",IDC_CHECKCONSOLIDATE,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,145,105,10
+    LTEXT           "- default output path -",IDC_STATIC,9,166,70,8
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_PANEL, DIALOG
+    BEGIN
+        LEFTMARGIN, 5
+        RIGHTMARGIN, 101
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 347
+    END
+
+    IDD_AUXPANEL, DIALOG
+    BEGIN
+        LEFTMARGIN, 1
+        RIGHTMARGIN, 107
+        BOTTOMMARGIN, 408
+    END
+
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 144
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 193
+    END
+
+    IDD_ACTORMANAGER, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 459
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 268
+    END
+
+    IDD_SCENEINFO, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 188
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 256
+    END
+
+    IDD_VERTEX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        TOPMARGIN, 9
+        BOTTOMMARGIN, 186
+    END
+
+    IDD_XSIPANEL, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 147
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 442
+    END
+
+    IDD_STATICMESH, DIALOG
+    BEGIN
+        LEFTMARGIN, 5
+        RIGHTMARGIN, 125
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 230
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+UnrealLogo140           BITMAP                  "Unreal140.bmp"
+IDB_BITMAP5             BITMAP                  "actorX.bmp"
+IDB_BITMAP3             BITMAP                  "actorXnew.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x2L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "CompanyName", "Epic Games"
+            VALUE "FileDescription", "ActorX"
+            VALUE "FileVersion", "1, 0, 0, 1"
+            VALUE "InternalName", "ActorX"
+            VALUE "LegalCopyright", "Copyright 1998-2011 Epic Games, Inc. All Rights Reserved."
+            VALUE "OriginalFilename", "ActorX.dll"
+            VALUE "ProductName", "Epic Games ActorX"
+            VALUE "ProductVersion", "1, 0, 0, 1"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE 
+BEGIN
+    IDS_LIBDESCRIPTION      "Epic Games 3D Data Utility"
+    IDS_CATEGORY            "Epic"
+    IDS_CLASS_NAME          "ActorX"
+    IDS_PARAMS              "Parameters"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

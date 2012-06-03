@@ -1,0 +1,589 @@
+/*
+
+	ActorY.mel
+
+	version:  0.99
+
+	author : Sebastian Woldanski PCF (swoldansk@peoplecanfly.com)
+
+	for maya 7.0 and above
+
+Description:
+	Wrapper for new static mesh export function "actory()" from ActorX plug-in with goal to batch export maya scene to unreal to unreal static meshes without the need to drag everything into its proper place while keeping pivots
+
+Features:
+	-actory is separate command with maya style flags
+	-UI in mel - not in windows api - overcomes viewports refresh degeneration, better support for batch exporting, easier extending, saving to maya prefernces
+	-batch export multiple objects to separate ase files
+	- object space export
+	-t3d file export (for static actor placement (with object space) )
+	- api static mesh triangulation
+	- api skinned mesh triangulation
+	- optional suffix "_Mat" added to end of texture name for correct auto assigning auto created materials
+	- second uv set for skinned mesh ( )
+
+Notes:
+	-names for multiple objects export mode are same as  maya mesh shape (with stripped namespace ':' and dag path '|' )
+	-t3d names are taken from mesh transform node (as above)
+	-t3d exports one file per mesh and file for all meshes (so one can import single or all object )
+		t3d import to Unreal can be by copy paste , but beware same names are not skipped but autorenamed (so possible is object duplication) So easiest way is to select actors in scne -ctrx (cut them) and then copy paste t3d file(s)
+
+Usage:
+	t3d
+		exports transformations of meshes
+		use with object space flags
+		exports one file for every exported mesh and also global file with all them put together  (with maya scene name)
+		to use import ase to package and then copy paste t3d file(s) from text editor to engine viewport
+
+
+
+TODO:
+	skinned mesh triangulation
+	regular maya ase t3d exporter
+	ctrc ctrlv between editor and maya
+	extended material support
+
+
+
+history:
+
+
+bugs and issues and limitations:
+
+
+
+Usage:
+
+
+
+*/
+
+
+global int $ExtraUILib = 0;
+if ($ExtraUILib)
+	eval("source \"!!!_UI_lib.mel\"");
+
+
+
+
+global int $StaticMeshActor_Inc = 1;
+global int $globalFIleTab;
+
+proc tabify()
+{
+	global int $globalFIleTab ;
+	$globalFIleTab++;
+}
+proc untabify()
+{
+	global int $globalFIleTab ;
+	if ($globalFIleTab > 0)
+		$globalFIleTab--;
+	else
+		$globalFIleTab=0;
+}
+proc string pritify(string $str)
+{
+	$str = `match "[^/\|]*$" $str`;
+	$str = `match "[^/\:]*$" $str`;
+
+	return $str;
+}
+
+
+
+proc ActorXToolCmdInit()
+{
+	string $p = "ActorXTool.mll";
+	if (!`pluginInfo -q -loaded $p`)
+	{
+		if (catchQuiet(`loadPlugin $p`))
+		{
+			error("ERROR: can`t load \""+$p+"\" plugin. Can`t proceed !!!");
+		}
+
+	}
+}
+
+
+proc ActorY_LoadPrefs()
+{
+	global int $ExtraUILib;
+
+	if (`optionVar -exists "ActorYSel_Opt"`)
+	{
+		checkBox -e -v (`optionVar -q "ActorYSel_Opt" `) ActorYSel;
+	}
+	if (`optionVar -exists "ActorYGeoNames_Opt"`)
+	{
+		checkBox -e -v (`optionVar -q "ActorYGeoNames_Opt" `) ActorYGeoNames;
+	}
+	if (`optionVar -exists "ActorYSeparate_Opt"`)
+	{
+		//~ print("aaa");
+		checkBox -e -v (`optionVar -q "ActorYSeparate_Opt" `) ActorYSeparate;
+	}
+	if (`optionVar -exists "ActorYobjectSpace_Opt"`)
+	{
+		checkBox -e -v (`optionVar -q "ActorYobjectSpace_Opt" `) ActorYobjectSpace;
+	}
+	if (`optionVar -exists "ActorYt3d_Opt"`)
+	{
+		checkBox -e -v (`optionVar -q "ActorYt3d_Opt" `) ActorYt3d;
+		frameLayout  -e -en (`optionVar -q "ActorYt3d_Opt" `) ActorYT3DExportLayout;
+	}
+	//~ if (`optionVar -exists "ActorYPackageName_Opt"`)
+	//~ {
+		//~ textFieldGrp -e -tx (`optionVar -q "ActorYPackageName_Opt" `) ActorYPackageName;
+	//~ }
+	if (`optionVar -exists "ActorYScale_Opt"`)
+	{
+		floatFieldGrp -e -v1 (`optionVar -q "ActorYScale_Opt" `) ActorYScale;
+	}
+	if (`optionVar -exists "ActorYAse_Opt"`)
+	{
+		checkBox -e -v (`optionVar -q "ActorYAse_Opt" `) ActorYAse;
+		frameLayout  -e -en (`optionVar -q "ActorYAse_Opt" `) ActorYAseExportLayout;
+	}
+
+	if (`optionVar -exists "ActorYSelected"`)
+	{
+		checkBox -e -v (`optionVar -q "ActorYSelected" `) ActorYSelected;
+	}
+	if (`optionVar -exists "ActorYConsolidate"`)
+	{
+		checkBox -e -v (`optionVar -q "ActorYConsolidate" `) ActorYConsolidate;
+	}
+	if (`optionVar -exists "ActorYSmooth"`)
+	{
+		checkBox -e -v (`optionVar -q "ActorYSmooth" `) ActorYSmooth;
+	}
+	if (!$ExtraUILib && `optionVar -exists "ActorYPackageName"`)
+	{
+		textFieldGrp -e -tx (`optionVar -q "ActorYPackageName" `) ActorYPackageName;
+	}
+	if (!$ExtraUILib && `optionVar -exists "ActrorYDir"`)
+	{
+		textFieldButtonGrp  -e -tx (`optionVar -q "ActrorYDir" `) ActrorYDir;
+	}
+}
+global proc ActorYBrowserCmd( string $a , string $b)
+{
+	textFieldButtonGrp  -e  -tx $a ActrorYDir;
+	optionVar -sv  "ActrorYDir" $a;
+}
+global proc ActorYBrowser( )
+{
+
+	string $ws = `workspace -q -dir`;
+	string $path = `textFieldButtonGrp  -q -tx  ActrorYDir`;
+	print $path;
+	if ($path !="" || (`filetest -d ("\"" + $path +"\"")`))
+	{
+		chdir $path;
+		workspace -dir $path;
+	}
+
+	fileBrowser ("ActorYBrowserCmd", "Open", "ase	", 4);
+
+	workspace -dir $ws;
+}
+global proc ActorY_Window()
+{
+	if (`window -exists ActorYUI`) deleteUI ActorYUI;
+	window -t "ActorY (Alternative Medicine)" -maximizeButton 0 -rtf 1 -w 224 -h 462 -s 1 ActorYUI;
+
+	global int $ExtraUILib;
+
+	string $form = `formLayout`;
+
+	string $colum = `columnLayout	-adj  1	-rowSpacing 10`;
+
+		separator -st "none";
+
+		//~ text -l "Unreal Stuff";
+		text -l "ActorY - Static Mesh Exporter";
+
+		separator -st "none";
+
+		frameLayout
+		-cll 0
+		-cl 0
+		-bs "etchedOut"
+		-mw 10
+		-mh 10
+		-label "Export"
+		-lv 0
+		-fn "boldLabelFont"
+		-labelAlign "center"
+		;
+
+			string $layout =`columnLayout
+			-adj  1
+			-rowSpacing 10`
+			;
+		//~ separator -st "none";
+		//~ text -al "left" -l "- Exporter - ";
+
+
+		if ($ExtraUILib)
+			slib_createControl("textFieldGrpBrowser", "ActrorYDir", "default export path", $layout, "directory", "","");
+		else
+		{
+			textFieldButtonGrp  -fi 1 -l "default export path" -bl "browse" -bc "ActorYBrowser()" -tx "" ActrorYDir;
+
+		}
+
+			frameLayout
+			-cll 0
+			-cl 0
+			-bs "etchedOut"
+			-mw 10
+			-mh 10
+			-label "Export"
+			-lv 1
+			-fn "boldLabelFont"
+			-labelAlign "center"
+			;
+
+				string $layout =`columnLayout
+				-adj  1
+				-rowSpacing 10`
+				;
+
+			rowLayout -cw 1 200 -numberOfColumns 2 -adj 2 ;
+				floatFieldGrp  -en 1 -adj 2 -cal 1 "left"  -l "global scene scale" -nf 1 -v1 1.0 -cc ("optionVar -fv  ActorYScale_Opt #1")  ActorYScale;
+				text -l"";
+			setParent..;
+			checkBox -v 1 -en 1 -al "left" -l "selected items only" -cc ("optionVar -iv  ActorYSelected #1") ActorYSelected;
+
+					checkBox -v 1 -en 1 -al "left" -l "export  ase" -cc ("optionVar -iv  ActorYAse_Opt #1;frameLayout  -e -en #1 ActorYAseExportLayout") ActorYAse;
+
+					frameLayout
+					-cll 0
+					-cl 0
+					-bs "etchedOut"
+					-mw 10
+					-mh 10
+					-label "ASE"
+					-lv 1
+					-fn "boldLabelFont"
+					-labelAlign "center"
+					 ActorYAseExportLayout
+
+					;
+
+						string $layout =`columnLayout
+						-adj  1
+						-rowSpacing 10`
+						;
+							checkBox -v 0 -en 1 -al "left" -l "export in object space"  -cc ("optionVar -iv  ActorYobjectSpace_Opt #1") ActorYobjectSpace;
+							checkBox -v 1 -en 1 -al "left" -l "export one file (ase) per mesh" -cc ("optionVar -iv  ActorYSeparate_Opt #1") ActorYSeparate;
+							//~ checkBox -v 1 -en 1 -al "left" -l "combine meshes to one file" -cc ("optionVar -iv  ActorYSeparate_Opt #1") ActorYSeparate;
+
+
+							//checkBox -v 1 -en 1 -al "left" -l "combine meshes to one file" -cc ("optionVar -iv  ActorYCombine #1") ActorYCombine;
+
+
+
+
+							frameLayout
+							-cll 1
+							-cl 1
+							-bs "etchedOut"
+							-mw 10
+							-mh 10
+							-label "extra options"
+							-lv 1
+							-fn "boldLabelFont"
+							-labelAlign "center"
+							;
+
+								string $layout =`columnLayout
+								-adj  1
+								-rowSpacing 10`
+								;
+
+									checkBox -v 0 -en 1 -al "left" -l "consolidate output geometry" -cc ("optionVar -iv  ActorYConsolidate #1") ActorYConsolidate;
+									checkBox -v 1 -en 1 -al "left" -l "obey hard edges (convert to smoothing groups)" -cc ("optionVar -iv  ActorYSmooth #1") ActorYSmooth;
+
+
+								setParent..;
+							setParent..;
+						setParent..;
+					setParent..;
+
+					checkBox -v 1 -en 1 -al "left" -l "export T3D file"  -cc ("optionVar -iv  ActorYt3d_Opt #1;frameLayout  -e -en #1 ActorYT3DExportLayout;") ActorYt3d;
+
+					frameLayout
+					-cll 0
+					-cl 0
+					-bs "etchedOut"
+					-mw 10
+					-mh 10
+					-label "T3D"
+					-lv 1
+					-fn "boldLabelFont"
+					-labelAlign "center"
+					ActorYT3DExportLayout
+					;
+
+						string $layout =`columnLayout
+						-adj  1
+						-rowSpacing 10`
+						;
+
+							//~ if ($ExtraUILib)
+								//~ slib_createControl("textFieldGrp", "ActorYPackageName", "package name for t3d", $layout, "directory", "","");
+							//~ else
+							{
+								textFieldGrp -l "package name for t3d" -tx "package_name" -cc ("optionVar -sv  ActorYPackageName #1")  ActorYPackageName;
+							}
+						setParent..;
+					setParent..;
+			setParent..;
+
+
+		setParent..;
+
+
+
+
+		separator -st "none";
+
+		button -w 300 -h 50 -l "Export Static Meshes" -c "ExportActorY";
+
+
+
+		setParent..;
+	setParent..;
+
+ 	formLayout -edit
+ 		-attachForm $colum "top"    10
+  		-attachForm $colum "left"   10
+  		-attachForm $colum "bottom" 10
+  		-attachForm $colum "right"  10
+  		$form;
+
+
+	ActorY_LoadPrefs();
+
+
+	showWindow ActorYUI;
+}
+
+global proc ActorY()
+{
+	ActorXToolCmdInit();
+	evalDeferred("ActorY_Window");
+
+}
+
+
+global proc addLine(string $lines[], string $line)
+{
+	global int $globalFIleTab ;
+	int $i =1;
+	string $extraString="";
+
+	while($i < $globalFIleTab)
+	{
+		$extraString = $extraString +"   ";
+		$i++;
+	}
+
+	$lines[(size($lines))] =  $extraString +$line + "\n";
+
+}
+global proc writeTableToFile(int $file , string $lines[])
+{
+	for ($l in $lines)
+	{
+		fprint $file $l;
+	}
+
+}
+global proc writeSeparete_t3dFile(string $path , string $liness[] )
+{
+	int $f1 = `fopen $path "w"`;
+	if ($f1 ==0)
+		return;
+
+	fprint ($f1, "Begin Map");
+	fprint ($f1, "\nBegin Level NAME=PersistentLevel\n");
+	writeTableToFile($f1 ,$liness );
+	fprint ($f1, "	End Level");
+	fprint ($f1, "\nEnd Map");
+
+
+	fclose($f1);
+
+
+}
+
+global proc export_t3d_actors(string $sel[], string $dir)
+{
+	global int $StaticMeshActor_Inc;
+
+	global int $globalFIleTab ;
+	$globalFIleTab= 1;
+
+	string $path = `file -q -exn`;
+	string $filepart = `match "[^/\\]*$" $path`;
+	string $filename = `match "^[^\.]*" $filepart`;
+
+
+	string $file = $dir + "/" + $filename  + ".t3d";
+	int $f = `fopen $file "w"`;
+	if ($f ==0)
+		error ("fopen failed to open " + $file);
+
+
+
+	string $liness[];
+	addLine($liness, "Begin Map");
+	tabify();
+	addLine($liness, "Begin Level NAME=PersistentLevel");
+	tabify();
+	writeTableToFile($f ,$liness );
+	clear $liness;
+
+	int $i=0;
+	string $aa[] ;
+
+	string $packageName =`textFieldGrp  -q -tx ActorYPackageName`;//`textFieldGrp -q -tx "ActrorYPackageNameControl";
+	if ($packageName == "") $packageName ="packageName";
+
+
+
+	float $sc = `floatFieldGrp  -q -v1 ActorYScale`;
+
+	float $rot_int=   65535.0 / 360.0;
+	for ($tr in $sel)
+	{
+		clear $liness;
+		if (`nodeType $tr`!= "transform") continue ;
+
+		string $sh[] =`ls -dag -lf -ni $tr`;
+
+		if (!size($sh)) continue ;
+
+		string $shape =  pritify($sh[0]);
+		float $posMaya[3] =  `xform -q -ws -a -t  $tr`;
+
+		float $pos[3] ;
+
+		$pos[0] = -$posMaya[0] * $sc;
+		$pos[1] = -$posMaya[2] *$sc;
+		$pos[2] = $posMaya[1] *$sc;
+
+		float $rotMaya[3] =  `xform -q -ws -a -ro  $tr`;
+		int $rot[3]   ;
+		$rot[0] = $rotMaya[0] * $rot_int  ;
+		$rot[1]   = $rotMaya[1] * $rot_int ;
+		$rot[2]   = $rotMaya[2] * $rot_int ;
+		string $StaticMeshActor ="StaticMeshActor_" + pritify($tr) +"_" + $StaticMeshActor_Inc;
+
+
+
+		addLine($liness, "Begin Actor Class=StaticMeshActor Name=" + $StaticMeshActor );
+		tabify();
+		string $t3d = "\Begin Object Class=StaticMeshComponent Name=StaticMeshComponent0 ObjName=StaticMeshComponent_2 Archetype=StaticMeshComponent'Engine.Default__StaticMeshActor.StaticMeshComponent0'";
+		addLine($liness,  $t3d);
+			tabify();
+			addLine($liness,  "StaticMesh=StaticMesh'" + $packageName + "." + $shape +"'");
+			addLine($liness,  "bIsOwnerAStaticMeshActor=True");
+			addLine($liness,  "LightingChannels=(bInitialized=True,Static=True)");
+			addLine($liness,  "bDirty=False");
+			addLine($liness,  "Name=\"StaticMeshComponent_2\"");
+			addLine($liness,  "ObjectArchetype=StaticMeshComponent'Engine.Default__StaticMeshActor.StaticMeshComponent0'");
+			untabify();
+			addLine($liness,  "End Object");
+		untabify();
+		addLine($liness,  "StaticMeshComponent=StaticMeshComponent'StaticMeshComponent_2'");
+		addLine($liness,  "Components(0)=StaticMeshComponent'StaticMeshComponent_2'");
+		addLine($liness,  "Tag=\"StaticMeshActor\"");
+		addLine($liness,  "Location=(X="+$pos[0]+",Y="+$pos[1]+",Z="+$pos[2]+")");
+		addLine($liness,  "Rotation=(Pitch="+$rot[0]+",Yaw="+$rot[1]+",Roll="+$rot[2]+")");
+		addLine($liness,  "CollisionComponent=StaticMeshComponent'StaticMeshComponent_2'");
+		addLine($liness,  "Name=\"" + $StaticMeshActor + "\"");
+		addLine($liness,  "ObjectArchetype=StaticMeshActor'Engine.Default__StaticMeshActor'");
+		addLine($liness,  "End Actor");
+		writeTableToFile($f ,$liness );
+
+		writeSeparete_t3dFile(($dir + "/" + $shape  + ".t3d") , $liness );
+
+
+		$StaticMeshActor_Inc++;
+	}
+	clear $liness;
+	untabify();
+	addLine($liness, "End Level");
+	untabify();
+	addLine($liness, "End Map");
+	writeTableToFile($f ,$liness );
+	fclose $f;
+}
+
+global proc ActorY_t3d()
+{
+
+
+	string $sel[] =`ls -sl `;
+
+	string $dir = `textFieldButtonGrp -q -tx ActrorYDir`;
+	global int $StaticMeshActor_Inc ;
+	$StaticMeshActor_Inc =1;
+
+
+	export_t3d_actors($sel, $dir);
+
+
+
+}
+global proc ExportActorY()
+{
+	waitCursor -st 1;
+	string $cmd ="";
+	string $dir = `textFieldButtonGrp -q -tx ActrorYDir`;
+	if(`checkBox -q -v ActorYAse`)
+	{
+		if (`checkBox -q -v  ActorYSeparate`)
+		{
+			$cmd += " -sep";
+		}
+		if (`checkBox -q -v  ActorYobjectSpace`)
+		{
+			$cmd += " -os";
+		}
+		if (`checkBox -q -v  ActorYSmooth`)
+		{
+			$cmd += " -convertSmooth";
+		}
+		if (`checkBox -q -v  ActorYConsolidate`)
+		{
+			$cmd += " -cons";
+		}
+		if (`floatFieldGrp  -q -v1 ActorYScale` != 1)
+		{
+			float $sc = `floatFieldGrp  -q -v1 ActorYScale`;
+			$cmd += " -s " + $sc;
+		}
+
+		$cmd += " -f \"" + $dir + "\"";
+		if(`checkBox -q -v ActorYAse`)
+			evalEcho("actory " + $cmd);
+	}
+
+
+
+	//~ print($dir);
+
+
+
+	if (`checkBox -q -v  ActorYt3d`)
+		ActorY_t3d();
+
+	waitCursor -st 0;
+
+}

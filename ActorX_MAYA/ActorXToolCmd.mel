@@ -1,0 +1,163 @@
+/*
+
+	ActorXToolCmd.mel
+
+	author : Sebastian Woldanski PCF (swoldansk@peoplecanfly.com)
+
+
+
+Description:
+	Simple window to display list of tools for ActorX plug-in .
+	Shows windows for old generic ActorX
+		static mesh exporter window
+		skeletal exporter window
+		ActorX optinos window
+	And newer tools
+
+Notes:
+
+	tested with maya 7.0
+history:
+	v 1.0
+
+
+Usage:
+
+
+
+
+*/
+
+
+
+global float $ActorXPluginVersion = -1.0 ;
+proc ActorXToolCmdInit()
+{
+	global float $ActorXPluginVersion;
+	string $p = "ActorXTool.mll";
+	if (!`pluginInfo -q -loaded $p`)
+	{
+		if (catchQuiet(`loadPlugin $p`))
+		{
+			error("ERROR: can`t load \""+$p+"\" plugin. Can`t proceed !!!");
+		}
+	}
+	evalDeferred("$ActorXPluginVersion = (`pluginInfo -q- v " +$p + "`);");
+}
+global proc ActorXToolUICmd()
+{
+	global float $ActorXPluginVersion;
+	if (`window -exists ActorXToolCmdUI`) deleteUI ActorXToolCmdUI;
+	window -t "Unreal ActorX Wrapper ver 1.0 " -maximizeButton 0 -iconName "acx" -rtf 1 -w 100 ActorXToolCmdUI;
+
+	columnLayout -adj 1 -rowSpacing 5;
+		frameLayout
+			-label ("ActorX (plug-in ver " + $ActorXPluginVersion +")")
+			-cll 0
+			-cl 0
+			-bs "etchedOut"
+			-mw 15
+			-mh 15
+			-labelAlign "center";
+
+
+			columnLayout -adj 1 -rowSpacing 5;
+
+				text -l "Wrapper for Unreal ActorX plug-in  options";
+				separator -h 15 -st "none";
+
+				button -h 45 -l "export static mesh" -c "axmeshDo";
+				button -h 45 -l "export actor mesh" -c "axmain";
+				button -h 45 -l "export options" -c "axoptions";
+
+				if ($ActorXPluginVersion >= 2.43)
+				{
+
+					frameLayout
+						-label "batch export for animation"
+						-cll 0
+						-cl 0
+						-bs "etchedOut"
+						-mw 15
+						-mh 15
+						-labelAlign "center";
+
+
+						columnLayout -adj 1 -rowSpacing 5;
+
+							text -l "Export current maya file to PSK or PSA with maya scene name and path";
+							separator -h 15 -st "none";
+
+							button -w 300 -h 45 -l "export current scene skinned mesh to PSK " -c "ActorX_PSK()";
+							button -w 300 -h 45 -l "export current scene animation to PSA" -c "ActorX_PSA()";
+
+
+							setParent ..;
+						setParent ..;
+					//~ setParent ..;
+					frameLayout
+						-label "ActorY window"
+						-cll 0
+						-cl 0
+						-bs "etchedOut"
+						-mw 15
+						-mh 15
+						-labelAlign "center";
+
+
+						columnLayout -adj 1 -rowSpacing 5;
+
+							text -l "UI window for static mesh exporter with newer functionality";
+							//~ separator -h 15 -st "none";
+
+							button -w 300 -h 45 -l "ActorY" -c "ActorY";
+							//~ button -w 300 -h 45 -l "export current scene animation to PSA" -c "ActorX_PSA()";
+
+
+							setParent ..;
+						setParent ..;
+					setParent ..;
+				}
+			setParent ..;
+		setParent..;
+
+
+	showWindow ActorXToolCmdUI;
+}
+global proc ActorXToolCmd()
+{
+	global float $ActorXPluginVersion;
+	ActorXToolCmdInit();
+	source "ActorX_AutoExport.mel";
+	evalDeferred("ActorXToolUICmd; ");
+
+
+}
+global proc axmeshDo( )
+{
+	//~ string $tris[] = autoTringulate();
+	axmesh();
+	//~ catchQuiet(`delete $tris`);
+}
+global proc string[]  autoTringulate( )
+{
+	string $allSell[]=`ls -sl`;
+	string $Sell[]  = `ls -dag -lf -o -ni -type  "mesh"` ;
+
+	int $i;
+	string $triangs[];
+	for ($node in $Sell)
+		{
+		int $polyEval[] = `polyEvaluate -f -t $node` ;
+		if (   $polyEval[0]  != $polyEval[1] )
+			{
+			string $tr[] = `polyTriangulate  -ch 1 $node`;
+			$triangs[$i++] = $tr[0];
+			}
+
+		}
+	if (`size   $triangs `  )
+	select -r $allSell;
+	return $triangs;
+}
+

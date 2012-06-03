@@ -1,0 +1,35 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ActorXSI", "ActorX.vcproj", "{F83CA99F-06C6-44DA-82F1-A78495D19923}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SourceCodeControl) = preSolution
+		SccNumberOfProjects = 1
+		SccProjectUniqueName0 = ActorX.vcproj
+		SccProjectName0 = Perforce\u0020Project
+		SccLocalPath0 = .
+		SccProvider0 = MSSCCI:Perforce\u0020SCM
+		CanCheckoutShared = true
+	EndGlobalSection
+	GlobalSection(SolutionConfiguration) = preSolution
+		XSI 4.0 Debug = XSI 4.0 Debug
+		XSI 4.0 Release = XSI 4.0 Release
+		XSI 4.2 Debug = XSI 4.2 Debug
+		XSI 4.2 Release = XSI 4.2 Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{F83CA99F-06C6-44DA-82F1-A78495D19923}.XSI 4.0 Debug.ActiveCfg = XSI 4.0 Debug|Win32
+		{F83CA99F-06C6-44DA-82F1-A78495D19923}.XSI 4.0 Debug.Build.0 = XSI 4.0 Debug|Win32
+		{F83CA99F-06C6-44DA-82F1-A78495D19923}.XSI 4.0 Release.ActiveCfg = XSI 4.0 Release|Win32
+		{F83CA99F-06C6-44DA-82F1-A78495D19923}.XSI 4.0 Release.Build.0 = XSI 4.0 Release|Win32
+		{F83CA99F-06C6-44DA-82F1-A78495D19923}.XSI 4.2 Debug.ActiveCfg = XSI 4.2 Debug|Win32
+		{F83CA99F-06C6-44DA-82F1-A78495D19923}.XSI 4.2 Debug.Build.0 = XSI 4.2 Debug|Win32
+		{F83CA99F-06C6-44DA-82F1-A78495D19923}.XSI 4.2 Release.ActiveCfg = XSI 4.2 Release|Win32
+		{F83CA99F-06C6-44DA-82F1-A78495D19923}.XSI 4.2 Release.Build.0 = XSI 4.2 Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal
