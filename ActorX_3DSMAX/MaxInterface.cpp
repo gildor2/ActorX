@@ -496,11 +496,13 @@ BOOL WINAPI DllMain( HINSTANCE hinstDLL,ULONG fdwReason,LPVOID lpvReserved )
 {
 	ParentApp_hInstance = hinstDLL;				// Hang on to this DLL's instance handle.
 
+#if !defined(MAX_PRODUCT_YEAR_NUMBER) || (MAX_PRODUCT_YEAR_NUMBER < 2011)
 	if (!controlsInit) {
 		controlsInit = TRUE;
 		InitCustomControls(ParentApp_hInstance);	// Initialize MAX's custom controls
 		InitCommonControls();			// Initialize Win95 controls
 	}			
+#endif
 	return (TRUE);
 }
 
