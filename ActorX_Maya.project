@@ -1,6 +1,6 @@
 # perl highlighting
 
-CFG       = Maya2014_x64
+#CFG       = Maya2014_x64
 OBJDIR    = obj/$CFG
 OUT       = out
 OPTIMIZE  = speed

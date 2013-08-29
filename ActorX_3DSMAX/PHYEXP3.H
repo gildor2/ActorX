@@ -1,7 +1,7 @@
 /******************************************************************************
  *<
 	FILE: PhyExp.h
-				  
+
 	DESCRIPTION:  Export Interface Functionality for Physique
 
 	CREATED BY: John Chadwick with a lot of help from Jurie Horneman
@@ -20,12 +20,12 @@
 #define PHYExport __declspec( dllimport )
 #endif
 
-#include "max.h"
-#include "modstack.h"
+#include <max.h>
+#include <modstack.h>
 
 // this is the interface ID for a Physique Modifier	Interface
 #define I_PHYINTERFACE 0x00100100
-#define I_PHYEXPORT	0x00100100 
+#define I_PHYEXPORT	0x00100100
 #define I_PHYIMPORT 0x00100101
 
 //return values for GetInitNodeTM
@@ -34,14 +34,14 @@
 #define NO_MATRIX_SAVED		2
 #define INVALID_MOD_POINTER	3
 
-// version control 
+// version control
 #define CURRENT_VERSION	3
 
 #define HIERARCHIAL_VERTEX	0x0001
 #define FLOATING_VERTEX		0x0002
 
 
-// these are the Class ID defines for Physique Modifier: 
+// these are the Class ID defines for Physique Modifier:
 // Physique Class_ID = ClassID(PHYSIQUE_CLASS_ID_A, PHYSIQUE_CLASS_ID_B);
 #define PHYSIQUE_CLASS_ID_A 0x00100
 #define PHYSIQUE_CLASS_ID_B	0x00000
@@ -51,7 +51,7 @@
 #define	DEFORMABLE_TYPE	2
 #define	BLENDED_TYPE	4
 #define	FLOATING_TYPE	8
-	
+
 
 #define RIGID_NON_BLENDED_TYPE		(RIGID_TYPE)
 #define	DEFORMABLE_NON_BLENDED_TYPE (DEFORMABLE_TYPE)
@@ -64,24 +64,24 @@
 // identical results
 
 
-// NOTE: for Character Studio 2.1 Deformable Offset Vertices and Vertex Assignment 
+// NOTE: for Character Studio 2.1 Deformable Offset Vertices and Vertex Assignment
 // Import has been added.  These classes and descriptions follow the standard Rigid
 // Export functionality at the end of this file.
 
 
 // Using the Physique Export Interface:
-// 
+//
 //  1.	Find the Physique Modifier you which to export rigid vertex assignments from.
 //		(there is a comment at the bottom of this file giving an example of this)
 //
 //	2.	Given Physique Modifier Modifier *phyMod get the Physique Export Interface:
-//		IPhysiqueExport *phyExport = (IPhysqiueExport *)phyMod->GetInterface(I_PHYINTERFACE);		
+//		IPhysiqueExport *phyExport = (IPhysqiueExport *)phyMod->GetInterface(I_PHYINTERFACE);
 //
 //  3.	For a given Object's INode get this ModContext Interface from the Physique Export Interface:
 //		IPhyContextExport *contextExport = (IPhyContextExport *)phyExport->GetContextInterface(INode* nodePtr);
 //
 //  4.  For each vertex of the Object get the Vertex Interface from the ModContext Export Interface:
-//		IPhyVertexExport *vtxExport = (IPhyVertexExport *)contextExport->GetVertexInterface(int i);	
+//		IPhyVertexExport *vtxExport = (IPhyVertexExport *)contextExport->GetVertexInterface(int i);
 //		NOTE: only Rigid Vertices are currently supported: (see ConvertToRigid(TRUE) to make all vertices rigid)
 //		IPhyRigidVertex *rigidExport = (IPhyRigidVertex *)contextExport->GetVertexInterface(int i);
 //
@@ -99,8 +99,8 @@
 //					 NOTE: currently only RIGID_TYPE vertices are supported (IPhyRigidVertex)
 //					 When a vertex is not assigned Rigid in Physique, the VertexInterface will be NULL
 //					 Unless you call IPhyContextExport->ConvertToRigid(TRUE) (see IPhyContextExport below)
-//					 With ConvertToRigid(TRUE) you will always get a IPhyRigidVertex 
-//					 from IPhyContextExport->GetVertexInterface(i) 
+//					 With ConvertToRigid(TRUE) you will always get a IPhyRigidVertex
+//					 from IPhyContextExport->GetVertexInterface(i)
 
 class IPhyVertexExport
 {
@@ -112,7 +112,7 @@ class IPhyVertexExport
 		PHYExport virtual int GetVertexType() = 0;
 
 		PHYExport virtual int Execute(int cmd, ULONG arg1=0, ULONG arg2=0, ULONG arg3=0) = 0;
-		
+
 };
 
 
@@ -126,14 +126,14 @@ class IPhyRigidVertex : public IPhyVertexExport
 		// GetNode() will return the INode pointer of the link of the given VertexInterface
 		PHYExport virtual INode *GetNode() = 0;
 
-		// GetOffsetVector() will return the coordinates of the vertex 
+		// GetOffsetVector() will return the coordinates of the vertex
 		// in the local coordinates of associated INode pointer from GetNode
 		// this is NOT THE SAME as the .vph file coordinates. (It is simpler)
 		// the world coordinates of the vertex have been transformed by the Inverse	of the INode pointer.
 		PHYExport virtual Point3 GetOffsetVector() = 0;
 
 		PHYExport virtual int Execute(int cmd, ULONG arg1=0, ULONG arg2=0, ULONG arg3=0) = 0;
-		
+
 };
 
 class IPhyBlendedRigidVertex : public IPhyVertexExport
@@ -148,7 +148,7 @@ class IPhyBlendedRigidVertex : public IPhyVertexExport
 		// GetNode(i) will return the i'th INode pointer of the link of the given VertexInterface
 		PHYExport virtual INode *GetNode(int i) = 0;
 
-		// GetOffsetVector(i) will return the coordinates of the vertex 
+		// GetOffsetVector(i) will return the coordinates of the vertex
 		// in the local coordinates of associated i'th INode pointer from GetNode(i)
 		// this is NOT THE SAME as the .vph file coordinates. (It is simpler)
 		// the world coordinates of the vertex have been transformed by the Inverse	of the INode pointer.
@@ -159,7 +159,7 @@ class IPhyBlendedRigidVertex : public IPhyVertexExport
 		PHYExport virtual float GetWeight(int i, float *totalweight = NULL) = 0;
 
 		PHYExport virtual int Execute(int cmd, ULONG arg1=0, ULONG arg2=0, ULONG arg3=0) = 0;
-		
+
 };
 
 
@@ -173,7 +173,7 @@ class IPhyContextExport
 	public:
 
 		PHYExport virtual ~IPhyContextExport() {}
-		
+
 		// this returns the number of vertices for the given modContext's Object
 		PHYExport virtual int GetNumberVertices() = 0;
 
@@ -241,12 +241,12 @@ Modifier* FindPhysiqueModifier (INode* nodePtr)
 	Object* ObjectPtr = nodePtr->GetObjectRef();
 
 	if (!ObjectPtr ) return NULL;
-	
+
 	while (ObjectPtr->SuperClassID() == GEN_DERIVOB_CLASS_ID && ObjectPtr)
 	{
 			// Yes -> Cast.
-			IDerivedObject* DerivedObjectPtr = (IDerivedObject *)(ObjectPtr);				
-			
+			IDerivedObject* DerivedObjectPtr = (IDerivedObject *)(ObjectPtr);
+
 		// Iterate over all entries of the modifier stack.
 		int ModStackIndex = 0;
 
@@ -260,7 +260,7 @@ Modifier* FindPhysiqueModifier (INode* nodePtr)
 			{
 				// is this the correct Physique Modifier based on index?
 				SkinMod *phyMod = (SkinMod *)ModifierPtr;
-				
+
 				if (phyMod == mod)
 				{
 					ModContext *mc = DerivedObjectPtr->GetModContext(ModStackIndex);
@@ -307,7 +307,7 @@ class IPhyDeformableOffsetVertex : public IPhyVertexExport
 		// GetNode() will return the INode pointer of the link of the given VertexInterface
 		PHYExport virtual INode *GetNode() = 0;
 
-		// GetOffsetVector() will return the coordinates of the undeformed vertex 
+		// GetOffsetVector() will return the coordinates of the undeformed vertex
 		// in the local coordinates of associated INode pointer from GetNode().
 		// This is IDENTICAL to the Rigid Non Blended OffsetVector.
 		// It represents the Vertex in the local coordinates of the node via GetNode().
@@ -320,7 +320,7 @@ class IPhyDeformableOffsetVertex : public IPhyVertexExport
 		PHYExport virtual Point3 GetDeformOffsetVector(TimeValue t) = 0;
 
 		PHYExport virtual int Execute(int cmd, ULONG arg1=0, ULONG arg2=0, ULONG arg3=0) = 0;
-		
+
 };
 
 class IPhyFloatingVertex : public IPhyVertexExport
@@ -336,18 +336,18 @@ class IPhyFloatingVertex : public IPhyVertexExport
 		PHYExport virtual int Execute(int cmd, ULONG arg1=0, ULONG arg2=0, ULONG arg3=0) = 0;
 
 		// GetNumberNodes() returns the number of nodes (bones) assigned to the given Vertex
-		
+
 		// GetNode(i) will return the INode pointer of the ith node assigned to
 		//this Vertex
 
-		// GetOffsetVector(i) will return the coordinates of the vertex 
+		// GetOffsetVector(i) will return the coordinates of the vertex
 		// in the local coordinates of associated i'th INode pointer from GetNode(i)
 		// this is NOT THE SAME as the .vph file coordinates. (It is simpler)
 		// the world coordinates of the vertex have been transformed by the Inverse	of the INode pointer.
-		
+
 		// GetWeight(i) will return the normalized weight of the vertex associated with the i'th Node
 		// pointer from GetNode(i)
-	
+
 };
 
 
@@ -364,8 +364,8 @@ class IPhyFloatingVertex : public IPhyVertexExport
 //					 NOTE: currently only RIGID_TYPE vertices are supported (IPhyRigidVertex)
 //					 When a vertex is not assigned Rigid in Physique, the VertexInterface will be NULL
 //					 Unless you call IPhyContextExport->ConvertToRigid(TRUE) (see IPhyContextExport below)
-//					 With ConvertToRigid(TRUE) you will always get a IPhyRigidVertex 
-//					 from IPhyContextExport->GetVertexInterface(i) 
+//					 With ConvertToRigid(TRUE) you will always get a IPhyRigidVertex
+//					 from IPhyContextExport->GetVertexInterface(i)
 
 class IPhyVertexImport
 {
@@ -431,14 +431,14 @@ class IPhyContextImport
 	public:
 
 		PHYExport virtual ~IPhyContextImport() {}
-		
+
 		// this returns the number of vertices for the given modContext's Object
 		PHYExport virtual int GetNumberVertices() = 0;
 
 		// SetVertexInterface return's a VertexInterface (IPhyVertexImport *) for the i'th vertex.
 		// type = RIGID_NON_BLENDED_TYPE | RIGID_BLENDED_TYPE are currently supported.
 		// Any other value for type will return NULL.
-		
+
 		PHYExport virtual IPhyVertexImport *SetVertexInterface(int i, int type) = 0;
 
 		// You must call ReleaseVertexInterface to delete the VertexInterface when finished with it.
@@ -452,7 +452,7 @@ class IPhyContextImport
 class IPhysiqueImport
 {
 	public:
-		
+
 		PHYExport virtual ~IPhysiqueImport() {}
 
 		//GetContextInterface will return a pointer to IPhyContextImport Interface for a given INode.
@@ -465,7 +465,7 @@ class IPhysiqueImport
 		// You call AttachRootNode to define the root node of the Physique Modifier
 		// This will create default vertex assignments.
 		// You MUST call AttachRootNode prior to any Imported Vertex Assignments
-		// This method is designed specifically for developers wanting to 
+		// This method is designed specifically for developers wanting to
 		// define Physique fully via import.  Predictable results should only be
 		// expected when this call is followed by a series of Vertex Import calls
 		// for every ModContext and Vertex of the Modifier.
@@ -477,7 +477,7 @@ class IPhysiqueImport
 		PHYExport virtual BOOL InitializePhysique(INode *nodePtr, TimeValue t) = 0;
 
 		PHYExport virtual int Execute(int cmd, ULONG arg1=0, ULONG arg2=0, ULONG arg3=0) = 0;
-		
+
 };
 
 

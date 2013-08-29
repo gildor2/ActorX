@@ -21,14 +21,14 @@
 #pragma warning (push)
 #pragma warning (disable : 4002) // "too many parameters for macro".
 
-#include "Max.h"
-#include "stdmat.h"
-#include "decomp.h"
-#include "shape.h"
-#include "utilapi.h"  // Utility plugin parent class.
-#include "IParamb2.h" // Needed for Max' native skin modifier.
-#include "ISkin.h"    // Native skin modifier (since Max 4.2 )
-#include "iFnPub.h" // Function publishing (script exposure.)
+#include <Max.h>
+#include <stdmat.h>
+#include <decomp.h>
+#include <shape.h>
+#include <utilapi.h>  // Utility plugin parent class.
+#include <IParamb2.h> // Needed for Max' native skin modifier.
+#include <ISkin.h>    // Native skin modifier (since Max 4.2 )
+#include <iFnPub.h> // Function publishing (script exposure.)
 
 #pragma warning (pop)
 
@@ -55,7 +55,7 @@
 #include "Win32IO.h"
 
 // Resources
-#include ".\res\resource.h"
+#include "res/resource.h"
 
 
 // Minimum bone influence below which the physique weight link is ignored.

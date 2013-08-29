@@ -1,5 +1,5 @@
 /**************************************************************************
- 
+
    Copyright 1998-2011 Epic Games, Inc. All Rights Reserved.
 
    MaxInterface.h - MAX-specific exporter scene interface code.
@@ -19,7 +19,7 @@
 #endif
 
 //PCF BEGIN
-// Maya API  includes  - 
+// Maya API  includes  -
 #include <maya/MIOStream.h>
 #include <maya/MFileIO.h>
 #include <maya/MStatus.h>
@@ -66,7 +66,7 @@
 
 
 // Resources
-#include ".\res\resource.h"
+#include "res/resource.h"
 
 //PCF END
 #endif //__MayaInclude__H

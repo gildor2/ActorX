@@ -814,12 +814,13 @@ sub ExpandWildcards {
 %depends = ();
 
 sub CollectFileDependencies {
-	my ($file, $includes, $srcType) = @_;
+	my ($file, $includes, $srcType, $chain) = @_;
 	my $dep = $depends{$file};
 	if (defined($dep)) {
 		return 0 if $dep ne "(computing)";		# already finished
 		return -1;								# recurse to this file: will display warning
 	}
+	$chain = $file if !defined($chain);			# used for error reporting
 
 	$dep = "";
 	$depends{$file} = "(computing)";			# flag for detection of recursive includes
@@ -873,16 +874,16 @@ sub CollectFileDependencies {
 		if (!$found) {
 			my $doWarn = $vars{"ALLOW_MISSING_INCLUDES"};
 			if (defined($doWarn) && $doWarn) {
-				Warning ("cannot find file \"$inc\" included from \"$file\", directories used: [$includes]") unless $found;
+				Warning ("cannot find file \"$inc\" included from \"$chain\", directories used: [$includes]") unless $found;
 			} else {
-				Error ("cannot find file \"$inc\" included from \"$file\", directories used: [$includes]") unless $found;
+				Error ("cannot find file \"$inc\" included from \"$chain\", directories used: [$includes]") unless $found;
 			}
 		} else {
 			# check file presense
 			if ($doRecurse) {
-				if (CollectFileDependencies ($inc2, $includes, $srcType) == -1) {
+				if (CollectFileDependencies ($inc2, $includes, $srcType, $chain."->".$inc2) == -1) {
 					# may be inc<->file, and may be file1->file2->file3->file1 ...
-					WarningOnce ("circular reference from \"$inc2\" to \"$file\"", "circ:$file<->$inc2");
+					WarningOnce ("circular reference from \"$inc2\" to \"$chain\"", "circ:$file<->$inc2");
 				}
 			} else {
 				$depends{$inc2} = "";

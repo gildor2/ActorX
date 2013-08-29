@@ -1,0 +1,38 @@
+# perl highlighting
+
+OBJDIR    = obj/$CFG
+OUT       = out
+OPTIMIZE  = speed
+
+LIBC       = static
+CPP_EXCEPT = 1
+
+DEFINES   = _SECURE_SCL=0 WIN32 NDEBUG _USRDLL _CRT_SECURE_NO_DEPRECATE _CRT_NONSTDC_NO_DEPRECATE _SCL_SECURE_NO_DEPRECATE ISOLATION_AWARE_ENABLED=1 MAX
+OPTIONS   = -GR				# RTTI is required
+#LINKFLAGS =
+
+!if $VER >= 2013
+	# Max uses Unicode only starting with 2013 version
+	DEFINES += UNICODE _UNICODE
+!endif
+
+INCLUDES = $SDK/include
+!if $amd64
+	LIBRARIES = $SDK/x64/lib
+!else
+	LIBRARIES = $SDK/lib
+!endif
+LIBS = kernel32 user32 advapi32 comdlg32 shell32 bmm core geom gfx mesh maxutil maxscrpt gup paramblk2
+
+ALLOW_MISSING_INCLUDES=1
+sources(MAX) = {
+	ActorX_3DSMAX/ActorX.cpp
+	ActorX_3DSMAX/Dialogs.cpp
+	ActorX_3DSMAX/MaxInterface.cpp
+	ActorX_3DSMAX/SceneIFC.cpp
+	ActorX_3DSMAX/UnSkeletal.cpp
+	ActorX_3DSMAX/Win32IO.cpp
+	ActorX_3DSMAX/Res/ActorX.rc
+}
+
+target(shared, $OUT/$CFG/ActorX.dlu, MAX)
