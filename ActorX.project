@@ -1,0 +1,32 @@
+# perl highlighting
+
+CFG       = Maya2014_x64
+OBJDIR    = obj/$CFG
+OUT       = out
+OPTIMIZE  = speed
+
+LIBC       = static
+CPP_EXCEPT = 1
+
+DEFINES   = _MBCS NT_PLUGIN REQUIRE_IOSTREAM MAYA
+#OPTIONS=
+LINKFLAGS = -export:initializePlugin -export:uninitializePlugin
+
+INCLUDES  = SDK/$CFG/include
+LIBRARIES = SDK/$CFG/lib
+LIBS      = kernel32 user32 advapi32 comdlg32 shell32 Foundation OpenMaya OpenMayaAnim
+
+sources(MAYA) = {
+	ActorX_MAYA/ActorX.cpp
+	ActorX_MAYA/ActorY.cpp
+	ActorX_MAYA/BrushExport.cpp
+	ActorX_MAYA/Dialogs.cpp
+	ActorX_MAYA/mayaHelper.cpp
+	ActorX_MAYA/MayaInterface.cpp
+	ActorX_MAYA/SceneIFC.cpp
+	ActorX_MAYA/UnSkeletal.cpp
+	ActorX_MAYA/Win32IO.cpp
+	ActorX_MAYA/Res/ActorX.rc
+}
+
+target(shared, $OUT/$CFG/ActorX.mll, MAYA)

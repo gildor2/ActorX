@@ -189,7 +189,7 @@
 #define IDC_SPIN_ACOMP                  1497
 
 // Next default values for new objects
-// 
+//
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        134
@@ -198,3 +198,5 @@
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
+
+#define IDC_STATIC						(-1)
