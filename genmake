@@ -66,6 +66,7 @@ global:
 	STDLIBS		= list of used libraries (for "GNU Make" will append "lib" and will search in paths)
 	LIBRARIES   = path(s) to additional library files
 	LIBC		= static | shared == undef
+	DEFFILE		= .def filename
 	ALLOW_MISSING_INCLUDES = 1 | 0		when #include "filename" will fail, warning will be generated instead of error
 
 per-target:
@@ -965,6 +966,11 @@ sub FlushObjectFile {
 	my ($srcType) = $srcFile =~ /\S+\.(\w+)/;
 	my ($srcDir)  = $srcFile =~ /(\S+\/)[\w\.]+/;
 
+	# linker-only files - GetObjFilename() returns $srcFile
+	if ($srcFile eq $objFile) {
+		return;
+	}
+
 	# compute additional options (defines and includes)
 	$options .= GenerateOptions ($defines, "-D ") if $defines ne "";
 	$options .= GenerateOptions ($includes, "-I ") if $includes ne "";
@@ -1134,6 +1140,7 @@ sub RememberTarget {
 	SetTargetOption ($n, "CONSOLE",   1);
 	SetTargetOption ($n, "IMAGEBASE", 1);
 	SetTargetOption ($n, "IMPLIB",    1, $LibFileExt);
+	SetTargetOption ($n, "DEFFILE",   1);
 	# remember target command
 	push @targets, join('%', $symName, $n, $type, $objListName, $targetDir);
 }
@@ -1173,6 +1180,10 @@ sub FlushTargetText {
 			}
 		}
 	}
+	my $deffile = GetTargetOption ($n, "DEFFILE");
+	if ($deffile ne "") {
+		$prefix .= " $deffile";
+	}
 	$prefix .= "\n";
 
 	# NOTE: this logic may be implemented with our preprocessor (exec some script for each target)
@@ -1198,9 +1209,12 @@ sub FlushTargetText {
 			return $prefix.$line;
 		} elsif ($target eq "shared") {
 			$line .= " -dll";
+			if ($deffile ne "") {
+				$line .= " -def:\"$deffile\"";
+			}
 			my $implib = GetTargetOption ($n, "IMPLIB");
 			if ($implib ne "") {
-				$line .= " -implib:\"$implib\""
+				$line .= " -implib:\"$implib\"";
 			} else {
 				# if IMPLIB is not specified, delete unneeded linker output
 				$line .= " -implib:\"delete.lib\"";

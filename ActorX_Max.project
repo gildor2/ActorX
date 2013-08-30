@@ -9,6 +9,7 @@ CPP_EXCEPT = 1
 
 DEFINES   = _SECURE_SCL=0 WIN32 NDEBUG _USRDLL _CRT_SECURE_NO_DEPRECATE _CRT_NONSTDC_NO_DEPRECATE _SCL_SECURE_NO_DEPRECATE ISOLATION_AWARE_ENABLED=1 MAX
 OPTIONS   = -GR				# RTTI is required
+DEFFILE   = ActorX_3DSMAX/ActorX.def
 #LINKFLAGS =
 
 !if $VER >= 2013
@@ -16,12 +17,9 @@ OPTIONS   = -GR				# RTTI is required
 	DEFINES += UNICODE _UNICODE
 !endif
 
-INCLUDES = $SDK/include
-!if $amd64
-	LIBRARIES = $SDK/x64/lib
-!else
-	LIBRARIES = $SDK/lib
-!endif
+INCLUDES  = $SDK_INC
+LIBRARIES = $SDK_LIB
+
 LIBS = kernel32 user32 advapi32 comdlg32 shell32 bmm core geom gfx mesh maxutil maxscrpt gup paramblk2
 
 ALLOW_MISSING_INCLUDES=1

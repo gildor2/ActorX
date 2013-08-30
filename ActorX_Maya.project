@@ -1,6 +1,5 @@
 # perl highlighting
 
-#CFG       = Maya2014_x64
 OBJDIR    = obj/$CFG
 OUT       = out
 OPTIMIZE  = speed
@@ -12,8 +11,9 @@ DEFINES   = _MBCS NT_PLUGIN REQUIRE_IOSTREAM MAYA
 #OPTIONS=
 LINKFLAGS = -export:initializePlugin -export:uninitializePlugin
 
-INCLUDES  = SDK/$CFG/include
-LIBRARIES = SDK/$CFG/lib
+INCLUDES  = $SDK_INC
+LIBRARIES = $SDK_LIB
+
 LIBS      = kernel32 user32 advapi32 comdlg32 shell32 Foundation OpenMaya OpenMayaAnim
 
 sources(MAYA) = {
