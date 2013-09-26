@@ -1,7 +1,7 @@
 /**********************************************************************
 
  	Win32IO.cpp misc IO & dialog functions
-		 
+
 	Copyright 1998-2011 Epic Games, Inc. All Rights Reserved.
 	Created by Erik de Neve
 
@@ -20,22 +20,22 @@ int _GetCheckBox( HWND hWnd, int CheckID )
 
 int _SetCheckBox( HWND hWnd,int CheckID, int Switch ) // Switch: 0 off, 1 marked, 2 greyed...
 {
-	HWND HBox = GetDlgItem(hWnd, CheckID);	
+	HWND HBox = GetDlgItem(hWnd, CheckID);
 	//PopupBox("SetCheckbox: %i",Switch);
-	return( SendMessage( HBox, BM_SETCHECK, Switch, 0 ) );		
+	return( SendMessage( HBox, BM_SETCHECK, Switch, 0 ) );
 }
 
 int _EnableCheckBox( HWND hWnd, int CheckID, int Switch )
 {
-	HWND HBox = GetDlgItem(hWnd, CheckID);	
-	return( SendMessage( HBox, BM_SETCHECK, Switch ? BST_UNCHECKED:BST_INDETERMINATE, 0 ) );		
+	HWND HBox = GetDlgItem(hWnd, CheckID);
+	return( SendMessage( HBox, BM_SETCHECK, Switch ? BST_UNCHECKED:BST_INDETERMINATE, 0 ) );
 }
 
 int GetNameFromPath(TCHAR* Dest, const TCHAR* Src, int MaxChars )
 {
 	// Process filename: get position of last "\" or "/" and . then copy what's between.
-	const TCHAR* ChStart  = _tcsrchr(Src,char(92));    // \ 92 
-	const TCHAR* ChStart2 = _tcsrchr(Src,char(47));    // / 47 
+	const TCHAR* ChStart  = _tcsrchr(Src,char(92));    // \ 92
+	const TCHAR* ChStart2 = _tcsrchr(Src,char(47));    // / 47
 	const TCHAR* ChEnd    = _tcsrchr(Src,char(46));    // . 46
 	if( ChStart < ChStart2) ChStart = ChStart2;
 
@@ -55,7 +55,7 @@ int GetNameFromPath(TCHAR* Dest, const TCHAR* Src, int MaxChars )
 	INT t;
 	for( t=0;t<ChunkSize; t++)
 	{
-		Dest[t] = Src[t+NameStart+1];						
+		Dest[t] = Src[t+NameStart+1];
 	}
 	Dest[t] = 0;
 
@@ -65,8 +65,8 @@ int GetNameFromPath(TCHAR* Dest, const TCHAR* Src, int MaxChars )
 int GetFolderFromPath(char* Dest, const char* Src, int MaxChars)
 {
 	// Process filename: get position of last "\" or "/" and . then copy what's between.
-	char* ChStart  = (char*)strrchr(Src,char(92));    // \ 92 
-	char* ChStart2 = (char*)strrchr(Src,char(47));    // / 47 
+	char* ChStart  = (char*)strrchr(Src,char(92));    // \ 92
+	char* ChStart2 = (char*)strrchr(Src,char(47));    // / 47
 	if( ChStart < ChStart2) ChStart = ChStart2;
 
 	if( !ChStart)
@@ -83,7 +83,7 @@ int GetFolderFromPath(char* Dest, const char* Src, int MaxChars)
 	INT t;
 	for( t=0; t<NameStart; t++ )
 	{
-		Dest[t] = Src[t];						
+		Dest[t] = Src[t];
 	}
 
 	Dest[t] = 0;
@@ -93,8 +93,8 @@ int GetFolderFromPath(char* Dest, const char* Src, int MaxChars)
 
 int GetExtensionFromPath(char* Dest, const char* Src, int MaxChars )
 {
-	char* ChEnd    = (char*)strrchr(Src,char(0));   
-	char* ChStart  = (char*)strrchr(Src,char(46));   
+	char* ChEnd    = (char*)strrchr(Src,char(0));
+	char* ChStart  = (char*)strrchr(Src,char(46));
 	if( !ChEnd )
 	{
 		Dest[0] = 0;
@@ -111,7 +111,7 @@ int GetExtensionFromPath(char* Dest, const char* Src, int MaxChars )
 	INT t;
 	for( t=0; t<ChunkSize; t++)
 	{
-		Dest[t] = Src[t+NameStart+1];						
+		Dest[t] = Src[t+NameStart+1];
 	}
 
 	Dest[t] = 0;
@@ -127,20 +127,20 @@ int ResizeString(char* Src, int Size)
 		Src[Size] = 0;
 	}
 	else
-	if( (Length < Size) && (Size < MAX_PATH ) ) 
+	if( (Length < Size) && (Size < MAX_PATH ) )
 	{
 		for( int t= Length; t<Size; t++)
 		{
 			Src[t] = 32;
 		}
 		Src[Size] = 0;
-	}		
+	}
 	return 1;
 }
 
 // Copy a string up to MaxChars, zero-terminate if necessary. MaxChars includes the zero terminator.
 int strcpysafe(TCHAR* Dest, const TCHAR* Src, int MaxChars )
-{	
+{
 	INT CopySize = ( INT )_tcslen(Src);
 	if( CopySize >= MaxChars )
 	{
@@ -148,7 +148,7 @@ int strcpysafe(TCHAR* Dest, const TCHAR* Src, int MaxChars )
 	}
 	for( INT c=0; c<CopySize; c++ )
 	{
-		Dest[c] = Src[c];		
+		Dest[c] = Src[c];
 	}
 	Dest[CopySize]=0;
 	return CopySize; //return the number of characters excluding terminator.
@@ -263,7 +263,7 @@ void GetBatchFileName(HWND hWnd, TCHAR* filename, TCHAR* workpath )
 	*/
 
 	while (1) {
-		
+
 		if (GetOpenFileName(&ofn)) {
 
 			//-- Make sure there is an extension ----------
@@ -272,12 +272,12 @@ void GetBatchFileName(HWND hWnd, TCHAR* filename, TCHAR* workpath )
 			if (!l)
 				return;
 
-			if (l==ofn.nFileExtension || !ofn.nFileExtension) 
-			_tcscat(ofn.lpstrFile,(".txt"));  
+			if (l==ofn.nFileExtension || !ofn.nFileExtension)
+			_tcscat(ofn.lpstrFile,(".txt"));
 			*/
 		}
 		break;
-	
+
 	}
 
 	_tcscpy(filename,ofn.lpstrFile);
@@ -286,11 +286,11 @@ void GetBatchFileName(HWND hWnd, TCHAR* filename, TCHAR* workpath )
 
 static TCHAR Skeletalfilterlist[] = _T("PSA Files (*.psa)\0*.psa\0PSA Files (*.psa)\0*.psa\0");
 
-void GetSaveName(HWND hWnd, TCHAR* filename, TCHAR* workpath, const TCHAR* filterlist, TCHAR* defaultextension )
+bool GetSaveName(HWND hWnd, TCHAR* filename, TCHAR* workpath, const TCHAR* filterlist, TCHAR* defaultextension )
 {
 	if( filterlist == NULL )
 		filterlist = &Skeletalfilterlist[0];
-							 
+
 	OPENFILENAME ofn;
 	memset(&ofn, 0, sizeof(OPENFILENAME));
 
@@ -316,21 +316,22 @@ void GetSaveName(HWND hWnd, TCHAR* filename, TCHAR* workpath, const TCHAR* filte
 	*/
 
 	while (1) {
-		
-		if (GetSaveFileName(&ofn)) {
+
+		if (GetSaveFileName(&ofn))
+		{
 
 			// Refuse empty filename.
 			int FileNameLength = ( int )_tcslen(ofn.lpstrFile);
 			if (FileNameLength == 0)
-				return;
+				return false;
 
 			//-- Make sure there is an extension ----------
-			if (1==ofn.nFileExtension || 0==ofn.nFileExtension) 
-			_tcscat(ofn.lpstrFile,defaultextension );  
-			
+			if (1==ofn.nFileExtension || 0==ofn.nFileExtension)
+			_tcscat(ofn.lpstrFile,defaultextension );
+
 			//-- Check for file overwrite -----------------
 			// Does it exist ? -> for now ignore overwriting.
-			if (0) // (BMMIsFile(ofn.lpstrFile)) 
+			if (0) // (BMMIsFile(ofn.lpstrFile))
 			{
 				TCHAR text[MAX_PATH];
 				wsprintf(text,_T("Overwrite ? "),ofn.lpstrFile);
@@ -341,18 +342,21 @@ void GetSaveName(HWND hWnd, TCHAR* filename, TCHAR* workpath, const TCHAR* filte
 					ofn.lpstrFile[0]=0;
 					continue;
 				}
-			}			
+			}
 		}
+		else
+			return false;
 		break;
-	
+
 	}
 	_tcscpy(filename,ofn.lpstrFile);
+	return true;
 }
 
 
-void GetLoadName(HWND hWnd, TCHAR* filename, TCHAR* workpath, const TCHAR* filterlist )
+bool GetLoadName(HWND hWnd, TCHAR* filename, TCHAR* workpath, const TCHAR* filterlist )
 {
-							 
+
 	OPENFILENAME ofn;
 	memset(&ofn, 0, sizeof(OPENFILENAMEA));
 
@@ -377,23 +381,19 @@ void GetLoadName(HWND hWnd, TCHAR* filename, TCHAR* workpath, const TCHAR* filte
 		ofn.lpstrInitialDir	= ip->GetMapDir(0);
 	*/
 
-	while (1) 
-	{		
-		if (GetOpenFileName(&ofn)) 
-		{
-
-			//-- Make sure there is an extension ----------
-			int l = ( int )_tcslen(ofn.lpstrFile);
-			if (!l)
-				return;
-			if (l==ofn.nFileExtension || !ofn.nFileExtension) 
-			_tcscat(ofn.lpstrFile,_T(".psa"));  
-			
-		}
-		break;
+	if (GetOpenFileName(&ofn))
+	{
+		//-- Make sure there is an extension ----------
+		int l = ( int )_tcslen(ofn.lpstrFile);
+		if (!l)
+			return false;
+		if (l==ofn.nFileExtension || !ofn.nFileExtension)
+		_tcscat(ofn.lpstrFile,_T(".psa"));
+		_tcscpy(filename,ofn.lpstrFile);
+		return true;
 	}
-	
-	_tcscpy(filename,ofn.lpstrFile);
+
+	return false;
 }
 
 int GetFolderName(HWND hWnd, TCHAR* PathResult )
@@ -417,7 +417,7 @@ int GetFolderName(HWND hWnd, TCHAR* PathResult )
         if ((pidl = ::SHBrowseForFolder(&bi)) != NULL)
         {
             if (::SHGetPathFromIDList(pidl, pszBuffer))
-            { 
+            {
             // At this point pszBuffer contains the selected path */.
                 _tcscpy(PathResult,pszBuffer); //DoingSomethingUseful(pszBuffer);
 				return 1;
@@ -429,7 +429,4 @@ int GetFolderName(HWND hWnd, TCHAR* PathResult )
         pMalloc->Release();
     }
 	return 0;
-} 
-
-
-
+}

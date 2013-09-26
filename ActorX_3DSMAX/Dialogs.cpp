@@ -29,22 +29,22 @@ static INT_PTR CALLBACK BoneTreeDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 	UBOOL ReturnWnd = true;
 	//HWND  hwndList  = GetDlgItem(hWnd, IDC_TREE1);
 
-	switch (msg) 
+	switch (msg)
 	{
 		//
 		// Initialization : just fill tree once with the current skeleton.
 		//
 		case WM_INITDIALOG:
 		{
-			CenterWindow(hWnd, GetParent(hWnd)); 
+			CenterWindow(hWnd, GetParent(hWnd));
 			// PrintWindowString(hWnd, IDC_PACKAGENAME, stringvar );
-			// Initialize the tree control to allow single-bone selection 
+			// Initialize the tree control to allow single-bone selection
 		}
 		break;
 
 		// Commands.
 		case WM_COMMAND:
-			switch (LOWORD(wParam)) 
+			switch (LOWORD(wParam))
 			{
 				case IDCANCEL:
 					EndDialog(hWnd, 0);
@@ -114,7 +114,7 @@ UBOOL SaveAnimSet( TCHAR* DestPath )
 		return false;
 	}
 	else
-	{											
+	{
 		FastFileClass OutFile;
 		if ( OutFile.CreateNewFile(DestPath) != 0) // Error!
 		{
@@ -124,8 +124,9 @@ UBOOL SaveAnimSet( TCHAR* DestPath )
 		else
 		{
 			// PopupBox(" Bones in first track: %i",TempActor.RefSkeletonBones.Num());
-			TempActor.SerializeAnimation(OutFile);
+			bool ok = TempActor.SerializeAnimation(OutFile);
 			OutFile.CloseFlush();
+			if (!ok) return false;
 			if( OutFile.GetError())
 			{
 				ErrorBox(_T("Animation Save Error."));
@@ -142,7 +143,7 @@ UBOOL SaveAnimSet( TCHAR* DestPath )
 
 		if( !OurScene.DoSuppressAnimPopups )
 		{
-			PopupBox( _T("OK: Animation file %s.PSA written. Bones total: %i  Sequences: %i"), to_animfile, WrittenBones, TempActor.OutAnims.Num() );				
+			PopupBox( _T("OK: Animation file %s.PSA written. Bones total: %i  Sequences: %i"), to_animfile, WrittenBones, TempActor.OutAnims.Num() );
 		}
 	}
 
@@ -157,17 +158,17 @@ UBOOL SaveAnimSet( TCHAR* DestPath )
 INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam )
 {
 	/*
-	Listbox: An application should monitor and process the following list box notification messages. 
-	Notification message Description 
-	LBN_DBLCLK The user double-clicks an item in the list box. 
-	LBN_ERRSPACE The list box cannot allocate enough memory to fulfill a request. 
-	LBN_KILLFOCUS The list box loses the keyboard focus. 
-	LBN_SELCANCEL The user cancels the selection of an item in the list box. 
-	LBN_SELCHANGE The selection in a list box is about to change. 
-	LBN_SETFOCUS The list box receives the keyboard focus. 
-	*/		
+	Listbox: An application should monitor and process the following list box notification messages.
+	Notification message Description
+	LBN_DBLCLK The user double-clicks an item in the list box.
+	LBN_ERRSPACE The list box cannot allocate enough memory to fulfill a request.
+	LBN_KILLFOCUS The list box loses the keyboard focus.
+	LBN_SELCANCEL The user cancels the selection of an item in the list box.
+	LBN_SELCHANGE The selection in a list box is about to change.
+	LBN_SETFOCUS The list box receives the keyboard focus.
+	*/
 
-    HWND hwndList; 
+    HWND hwndList;
 	UBOOL ReturnWnd = true;
 	UBOOL UpdateAnimParams = false;
 
@@ -189,46 +190,46 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 	INT OutSelBufferNum = 0;
 	INT OutSelBuffer[1024];
 
-	
+
 	// Refresh in-list/out-list selections.
 	hwndList = GetDlgItem(hWnd, IDC_LISTOUT);
-	OutSelBufferNum = SendMessage(hwndList, LB_GETSELITEMS, 512, (LPARAM) OutSelBuffer); 
+	OutSelBufferNum = SendMessage(hwndList, LB_GETSELITEMS, 512, (LPARAM) OutSelBuffer);
 
 	// Multiple selection: only if one is selected will we have i > -1.
 	hwndList = GetDlgItem(hWnd, IDC_LISTIN);
-	InSelBufferNum = SendMessage(hwndList, LB_GETSELITEMS, 512, (LPARAM) InSelBuffer); 
+	InSelBufferNum = SendMessage(hwndList, LB_GETSELITEMS, 512, (LPARAM) InSelBuffer);
 	if( InSelBufferNum >= 1)
 	{
 		InSelector = InSelBuffer[0];
 	}
 
 	// Main message switch for Actor Manager dialog
-	switch (msg) 
+	switch (msg)
 	{
 		// Initialization time
 		case WM_INITDIALOG:
 		{
-			
-			
+
+
 
 			//INITIALIZE
 			UpdateInBox = true;
 			UpdateOutBox = true;
-			//     Center window on init only.				
+			//     Center window on init only.
 			// hwndList = GetDlgItem(hWnd, IDC_LISTIN);
-			//CenterWindow(hWnd, GetParent(hWnd)); 
+			//CenterWindow(hWnd, GetParent(hWnd));
 
 			PrintWindowString(hWnd, IDC_PACKAGENAME, to_animfile );
 
-			switch (LOWORD(wParam)) 
+			switch (LOWORD(wParam))
 			{
-				case IDC_LISTIN: 
-				{					
+				case IDC_LISTIN:
+				{
 				}
 				break;
 
 				case IDC_LISTOUT:
-				{					
+				{
 				}
 				break;
 			}
@@ -238,10 +239,10 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 		case WM_VSCROLL:
 		{
 			//PopupBox("VScroll");
-			HWND hwndScrollBar = (HWND)lParam;      // handle to scroll bar 
+			HWND hwndScrollBar = (HWND)lParam;      // handle to scroll bar
 			//PopupBox("# hwnd%i shuf:[%i]  switch: %i  SBLineup: [%i] npos: %i", (INT)hwndScrollBar, (INT)IDC_OUTSHUF,(INT)LOWORD(wParam),(INT)SB_LINEUP,(short int)HIWORD(wParam));
 
-			switch((int) LOWORD(wParam)) // scroll bar value 
+			switch((int) LOWORD(wParam)) // scroll bar value
 			{
 				case SB_LINEUP:
 				{
@@ -254,19 +255,19 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 				}
 				break;
 			}
-		}	
+		}
 		break;
 
 		/*
-		WM_VSCROLL 
-		nScrollCode = (int) LOWORD(wParam); // scroll bar value 
-		nPos = (short int) HIWORD(wParam);  // scroll box position 
-		hwndScrollBar = (HWND) lParam;      // handle to scroll bar 
+		WM_VSCROLL
+		nScrollCode = (int) LOWORD(wParam); // scroll bar value
+		nPos = (short int) HIWORD(wParam);  // scroll box position
+		hwndScrollBar = (HWND) lParam;      // handle to scroll bar
 		*/
- 
+
 		// Commands
 		case WM_COMMAND:
-			switch( LOWORD(wParam) ) 
+			switch( LOWORD(wParam) )
 			{
 				case IDCANCEL:
 					EndDialog(hWnd, 0);
@@ -281,7 +282,7 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 				case IDC_CHECKROOT:
 				{
 					switch (HIWORD(wParam))
-					{		
+					{
 					case EN_KILLFOCUS:
 						{
 							UpdateAnimParams=true;
@@ -313,41 +314,41 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 				}
 				break;
 
-				case IDC_LISTIN: 
+				case IDC_LISTIN:
 				{
 					// Set handle for easy access.
 					hwndList = GetDlgItem( hWnd, IDC_LISTIN );
 					switch( HIWORD(wParam) )
-					{							
+					{
 						case LBN_KILLFOCUS:
 						case LBN_SELCANCEL:    // Only _SELCHANGE needed ??
 						case LBN_SETFOCUS:
-						case LBN_SELCHANGE:						
+						case LBN_SELCHANGE:
 						{
-							// UpdateInBox = true; 							
+							// UpdateInBox = true;
 
-							// Simply print values if single one is selected.							
+							// Simply print values if single one is selected.
 
 							if( InSelBufferNum )
 							{
-							
+
 								// Uneditable stats: accumulate for multiple.
 								INT NumRawFrames = 0;
 								for( INT c=0; c<InSelBufferNum; c++)
 								{
-									INT AnimIdx=InSelBuffer[c];									
+									INT AnimIdx=InSelBuffer[c];
 									NumRawFrames += TempActor.Animations[AnimIdx].AnimInfo.NumRawFrames;
 								}
 								PrintWindowNum( hWnd, IDC_ANIMFRAMES, NumRawFrames );
-								
+
 								PrintWindowNum( hWnd, IDC_TOTALSIZE, TempActor.Animations[InSelBuffer[0]].KeyTrack.Num() );
 
 								PrintWindowNum( hWnd, IDC_TOTALSCALERS, TempActor.Animations[InSelBuffer[0]].ScaleTrack.Num() );
 
 								// Animation seconds accumulated
-								{								
-									
-									FLOAT TotalSeconds = 0.f;						
+								{
+
+									FLOAT TotalSeconds = 0.f;
 									for( INT c=0; c<InSelBufferNum; c++ )
 									{
 										INT AnimIdx=InSelBuffer[c];
@@ -356,16 +357,16 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 									}
 									PrintWindowNum( hWnd, IDC_ANIMSECONDS, TotalSeconds);
 								}
-								
+
 								/*
 								// Editable ones:
 								PrintWindowNum( hWnd, IDC_EDITRATE, TempActor.Animations[InSelector].AnimInfo.AnimRate );
 								PrintWindowNum( hWnd, IDC_EDITKEYREDUCTION, TempActor.Animations[InSelector].AnimInfo.KeyReduction );
 								PrintWindowString( hWnd,IDC_EDITGROUP, TempActor.Animations[InSelector].AnimInfo.Group );
-								PrintWindowNum( hWnd, IDC_EDITSTARTBONE, TempActor.Animations[InSelector].AnimInfo.StartBone );								
+								PrintWindowNum( hWnd, IDC_EDITSTARTBONE, TempActor.Animations[InSelector].AnimInfo.StartBone );
 								PrintWindowString( hWnd,IDC_EDITNAME, TempActor.Animations[InSelector].AnimInfo.Name );
 								_SetCheckBox( hWnd, IDC_CHECKROOT, TempActor.Animations[InSelector].AnimInfo.RootInclude );
-								*/							
+								*/
 
 								// Kludgy elaborate way of detecting different property values for multi-selected animations.
 								{
@@ -375,15 +376,15 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 									UBOOL SameAnimGroups = true;
 									for( INT c=0; c<InSelBufferNum; c++)
 									{
-										INT AnimIdx=InSelBuffer[c];									
-										strcpy(instr1, TempActor.Animations[AnimIdx].AnimInfo.Group );									
-										if( c>0 ) 
+										INT AnimIdx=InSelBuffer[c];
+										strcpy(instr1, TempActor.Animations[AnimIdx].AnimInfo.Group );
+										if( c>0 )
 										{
 											if( strcmp(instr1,instr2) != 0)
 												SameAnimGroups = false;
 										}
 										strcpy(instr2,instr1);
-									}								
+									}
 									if( SameAnimGroups )
 									{
 								#if _UNICODE
@@ -397,17 +398,17 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 									else
 										PrintWindowString( hWnd,IDC_EDITGROUP,_T(""));
 								}
-								//////////			
+								//////////
 								{
 									char instr1[255];
-									char instr2[255];    
+									char instr2[255];
 
 									UBOOL SameAnimNames = true;
 									for( INT c=0; c<InSelBufferNum; c++)
 									{
-										INT AnimIdx=InSelBuffer[c];									
-										strcpy(instr1, TempActor.Animations[AnimIdx].AnimInfo.Name );									
-										if( c>0 ) 
+										INT AnimIdx=InSelBuffer[c];
+										strcpy(instr1, TempActor.Animations[AnimIdx].AnimInfo.Name );
+										if( c>0 )
 										{
 											if( strcmp(instr1,instr2) != 0)
 											{
@@ -423,7 +424,7 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 								#if _UNICODE
 										TCHAR AnimName[255];
 										mbstowcs(AnimName, TempActor.Animations[InSelBuffer[0]].AnimInfo.Name, 255);
-										PrintWindowString( hWnd,IDC_EDITGROUP, AnimName );
+										PrintWindowString( hWnd,IDC_EDITNAME, AnimName );
 								#else
 										PrintWindowString( hWnd, IDC_EDITNAME, TempActor.Animations[InSelBuffer[0]].AnimInfo.Name );
 								#endif
@@ -439,13 +440,13 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 									FLOAT Inf1=0.f,Inf2=0.f;
 									for( INT c=0; c<InSelBufferNum; c++)
 									{
-										INT AnimIdx=InSelBuffer[c];									
-										Inf1 = TempActor.Animations[AnimIdx].AnimInfo.AnimRate;									
-										if( c>0 ) 
+										INT AnimIdx=InSelBuffer[c];
+										Inf1 = TempActor.Animations[AnimIdx].AnimInfo.AnimRate;
+										if( c>0 )
 										{
 											if( Inf1 != Inf2 )
 											{
-												SameAnimRates = false;												
+												SameAnimRates = false;
 											}
 										}
 										Inf2 = Inf1;
@@ -457,17 +458,17 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 									PrintWindowString( hWnd, IDC_EDITRATE,_T(""));
 
 								//////////////////////////////
-								UBOOL SameKeyReductions = true;								
+								UBOOL SameKeyReductions = true;
 								FLOAT Inf1=0.f,Inf2=0.f;
 								for( INT c=0; c<InSelBufferNum; c++)
 								{
-									INT AnimIdx=InSelBuffer[c];									
-									Inf1 = TempActor.Animations[AnimIdx].AnimInfo.KeyReduction;									
-									if( c>0 ) 
+									INT AnimIdx=InSelBuffer[c];
+									Inf1 = TempActor.Animations[AnimIdx].AnimInfo.KeyReduction;
+									if( c>0 )
 									{
 										if( Inf1 != Inf2 )
 										{
-											SameKeyReductions = false;												
+											SameKeyReductions = false;
 										}
 									}
 									Inf2 = Inf1;
@@ -478,17 +479,17 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 									PrintWindowString( hWnd, IDC_EDITKEYREDUCTION,_T(""));
 
 								//////////////////////////////
-								UBOOL SameStartBones = true;								
+								UBOOL SameStartBones = true;
 								{ INT Inf1=0,Inf2=0;
 								for( INT c=0; c<InSelBufferNum; c++)
 								{
-									INT AnimIdx=InSelBuffer[c];									
-									Inf1 = TempActor.Animations[AnimIdx].AnimInfo.StartBone;									
-									if( c>0 ) 
+									INT AnimIdx=InSelBuffer[c];
+									Inf1 = TempActor.Animations[AnimIdx].AnimInfo.StartBone;
+									if( c>0 )
 									{
 										if( Inf1 != Inf2 )
 										{
-											SameStartBones = false;												
+											SameStartBones = false;
 										}
 									}
 									Inf2 = Inf1;
@@ -502,14 +503,14 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 
 								//////////////////////////////
 								/*
-								UBOOL SameCheckRoots = true;								
-								{ 
+								UBOOL SameCheckRoots = true;
+								{
 									UBOOL Inf1,Inf2;
 									for( INT c=0; c<InSelBufferNum; c++)
 									{
-										INT AnimIdx=InSelBuffer[c];									
-										Inf1 = TempActor.Animations[AnimIdx].AnimInfo.RootInclude;									
-										if( c>0 ) 
+										INT AnimIdx=InSelBuffer[c];
+										Inf1 = TempActor.Animations[AnimIdx].AnimInfo.RootInclude;
+										if( c>0 )
 										{
 											if( Inf1 != Inf2 )
 											{
@@ -527,7 +528,7 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 								///////////////////////
 							}
 							else
-							{ 
+							{
 								// None selected; clear everything.
 								PrintWindowString( hWnd, IDC_EDITSTARTBONE,_T(""));
 								PrintWindowString( hWnd, IDC_EDITGROUP,_T(""));
@@ -537,18 +538,18 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 								_SetCheckBox( hWnd, IDC_CHECKROOT, 0);
 							}
 						}
-						break;						
+						break;
 					}
 					// end of messages for IDC_LISTIN box
 				}
 				break;
 
 
-				case IDC_LISTOUT: 
+				case IDC_LISTOUT:
 				{
 					// Set handle for easy access
 					switch (HIWORD(wParam))
-					{	
+					{
 						case LBN_KILLFOCUS:
 						case LBN_SELCANCEL: // only _SELCHANGE needed ??
 						case LBN_SETFOCUS:
@@ -559,7 +560,7 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 						break;
 					}
 				}
-				break;				
+				break;
 
 				/*
 				case IDC_BONESELECT:
@@ -569,12 +570,12 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 				}
 				break;
 				*/
-		
-				/* 
+
+				/*
 				// Apply animation parameters from the edit-properties-window.
 				case IDC_UPDATEANIM:
 				{
-					UpdateAnimParams=true; // update the relevant					
+					UpdateAnimParams=true; // update the relevant
 				}
 				break;
 				*/
@@ -588,7 +589,7 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 					{
 					    INT AnimIdx=InSelBuffer[c];
 						// The Actual add to OutItems
-						
+
 						if( (AnimIdx > -1) && (AnimIdx < TempActor.Animations.Num()) )
 						{
 
@@ -610,17 +611,17 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 								TempActor.OutAnims[i].AnimInfo = TempActor.Animations[AnimIdx].AnimInfo;
 								//PopupBox("Copying Keytracks now, total %i...",TempActor.Animations[InSelect].KeyTrack.Num()); //#debug
 								for( INT j=0; j<TempActor.Animations[AnimIdx].KeyTrack.Num(); j++ )
-								{								
+								{
 									//if (j<3) PopupBox("j: %i total: %i",j,TempActor.OutAnims[i].KeyTrack.Num());//#debug
 									TempActor.OutAnims[i].KeyTrack.AddItem( TempActor.Animations[AnimIdx].KeyTrack[j] );
 								}
 
 								// Handle possible animated scale data.
 								for( INT s=0; s<TempActor.Animations[AnimIdx].ScaleTrack.Num(); s++ )
-								{																
+								{
 									TempActor.OutAnims[i].ScaleTrack.AddItem( TempActor.Animations[AnimIdx].ScaleTrack[s] );
 								}
-								
+
 								// Completely update listbox contents:
 								UpdateOutBox = true;
 								UpdateInBox = true;
@@ -636,7 +637,7 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 								if(! ConsistentBones )
 									PopupBox(_T("ERROR !! Aborting the move, inconsistent bone counts detected."));
 							}
-						}					
+						}
 					}
 				}
 				break;
@@ -660,14 +661,14 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 
 							//PopupBox("Copying Keytracks now, total %i...",TempActor.OutAnims[AnimIdx].KeyTrack.Num()); //#debug
 							for( INT j=0; j<TempActor.OutAnims[AnimIdx].KeyTrack.Num(); j++ )
-							{								
+							{
 								//if (j<3) PopupBox("j: %i total: %i",j,TempActor.Animations[i].KeyTrack.Num()); //#debug
 								TempActor.Animations[i].KeyTrack.AddItem( TempActor.OutAnims[AnimIdx].KeyTrack[j] );
 							}
 
 							// Copy Scale tracks if present..
 							for( INT s=0; s<TempActor.OutAnims[AnimIdx].ScaleTrack.Num(); s++ )
-							{																
+							{
 								TempActor.Animations[i].ScaleTrack.AddItem( TempActor.OutAnims[AnimIdx].ScaleTrack[s] );
 							}
 
@@ -677,28 +678,28 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 							// Queue source for deletion:
 							if( LOWORD(wParam) == IDC_MOVEIN )
 								DoDeleteOut = true;
-						}					
+						}
 					}
 				}
 				break;
 
 				// Delete from in-list.
 				case IDC_DELIN:
-				{						
+				{
 					{
 						DoDeleteIn  = true;
 						UpdateInBox = true;
-					}					
+					}
 				}
 				break;
 
 				// Delete from out-list.
 				case IDC_DELOUT:
-				{					
+				{
 					{
 						DoDeleteOut  = true;
 						UpdateOutBox = true;
-					}					
+					}
 				}
 				break;
 
@@ -706,17 +707,17 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 				case IDC_ANIMSORT:
 				{
 					// Quicksort all Animations
-					//by: TempActor.Animations[i].AnimInfo.Name;					
+					//by: TempActor.Animations[i].AnimInfo.Name;
 					qsort ( &(TempActor.Animations[0]), TempActor.Animations.Num(), sizeof(VAnimation), AnimCompare );
 					UpdateInBox = true;
-					
+
 				}
 				break;
 
 
-				// Load the same name and folder as specified. 
+				// Load the same name and folder as specified.
 				case IDC_ANIMLOAD:
-				{	
+				{
 					_stprintf(DestPath,_T("%s\\%s.psa"),to_path,to_animfile);
 					FastFileClass InFile;
 					if ( InFile.OpenExistingFileForReading(DestPath) != 0) // Error!
@@ -725,7 +726,7 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 					{
 						INT DebugBytes = TempActor.LoadAnimation(InFile);
 						UpdateOutBox = true;
-						// Log input 
+						// Log input
 						if( !OurScene.DoSuppressAnimPopups )
 						{
 							PopupBox(_T("Total animation sequences loaded:  %i"), TempActor.OutAnims.Num());
@@ -736,7 +737,7 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 				break;
 
 				case IDC_LOADANIMAS:
-				{	
+				{
 					//char to_ext[32];
 					//_tcscpy(to_ext, ("PSA"));
 					//sprintf(DestPath,"%s\\%s.%s",(char*)to_path,(char*)to_animfile,to_ext);
@@ -745,34 +746,36 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 
 					TCHAR newname[MAX_PATH];
 					newname[0] = 0;
-					GetLoadName( hWnd, newname, to_path, filterList);
-					GetNameFromPath(to_animfile,newname, MAX_PATH );
-					_tcscpy( DestPath, newname );
-					
-					// TEST
-					//char ExtName[MAX_PATH],FolderName[MAX_PATH];
-					//GetFolderFromPath( FolderName,newname);
-					//GetExtensionFromPath( ExtName,newname);
-					//PopupBox(" Folder: [%s] name: [%s] ext: [%s] ",FolderName,to_animfile,ExtName);
-					//					
-
-					FastFileClass InFile;
-					if ( InFile.OpenExistingFileForReading(DestPath) != 0) // Error!
-						ErrorBox(_T("File [%s] does not exist yet."), DestPath);
-					else // Load all relevant chunks into TempActor and its arrays.
+					if (GetLoadName( hWnd, newname, to_path, filterList))
 					{
-						//PopupBox(" Starting to load file : %s ",DestPath);
+						GetNameFromPath(to_animfile,newname, MAX_PATH );
+						_tcscpy( DestPath, newname );
 
-						INT DebugBytes = TempActor.LoadAnimation(InFile);
+						// TEST
+						//char ExtName[MAX_PATH],FolderName[MAX_PATH];
+						//GetFolderFromPath( FolderName,newname);
+						//GetExtensionFromPath( ExtName,newname);
+						//PopupBox(" Folder: [%s] name: [%s] ext: [%s] ",FolderName,to_animfile,ExtName);
+						//
 
-						UpdateOutBox = true;
-						// Log input 
-						if( !OurScene.DoSuppressAnimPopups )
+						FastFileClass InFile;
+						if ( InFile.OpenExistingFileForReading(DestPath) != 0) // Error!
+							ErrorBox(_T("File [%s] does not exist yet."), DestPath);
+						else // Load all relevant chunks into TempActor and its arrays.
 						{
-							PopupBox(_T("Total animation sequences loaded:  %i"), TempActor.OutAnims.Num());
+							//PopupBox(" Starting to load file : %s ",DestPath);
+
+							INT DebugBytes = TempActor.LoadAnimation(InFile);
+
+							UpdateOutBox = true;
+							// Log input
+							if( !OurScene.DoSuppressAnimPopups )
+							{
+								PopupBox(_T("Total animation sequences loaded:  %i"), TempActor.OutAnims.Num());
+							}
 						}
+						InFile.Close();
 					}
-					InFile.Close();
 				}
 				break;
 
@@ -780,13 +783,12 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 
 				// Interactive browsing for destination path.
 				case IDC_ANIMSAVEAS:
-					{						
+					{
 						TCHAR newname[MAX_PATH];
 						_tcscpy(newname,_T("XX"));
 						TCHAR defaultextension[]=_T(".psa");
-						GetSaveName( hWnd, newname, to_path, NULL, defaultextension );
-
-						SaveAnimSet( newname );					
+						if (GetSaveName( hWnd, newname, to_path, NULL, defaultextension ))
+							SaveAnimSet( newname );
 					}
 					break;
 
@@ -795,7 +797,7 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 					{
 						_stprintf(DestPath,_T("%s\\%s.psa"),(char*)to_path,(char*)to_animfile);
 
-						SaveAnimSet( DestPath ); 
+						SaveAnimSet( DestPath );
 					}
 					break;
 
@@ -803,7 +805,7 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 
 			}
 		break;
-			
+
 		default:
 		ReturnWnd = FALSE;
 	}
@@ -811,7 +813,7 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 
 	if( UpdateAnimParams )
 	{
-		
+
 
 		TCHAR in_string[MAX_PATH];
 		// Multiple selection changes:
@@ -854,7 +856,7 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 		if( UpdateGroup )
 		{
 			GetWindowText( GetDlgItem( hWnd, IDC_EDITGROUP ), in_string, 300 );
-			if( _tcslen(in_string) > 0 )			
+			if( _tcslen(in_string) > 0 )
 			for( INT c=0; c<InSelBufferNum; c++)
 			{
 				INT AnimIdx=InSelBuffer[c];
@@ -868,8 +870,8 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 
 		if( UpdateName )
 		{
-			GetWindowText( GetDlgItem( hWnd, IDC_EDITNAME ), in_string, 300 );			
-			if( in_string[0] && (InSelBufferNum == 1) )		 // Necessary: cannot rename more than 1 animation !	
+			GetWindowText( GetDlgItem( hWnd, IDC_EDITNAME ), in_string, 300 );
+			if( in_string[0] && (InSelBufferNum == 1) )		 // Necessary: cannot rename more than 1 animation !
 			for( INT c=0; c<InSelBufferNum; c++)
 			{
 				INT AnimIdx=InSelBuffer[c];
@@ -909,10 +911,10 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 				TempActor.OutAnims[AnimIdx].ScaleTrack.Empty();
 
 				// Delete.
-				TempActor.OutAnims.DelIndex(AnimIdx); 
+				TempActor.OutAnims.DelIndex(AnimIdx);
 			}
 		}
-	}	
+	}
 
 	// Delete all selected in in-box.
 	if ( DoDeleteIn  )
@@ -926,11 +928,11 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 				TempActor.Animations[AnimIdx].KeyTrack.Empty();
 				TempActor.Animations[AnimIdx].ScaleTrack.Empty();
 				// Delete.
-				TempActor.Animations.DelIndex(AnimIdx); 
+				TempActor.Animations.DelIndex(AnimIdx);
 			}
 		}
-	}	
-	
+	}
+
 
 	if( UpdateInBox )
 	{
@@ -941,7 +943,7 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 		for( INT i=0; i< TempActor.Animations.Num(); i++ )
 		{
 			char* String1 = TempActor.Animations[i].AnimInfo.Name;
-			SendMessage( hwndList, LB_INSERTSTRING, i, (LPARAM) String1);
+			SendMessageA( hwndList, LB_INSERTSTRING, i, (LPARAM) String1);
 		}
 	}
 
@@ -955,23 +957,23 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 		for( INT i=0; i< TempActor.OutAnims.Num(); i++ )
 		{
 			char* String1 = TempActor.OutAnims[i].AnimInfo.Name;
-			SendMessage( hwndList, LB_INSERTSTRING, i, (LPARAM)String1 );
-		}		
+			SendMessageA( hwndList, LB_INSERTSTRING, i, (LPARAM)String1 );
+		}
 	}
 
 	return ReturnWnd;
-}    
+}
 
 
 
 
-  
+
 INT_PTR CALLBACK SceneInfoDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	switch (msg) 
+	switch (msg)
 	{
 		case WM_INITDIALOG:
-			//CenterWindow(hWnd, GetParent(hWnd)); 
+			//CenterWindow(hWnd, GetParent(hWnd));
 			{
 				PrintWindowNum(hWnd,IDC_MESHES,     OurScene.GeomMeshes);
 				PrintWindowNum(hWnd,IDC_PHYMESHES,  OurScene.TotalSkinNodeNum);
@@ -988,19 +990,19 @@ INT_PTR CALLBACK SceneInfoDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPa
 
 				PrintWindowNum(hWnd,IDC_FRAMES,  1 +  (OurScene.FrameEnd - OurScene.FrameStart)/OurScene.FrameTicks);
 				PrintWindowNum(hWnd,IDC_FRAMES,   OurScene.FrameStart);
-				
+
 				PrintWindowNum(hWnd,IDC_TICKSFRAME,  OurScene.FrameTicks);
 				PrintWindowNum(hWnd,IDC_TOTALTIME,   OurScene.FrameEnd);
 
 				PrintWindowNum(hWnd,IDC_BONESCURRENT, OurScene.OurBoneTotal);
 
-				
+
 
 			}
 		break;
 
 		case WM_COMMAND:
-			switch (LOWORD(wParam)) 
+			switch (LOWORD(wParam))
 			{
 				case IDCANCEL:
 					EndDialog(hWnd, 0);
@@ -1017,7 +1019,4 @@ INT_PTR CALLBACK SceneInfoDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPa
 
 	}
 	return TRUE;
-}       
-
-
-
+}

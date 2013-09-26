@@ -4421,10 +4421,11 @@ void SaveCurrentSceneSkin()
 		if ( OutFile.CreateNewFile(DestPath) != 0) // Error!
 			ErrorBox( _T("Skin File creation error. "));
 
-		TempActor.SerializeActor(OutFile); //save skin
+		bool ok = TempActor.SerializeActor(OutFile); //save skin
 
 		// Close.
 		OutFile.CloseFlush();
+		if (!ok) return;
 		if( OutFile.GetError()) ErrorBox(_T("Skin Save Error"));
 
 		// Log materials and skin stats.

@@ -1,5 +1,5 @@
 /**************************************************************************
- 
+
    Copyright 1998-2011 Epic Games, Inc. All Rights Reserved.
 
    MayaInterface.cpp - MAYA-specific exporter scene interface code.
@@ -9,11 +9,11 @@
    Lots of fragments snipped from all over the Maya SDK sources.
 
    Todo:  - Move any remaining non-Maya dependent code to SceneIFC
-          - Assertions for exact poly/vertex/wedge bounds (16 bit indices !) 
+          - Assertions for exact poly/vertex/wedge bounds (16 bit indices !)
  	         (max 21840)
 		   - OurSkins array not used -> clean up or use..
 
-  
+
    Change log (incomplete)
 
    Feb 2001:
@@ -21,7 +21,7 @@
    the skeleton is scaled by default (independently of the skin).
 
    Feb 2002
-     - 2/08/02   Misc cleanups for stability; added dummy UVSet string to the MeshFunction.getPolygonUV (which should be optional?) solved strange crash...	 
+     - 2/08/02   Misc cleanups for stability; added dummy UVSet string to the MeshFunction.getPolygonUV (which should be optional?) solved strange crash...
 
    Feb 2003
      - Ascii export for static meshes.
@@ -35,11 +35,11 @@
      - Siginficant fix in smoothing group generation/output. (v 2.21)
 
    Aug 2003
-     - Adds full skeletal export features in the shape of "axautoexport..." ( with parameters, to enable MEL-script batching. )	
+     - Adds full skeletal export features in the shape of "axautoexport..." ( with parameters, to enable MEL-script batching. )
 
    Sept 2003
-    - Adds new  MeshProcessor::createNewSmoothingGroups()   which correctly allocates smoothing groups - multiple 
-	   per face if necessary - to duplicate the exact polygon edge sharpness/softness from the Maya hard/soft edges 
+    - Adds new  MeshProcessor::createNewSmoothingGroups()   which correctly allocates smoothing groups - multiple
+	   per face if necessary - to duplicate the exact polygon edge sharpness/softness from the Maya hard/soft edges
 	   into max-style per-face smoothing groups.
 
    Nov 2003
@@ -52,77 +52,77 @@
    WORK NOTES:
  //////////////
 
-     Non-joint hierarchy ? -> Special option needed....	
+     Non-joint hierarchy ? -> Special option needed....
 
 :::::::::::::::::::: Short Maya class SDK summary ::::::::::::::::::::::::::
 
      MDagPath:
 		MDagPath ::node()  -> MObject node.
 		MObject MDagPath:: transform ( MStatus *ReturnStatus) const  -> Retrieves the lowest Transform in the DAG Path.
-		MMatrix MDagPath:: inclusiveMatrix ( MStatus *ReturnStatus) const  =>The matrix for all Transforms in the Path including the the end Node in the Path if it is a Transform 
-		MMatrix MDagPath:: exclusiveMatrix ( MStatus * ReturnStatus) const => The matrix for all transforms in the Path excluding the end Node in the Path if it is Transform 
-		M4 MDagPath:: inclusiveMatrixInverse ( MStatus * ReturnStatus) const 
-		MMatrix MDagPath:: exclusiveMatrixInverse ( MStatus * ReturnStatus) const 
+		MMatrix MDagPath:: inclusiveMatrix ( MStatus *ReturnStatus) const  =>The matrix for all Transforms in the Path including the the end Node in the Path if it is a Transform
+		MMatrix MDagPath:: exclusiveMatrix ( MStatus * ReturnStatus) const => The matrix for all transforms in the Path excluding the end Node in the Path if it is Transform
+		M4 MDagPath:: inclusiveMatrixInverse ( MStatus * ReturnStatus) const
+		MMatrix MDagPath:: exclusiveMatrixInverse ( MStatus * ReturnStatus) const
 		MDagPath:: MDagPath ( const MDagPath & src )  => Copy constructor
-		bool MDagPath:: hasFn ( MFn::Type type, MStatus *ReturnStatus ) const 
+		bool MDagPath:: hasFn ( MFn::Type type, MStatus *ReturnStatus ) const
 		MObject MDagPath:: node ( MStatus * ReturnStatus) const => Retrieves the DAG Node for this DAG Path.
 		MString MDagPath:: fullPathName ( MStatus * ReturnStatus) const  => Full path name.
-		
+
      MObject:
 		const char * MObject:: apiTypeStr () const => Returns a string that gives the object's type is a readable form. This is useful for debugging when type of an object needs to be printed
 		MFn::Type MObject:: apiType () const  =>  Determines the exact type of the Maya internal Object.
 
      MFnDagNode:
-		MStatus  getPath ( MDagPath & path ) 
+		MStatus  getPath ( MDagPath & path )
 
 		MFnDagNode ( MObject & object, MStatus * ret = NULL )  => constructor
-		MMatrix MFnDagNode:: transformationMatrix ( MStatus * ReturnStatus ) const 
-		=>Returns the transformation matrix for this DAG node. In general, only 
-		transform nodes have matrices associated with them. Nodes such as shapes 
+		MMatrix MFnDagNode:: transformationMatrix ( MStatus * ReturnStatus ) const
+		=>Returns the transformation matrix for this DAG node. In general, only
+		transform nodes have matrices associated with them. Nodes such as shapes
 		(geometry nodes) do not have transform matrices.
 		The identity matrix will be returned if this node does not have a transformation matrix.
 		If the entire world space transformation is required, then an MDagPath should be used.
 
-		MStatus MFnDagNode:: getPath ( MDagPath & path )  
-		=>Returns a DAG Path to the DAG Node attached 
-		to the Function Set. The difference between this method 
-		and the method dagPath below is that this one will not 
-		fail if the function set is not attached to a dag path, 
-		it will always return a path to the node. dagPath will 
+		MStatus MFnDagNode:: getPath ( MDagPath & path )
+		=>Returns a DAG Path to the DAG Node attached
+		to the Function Set. The difference between this method
+		and the method dagPath below is that this one will not
+		fail if the function set is not attached to a dag path,
+		it will always return a path to the node. dagPath will
 		fail if the function set is not attached to a dag path.
 
-		MDagPath MFnDagNode:: dagPath ( MStatus * ReturnStatus ) const 
-        =>Returns the DagPath to which the Function Set is attached. 
-		The difference between this method and the method getPath above 
-		is that this one will fail if the function set is not attached 
+		MDagPath MFnDagNode:: dagPath ( MStatus * ReturnStatus ) const
+        =>Returns the DagPath to which the Function Set is attached.
+		The difference between this method and the method getPath above
+		is that this one will fail if the function set is not attached
 		to a dag path. getPath will find a dag path if the function set is not attached to one.
 
 
 	 MFnDependencyNode:
 		MFnDependencyNode ( MObject & object, MStatus * ReturnStatus = NULL )  => constructor
 		MString MFnDependencyNode:: classification ( const MString & nodeTypeName )
-		=>  Retrieves the classification string for a node type. This is a string that is used 
-		    in dependency nodes that are also shaders to provide more detailed type information 
-			to the rendering system. See the documentation for the MEL commands getClassification 
+		=>  Retrieves the classification string for a node type. This is a string that is used
+		    in dependency nodes that are also shaders to provide more detailed type information
+			to the rendering system. See the documentation for the MEL commands getClassification
 			and listNodeTypes for information on the strings that can be provided.
 			User-defined nodes set this value through a parameter to MFnPlugin::registerNode.
 
-		MString  name ( MStatus * ReturnStatus = NULL ) const 
-		MString  typeName ( MStatus * ReturnStatus = NULL ) const	
+		MString  name ( MStatus * ReturnStatus = NULL ) const
+		MString  typeName ( MStatus * ReturnStatus = NULL ) const
 	    MTypeId  typeId ( MStatus * ReturnStatus = NULL ) const
-      
+
 ***************************************************************************/
 // Plugin DLLMAIN - included only once.
 #include "SceneIfc.h"
-#include <maya/MFnPlugin.h> 
+#include <maya/MFnPlugin.h>
 #include "MayaInterface.h"
 #include "BrushExport.h"
 
 #include "ActorX.h"
 #include "ActorY.h"
 //#EDN // For the test1/test2 code
-#include <process.h> 
-#include <time.h> 
+#include <process.h>
+#include <time.h>
 
 
 
@@ -183,7 +183,7 @@ void DoDigestAnimation();
 void ClearScenePointers()
 {
 	AxSceneObjects.clear();
-	AxSkinClusters.clear();	
+	AxSkinClusters.clear();
 	AxShaders.clear();
 	AxBlendShapes.clear();
 }
@@ -206,13 +206,13 @@ void MayaLog(char* LogString, ... )
 	char TempStr[4096];
 	GET_VARARGS(TempStr,4096,LogString,LogString);
 	MStatus	stat;
-	stat.perror(TempStr);		
+	stat.perror(TempStr);
 }
 
 
 
 
-void SceneIFC::StoreNodeTree(AXNode* node) 
+void SceneIFC::StoreNodeTree(AXNode* node)
 {
 	MStatus	stat;
 
@@ -220,13 +220,13 @@ void SceneIFC::StoreNodeTree(AXNode* node)
 	INT ObjectCount = 0;
 
 	// Global scene object array
-	// #NOTE: Clusters Empty() doesn't work right in reproducable cases -> though runs fine in 'release' build.		 
-	
+	// #NOTE: Clusters Empty() doesn't work right in reproducable cases -> though runs fine in 'release' build.
+
 	ClearScenePointers();
-	
+
 	//
 	// Iterate over all nodes in the dependency graph. Only some dependency graph nodes are/have actual DAG nodes.
-	// 	
+	//
 
 	for( MItDependencyNodes DepIt(MFn::kDependencyNode);!DepIt.isDone();DepIt.next())
 	{
@@ -235,7 +235,7 @@ void SceneIFC::StoreNodeTree(AXNode* node)
 		// Get object for this Node.
 		MObject	Object = Node.object();
 
-		// Store BlendShapes		
+		// Store BlendShapes
 		if ( Object.apiType() == MFn::kBlendShape )
 		{
 			AxBlendShapes.append( Object );
@@ -243,7 +243,7 @@ void SceneIFC::StoreNodeTree(AXNode* node)
 
 		// Maya SkinCluster modifier is not a DAG node - store independently.
 
-		if ( Object.apiType() == MFn::kSkinClusterFilter ) 
+		if ( Object.apiType() == MFn::kSkinClusterFilter )
 		{
 			AxSkinClusters.append( Object );
 		}
@@ -252,15 +252,15 @@ void SceneIFC::StoreNodeTree(AXNode* node)
 				continue;
 
 		MFnDagNode DagNode = DepIt.item();
-		
+
 		if(DagNode.isIntermediateObject())
 				continue;
-				
+
 		//
 		// Simply record all relevant objects.
 		// Includes skinclusterfilters(?) (and materials???)
 		//
-				
+
 		if( Object != MObject::kNullObj  )
 		{
 			if( //( Object.hasFn(MFn::kMesh)) ||
@@ -268,12 +268,12 @@ void SceneIFC::StoreNodeTree(AXNode* node)
 				( Object.apiType() == MFn::kJoint ) ||
 				( Object.apiType() == MFn::kTransform ) )
 			{
-				AxSceneObjects.append( Object ); //AxSceneObjects.AddItem(Object); 
-								
+				AxSceneObjects.append( Object ); //AxSceneObjects.AddItem(Object);
+
 				//if ( ! Object.hasFn(MFn::kDagNode) )
 				//	PopupBox("Object %i [%s] has no DAG node",NodeNum, Object.apiTypeStr() );
 
-				if ( Object.apiType() == MFn::kSkinClusterFilter ) 
+				if ( Object.apiType() == MFn::kSkinClusterFilter )
 				{
 					//PopupBox("Skincluster found, scenetree item %i name %s",AxSceneObjects.Num()-1, Node.name(&stat).asChar() );
 				}
@@ -290,10 +290,10 @@ void SceneIFC::StoreNodeTree(AXNode* node)
 			{
 				//DLog.Logf("NonMesh item:%i  Type: [%s]  NodeName: [%s] \r\n",NodeNum, Object.apiTypeStr(), Node.name(&stat).asChar());
 			}
-			
+
 		}
 		else // Null objects...
-		{		
+		{
 			// DLog.Logf("Null object - Item number: %i   NodeName: [%s] \r\n",NodeNum, Node.name(&stat).asChar() );
 		}
 
@@ -332,7 +332,7 @@ int DigestMayaMaterial( MObject& NewShader  )
 	if( KnownIndex == -1)
 	{
 		KnownIndex = AxShaders.length();
-		AxShaders.append( NewShader );		
+		AxShaders.append( NewShader );
 	}
 	//AxShaders.AddUniqueItem( NewShader );
 	return( KnownIndex );
@@ -347,12 +347,12 @@ void MatrixSwapXYZ( FMatrix& ThisMatrix)
 		FLOAT TempX = ThisMatrix.M[i][0];
 		FLOAT TempY = ThisMatrix.M[i][1];
 		FLOAT TempZ = ThisMatrix.M[i][2];
-		
+
 		ThisMatrix.M[i][0] = TempZ;
 		ThisMatrix.M[i][1] = -TempX;
-		ThisMatrix.M[i][2] = TempY;		
+		ThisMatrix.M[i][2] = TempY;
 	}
-	
+
 	/*
 	FPlane Temp = ThisMatrix.YPlane;
 	ThisMatrix.YPlane = ThisMatrix.ZPlane;
@@ -362,14 +362,14 @@ void MatrixSwapXYZ( FMatrix& ThisMatrix)
 
 void MatrixSwapYZTrafo( FMatrix& ThisMatrix)
 {
-		
+
 	for(INT i=3;i<4;i++)
 	{
 		FLOAT TempZ = ThisMatrix.M[i][1];
 		ThisMatrix.M[i][1] =    ThisMatrix.M[i][0];
 		ThisMatrix.M[i][0] =    TempZ;
 	}
-	
+
 	/*
 	FPlane Temp = ThisMatrix.YPlane;
 	ThisMatrix.YPlane = ThisMatrix.ZPlane;
@@ -417,7 +417,7 @@ int GetMayaShaderTextureSize( MObject alShader, INT& xres, INT& yres )
 
 	xres=256;
 	yres=256; //#debug
-	
+
 	bool		projectionFound = false;
 	bool		layeredFound = false;
     bool		fileTexture = false;
@@ -437,21 +437,21 @@ int GetMayaShaderTextureSize( MObject alShader, INT& xres, INT& yres )
 	MObject             node;
 
 	// Get the dependent texture for this shader by going over a dependencygraph ???
-	MItDependencyGraph* dgIt; 
+	MItDependencyGraph* dgIt;
 	dgIt = new MItDependencyGraph( alShader,
                                MFn::kFileTexture,
-                               MItDependencyGraph::kUpstream, 
+                               MItDependencyGraph::kUpstream,
                                MItDependencyGraph::kBreadthFirst,
-                               MItDependencyGraph::kNodeLevel, 
+                               MItDependencyGraph::kNodeLevel,
                                &status );
 	//
-	for ( ; ! dgIt->isDone(); dgIt->next() ) 
-	{      
+	for ( ; ! dgIt->isDone(); dgIt->next() )
+	{
 		thisNode = dgIt->thisNode();
-        dgNodeFnSet.setObject( thisNode ); 
+        dgNodeFnSet.setObject( thisNode );
         status = dgIt->getNodePath( nodePath );
-                                                                 
-        if ( !status ) 
+
+        if ( !status )
 		{
 			status.perror("getNodePath");
 			continue;
@@ -498,7 +498,7 @@ int GetMayaShaderTextureSize( MObject alShader, INT& xres, INT& yres )
 			}
 	}
 
-	nodePath.clear(); 
+	nodePath.clear();
 
 	return 0;
 }
@@ -515,7 +515,7 @@ void RetrieveTrafoForJoint( MObject& ThisJoint, FMatrix& ThisMatrix, FQuat& This
 	static float	mtxIrot[4][4];
 	static double   newQuat[4];
 
-	MStatus stat;	
+	MStatus stat;
 	// Retrieve dagnode and dagpath from object..
 	MFnDagNode fnTransNode( ThisJoint, &stat );
 	MFnDagNode fnTransNodeParent( ThisJoint, &stat );
@@ -542,12 +542,12 @@ void RetrieveTrafoForJoint( MObject& ThisJoint, FMatrix& ThisMatrix, FQuat& This
 	// Get global matrix if RootCheck indicates skeletal root
 
 	if ( RootCheck )
-	{		
+	{
 		localMatrix = fnTransNode.transformationMatrix ( &stat );
 		globalMatrix = dagPath.inclusiveMatrix();
 		//globalMatrix.homogenize();
 
-		globalMatrix.get( mtxI ); 
+		globalMatrix.get( mtxI );
 	}
 	else
 	{
@@ -560,15 +560,15 @@ void RetrieveTrafoForJoint( MObject& ThisJoint, FMatrix& ThisMatrix, FQuat& This
 
 	// UT bones are supposed to not have scaling; but we need the maya-specific per-bone scale
 	// because this is sometimes used to scale up the entire skeleton & skin.
-	
+
 	// To get the proper scaler for the translation ( not fully animated scaling )
 	double DoubleScale[3];
 	if ( !RootCheck ) // -> (!Rootcheck) works - but still messes up root ANGLE
 	{
 		globalParentMatrix = dagPathParent.inclusiveMatrix();
-		
+
 		MTransformationMatrix   matrix( globalParentMatrix );
-		matrix.getScale( DoubleScale, MSpace::kWorld);	
+		matrix.getScale( DoubleScale, MSpace::kWorld);
 	}
 	else
 	{
@@ -586,9 +586,9 @@ void RetrieveTrafoForJoint( MObject& ThisJoint, FMatrix& ThisMatrix, FQuat& This
 	//MayaQuat = localMatrix; // implied conversion to a normalized quaternion
 	//MayaQuat.normalizeIt();
 	//MayaQuat.get(newQuat);
-	
+
 	// Copy result
-	
+
 	ThisMatrix.XPlane.X = mtxI[0][0];
 	ThisMatrix.XPlane.Y = mtxI[0][1];
 	ThisMatrix.XPlane.Z = mtxI[0][2];
@@ -608,23 +608,23 @@ void RetrieveTrafoForJoint( MObject& ThisJoint, FMatrix& ThisMatrix, FQuat& This
 	ThisMatrix.WPlane.Y = mtxI[3][1];
 	ThisMatrix.WPlane.Z = mtxI[3][2];
 	ThisMatrix.WPlane.W = 1.0f;
-	
+
 	// if( RootCheck )MatrixSwapXYZ(ThisMatrix); //#debug RootCheck
 
 	// Extract quaternion rotations
 	ThisQuat = FMatrixToFQuat(ThisMatrix);
-	
+
 	if (! RootCheck ) // Necessary
 	{
-		ThisQuat.W = - ThisQuat.W;	
+		ThisQuat.W = - ThisQuat.W;
 	}
-	ThisQuat.Normalize(); // 
+	ThisQuat.Normalize(); //
 }
 
 
-//   
+//
 //   Check if the given object was selected..
-//  
+//
 UBOOL isObjectSelected( const MDagPath & path )
 {
 	MStatus status;
@@ -659,18 +659,18 @@ UBOOL isObjectSelected( const MDagPath & path )
 //
 // Build the hierarchy in SerialTree
 //
-int SceneIFC::SerializeSceneTree() 
+int SceneIFC::SerializeSceneTree()
 {
 	OurSkin=NULL;
 	OurRootBone=NULL;
-	
+
 	/*
 	// Get/set MAX animation Timing info.
 	Interval AnimInfo = TheMaxInterface->GetAnimRange();
 	TimeStatic = AnimInfo.Start();
 	TimeStatic = 0;
 
-	Frame 0 for reference: 
+	Frame 0 for reference:
 	if( DoPoseZero ) TimeStatic = 0.0f;
 
 	FrameStart = AnimInfo.Start(); // in ticks..
@@ -678,15 +678,15 @@ int SceneIFC::SerializeSceneTree()
 	FrameTicks = GetTicksPerFrame();
 	FrameRate  = GetFrameRate();
 	*/
-	
+
 	FrameStart = GetMayaTimeStart(); // in ticks..
 	TimeStatic = max( FrameStart, 0.0f );
 	FrameEnd   = GetMayaTimeEnd();   // in ticks..
 	FrameTicks = 1.0f;
-	FrameRate  = 30.0f;// TODO: Maya framerate retrieval. 
+	FrameRate  = 30.0f;// TODO: Maya framerate retrieval.
 
 	if( DoForceRate ) FrameRate = PersistentRate; //Forced rate.
-	
+
 	SerialTree.Empty();
 
 	int ChildCount = 0;
@@ -695,13 +695,13 @@ int SceneIFC::SerializeSceneTree()
 
 	// Store all (relevant) nodes into SerialTree (actually, indices into AXSceneObjects. )
     StoreNodeTree( NULL );
-	
+
 	// Update basic nodeinfo contents : parent/child relationships.
 	// Beware (later) that in Maya there is alwas a transform object between geometry and joints.
 	for(int  i=0; i<SerialTree.Num(); i++)
-	{	
+	{
 		int ParentIndex = -1;
-		MFnDagNode DagNode = AxSceneObjects[(int)SerialTree[i].node]; // object to DagNode... 
+		MFnDagNode DagNode = AxSceneObjects[(int)SerialTree[i].node]; // object to DagNode...
 
 		MObject ParentNode = DagNode.parent(0);
 		// Match to AxSceneObjects
@@ -724,7 +724,7 @@ int SceneIFC::SerializeSceneTree()
 		// MAX:  Establish our hierarchy by way of Serialtree indices... upward only.
 		// SerialTree[i].ParentIndex = MatchNodeToIndex(((INode*)SerialTree[i].node)->GetParentNode());
 		// SerialTree[i].NumChildren = ( ((INode*)SerialTree[i].node)->NumberOfChildren() );
-		
+
 		// Print tree node name... note: is a pointer to an inner name, don't change content !
 		// char* NodeNamePtr;
 		// DtShapeGetName( (int)SerialTree[i].node,  &NodeNamePtr );
@@ -754,14 +754,14 @@ INT FindSkinCluster( MObject &TestObject, SceneIFC* ThisScene )
 
 	for( DWORD t=0; t<AxSkinClusters.length(); t++ )
 	{
-		// 'physique / skincluster modifier' detection		
-		
+		// 'physique / skincluster modifier' detection
+
 		// MFnDependencyNode SkinNode = (MFnDependencyNode) SkinObject;
 		// PopupBox("Skin search: node name: [%s] ", SkinNode.typeName().asChar() );
-		
+
 		if( AxSkinClusters[t].apiType() == MFn::kSkinClusterFilter )
 		{
-			// For each skinCluster node, get the list of influenced objects			
+			// For each skinCluster node, get the list of influenced objects
 			MFnSkinCluster skinCluster(AxSkinClusters[t]);
 			MDagPathArray infs;
 			MStatus stat;
@@ -772,19 +772,19 @@ INT FindSkinCluster( MObject &TestObject, SceneIFC* ThisScene )
 			if( nInfs )
 			{
 				int nGeoms = skinCluster.numOutputConnections();
-				for (int ii = 0; ii < nGeoms; ++ii) 
+				for (int ii = 0; ii < nGeoms; ++ii)
 				{
 					int index = skinCluster.indexForOutputConnection(ii,&stat);
-					//CheckError(stat,"Error getting geometry index.");					
+					//CheckError(stat,"Error getting geometry index.");
 
 					// Get the dag path of the ii'th geometry.
 					MDagPath skinPath;
-					stat = skinCluster.getPathAtIndex(index,skinPath);						
+					stat = skinCluster.getPathAtIndex(index,skinPath);
 					//CheckError(stat,"Error getting geometry path.");
-					
+
 					MObject SkinGeom = skinPath.node();
 
-					//?? DagNode in skinPath ????					
+					//?? DagNode in skinPath ????
 					if ( SkinGeom == TestObject ) //TestObjectode == DagNode ) // compare node & node from path
 					{
 						//PopupBox("Skincluster influence found for -  %s \n", skinPath.fullPathName().asChar() );
@@ -793,7 +793,7 @@ INT FindSkinCluster( MObject &TestObject, SceneIFC* ThisScene )
 					// DLog.Logf("Geometry pathname: # [%3i] -  %s \n",ii,skinPath.fullPathName().asChar() );
 				}
 			}
-		}	
+		}
 	}
 	return -1;
 }
@@ -807,16 +807,16 @@ INT FindSkinCluster( MObject &TestObject, SceneIFC* ThisScene )
 						unsigned int nInfs = skinCluster.influenceObjects(infs, &stat);
 						//CheckError(stat,"Error getting influence objects.");
 
-						if( 0 == nInfs ) 
+						if( 0 == nInfs )
 						{
 							stat = MS::kFailure;
 							//CheckError(stat,"Error: No influence objects found.");
 						}
-						
+
 						// loop through the geometries affected by this cluster
 						//
 						unsigned int nGeoms = skinCluster.numOutputConnections();
-						for (size_t ii = 0; ii < nGeoms; ++ii) 
+						for (size_t ii = 0; ii < nGeoms; ++ii)
 						{
 							unsigned int index = skinCluster.indexForOutputConnection(ii,&stat);
 							//CheckError(stat,"Error getting geometry index.");
@@ -854,15 +854,15 @@ int SceneIFC::GetSceneInfo()
 
 	if (SerialTree.Num() == 0) return 0;
 
-	SetMayaSceneTime( TimeStatic );	
+	SetMayaSceneTime( TimeStatic );
 
-	OurSkins.Empty();	
+	OurSkins.Empty();
 
 	DebugBox("Go over serial nodes & set flags");
 
 	for( int i=0; i<SerialTree.Num(); i++)
-	{					
-		MFnDagNode DagNode = AxSceneObjects[ (int)SerialTree[i].node ]; 
+	{
+		MFnDagNode DagNode = AxSceneObjects[ (int)SerialTree[i].node ];
 		MObject	Object = DagNode.object();
 
 		// A mesh or geometry ? #TODO check against untextured geometry...
@@ -872,26 +872,26 @@ int SceneIFC::GetSceneInfo()
 		// Check for a bone candidate.
 		SerialTree[i].IsBone = ( Object.apiType() == MFn::kJoint ) ? 1:0;
 
-		if( SerialTree[i].IsBone ) 
+		if( SerialTree[i].IsBone )
 			MayaJointCount++;
-		
-		// Check Mesh against all SerialTree items for a skincluster ('physique') modifier:		
+
+		// Check Mesh against all SerialTree items for a skincluster ('physique') modifier:
 		INT IsSkin = ( Object.apiType() == MFn::kMesh) ? 1: 0; //( Object.apiType() == MFn::kMesh ) ? 1 : 0;
 
-		SerialTree[i].ModifierIdx = -1; // No cluster.			
+		SerialTree[i].ModifierIdx = -1; // No cluster.
 		INT HasCluster = 0;
-		if( IsSkin) 
+		if( IsSkin)
 		{
 			INT Cluster = FindSkinCluster( Object, this );
 			HasCluster = ( Cluster >= 0 ) ? 1 : 0;
-			if ( Cluster >= 0 ) 
+			if ( Cluster >= 0 )
 			{
 				SerialTree[i].ModifierIdx = Cluster; //Skincluster index..
 			}
 		}
-				
+
 		UBOOL SkipThisMesh = false;
-		
+
 		GeomMeshes += SerialTree[i].HasMesh;
 
 		//UBOOL SkipThisMesh = ( this->DoSkipSelectedGeom && ((INode*)SerialTree[i].node)->Selected() );
@@ -899,12 +899,12 @@ int SceneIFC::GetSceneInfo()
 		if ( IsSkin && !SkipThisMesh  )  // && DoPhysGeom  (HasCluster > -1)
 		{
 			// SkinCluster/Physique skins dont act as bones.
-			SerialTree[i].IsBone = 0; 
+			SerialTree[i].IsBone = 0;
 			SerialTree[i].IsSkin = 1;
 			SerialTree[i].IsSmooth = HasCluster;
 
 			// Multiple physique nodes...
-			SkinInf NewSkin;			
+			SkinInf NewSkin;
 
 			NewSkin.Node = SerialTree[i].node;
 			NewSkin.IsSmoothSkinned = HasCluster;
@@ -926,12 +926,12 @@ int SceneIFC::GetSceneInfo()
 		}
 		else if (0) // (SerialTree[i].HasTexture && SerialTree[i].HasMesh && DoTexGeom  && !SkipThisMesh )
 		// Any nonphysique mesh object acts as its own bone ? => never the case for Maya.
-		{						
-			SerialTree[i].IsBone = 1; 
+		{
+			SerialTree[i].IsBone = 1;
 			SerialTree[i].IsSkin = 1;
 
 			// Multiple physique nodes...
-			SkinInf NewSkin;			
+			SkinInf NewSkin;
 
 			NewSkin.Node = SerialTree[i].node;
 			NewSkin.IsSmoothSkinned = 0;
@@ -949,20 +949,20 @@ int SceneIFC::GetSceneInfo()
 	}
 
 
-	//#SKEL - doesn't work correct in Maya yet.	
+	//#SKEL - doesn't work correct in Maya yet.
 	// IF no joints encountered, use parent-child relations as ersatz bones - a la 3DS MAX ...
 
 	if( NOJOINTTEST )
 	{
 		INT NewJoints = 0;
 		if( ( MayaJointCount == 0 ) && ( GeomMeshes > 0 ) )
-		{		
+		{
 			for( int i=0; i<SerialTree.Num(); i++)
 			{
 				if( SerialTree[i].HasMesh && !SerialTree[i].IsSmooth )
 				{
 					SerialTree[i].IsBone = 1;
-					SerialTree[i].InSkeleton = 1;				
+					SerialTree[i].InSkeleton = 1;
 					NewJoints++;
 				}
 			}
@@ -970,7 +970,7 @@ int SceneIFC::GetSceneInfo()
 	}
 
 	// #SKEL
-	// PopupBox("-> Meshes: %i  Joint count: %i  New Joint Count: %i Ourskins: %i ",GeomMeshes,MayaJointCount,NewJoints,OurSkins.Num()); 
+	// PopupBox("-> Meshes: %i  Joint count: %i  New Joint Count: %i Ourskins: %i ",GeomMeshes,MayaJointCount,NewJoints,OurSkins.Num());
 
 
 	/*
@@ -981,12 +981,12 @@ int SceneIFC::GetSceneInfo()
 	if (this->DoCullDummies)
 	{
 		for( int i=0; i<SerialTree.Num(); i++)
-		{	
-			if ( 
-			   ( SerialTree[i].IsDummy ) &&  
-			   ( SerialTree[i].LinksToSkin == 0)  && 
-			   ( ((INode*)SerialTree[i].node)->NumberOfChildren()==0 ) && 
-			   ( SerialTree[i].HasTexture == 0 ) && 
+		{
+			if (
+			   ( SerialTree[i].IsDummy ) &&
+			   ( SerialTree[i].LinksToSkin == 0)  &&
+			   ( ((INode*)SerialTree[i].node)->NumberOfChildren()==0 ) &&
+			   ( SerialTree[i].HasTexture == 0 ) &&
 			   ( SerialTree[i].IsBone == 1 )
 			   )
 			{
@@ -998,7 +998,7 @@ int SceneIFC::GetSceneInfo()
 		PopupBox("Culled dummies: %i",CulledDummies);
 	}
 	*/
-	
+
 	if( DEBUGFILE )
 	{
 		char LogFileName[] = ("\\GetSceneInfo.LOG");
@@ -1006,9 +1006,9 @@ int SceneIFC::GetSceneInfo()
 	}
 
 	for(INT i=0; i<SerialTree.Num(); i++)
-	{	
+	{
 		// 'physique / skincluster modifier' detection
-		MFnDagNode DagNode = AxSceneObjects[ (int)SerialTree[i].node ]; 
+		MFnDagNode DagNode = AxSceneObjects[ (int)SerialTree[i].node ];
 
 		// No skeleton available yet!
 		// INT IsRoot = ( TempActor.MatchNodeToSkeletonIndex( (void*) i ) == 0 );
@@ -1035,38 +1035,38 @@ int SceneIFC::GetSceneInfo()
 			(INT)SerialTree[i].node,
 			SerialTree[i].ModifierIdx,
 			SerialTree[i].ParentIndex,
-			SerialTree[i].NumChildren,			
-			SerialTree[i].HasTexture,		
+			SerialTree[i].NumChildren,
+			SerialTree[i].HasTexture,
 			SerialTree[i].IsCulled,
-			SerialTree[i].IsSelected			
+			SerialTree[i].IsSelected
 			);
 
 			//DLog.Logf("Mesh stats:  Faces %4i  Verts %4i \n", MeshFaces, MeshVerts );
 	}
 
-	
+
 
 	{for( DWORD i=0; i<AxSkinClusters.length(); i++)
 	{
 		MFnDependencyNode Node( AxSkinClusters[i]);
-	
+
 		MObject SkinObject = AxSkinClusters[i];
 
 		MFnSkinCluster skinCluster(SkinObject);
 
 		DLog.Logf("Node: %4i - name: [%22s] type: [%22s] \n",
 			i,
-			Node.name().asChar(), 
-			Node.typeName().asChar()			
+			Node.name().asChar(),
+			Node.typeName().asChar()
 			);
 
 
 		DWORD nGeoms = skinCluster.numOutputConnections();
 
-		if ( nGeoms == 0 ) 
+		if ( nGeoms == 0 )
 			DLog.LogfLn("  > No influenced objects for this skincluster.");
 
-		for (DWORD ii = 0; ii < nGeoms; ++ii) 
+		for (DWORD ii = 0; ii < nGeoms; ++ii)
 		{
 			unsigned int index = skinCluster.indexForOutputConnection(ii,&stat);
 			// get the dag path of the ii'th geometry
@@ -1079,8 +1079,8 @@ int SceneIFC::GetSceneInfo()
 
 			DLog.LogfLn("  > Influenced object#: %4i - name: [%s] type: [%s] ",
 			ii,
-			bonePath.fullPathName().asChar(), 
-			//BoneGeom.typeName().asChar()			
+			bonePath.fullPathName().asChar(),
+			//BoneGeom.typeName().asChar()
 			" - "
 			);
 
@@ -1089,9 +1089,9 @@ int SceneIFC::GetSceneInfo()
 
         DLog.LogfLn(" ");
 	DLog.Close();
-	
-	TreeInitialized = 1;	
-	
+
+	TreeInitialized = 1;
+
 	return 0;
 }
 
@@ -1110,22 +1110,22 @@ int SceneIFC::GetSceneInfo()
 /*
 int DigestSoftSkin(VActor *Thing )
 {
-	
+
 	size_t count = 0;
-	
+
 	// Iterate through graph and search for skinCluster nodes
 	//
 	MItDependencyNodes iter( MFn::kInvalid);
 	MayaLog("Start Iterating graph....");
 
-	for ( ; !iter.isDone(); iter.next() ) 
-	{	
+	for ( ; !iter.isDone(); iter.next() )
+	{
 
 		MObject object = iter.item();
-		if (object.apiType() == MFn::kSkinClusterFilter) 
+		if (object.apiType() == MFn::kSkinClusterFilter)
 		{
 			count++;
-			
+
 			// For each skinCluster node, get the list of influencdoe objects
 			//
 			MFnSkinCluster skinCluster(object);
@@ -1134,16 +1134,16 @@ int DigestSoftSkin(VActor *Thing )
 			unsigned int nInfs = skinCluster.influenceObjects(infs, &stat);
 			CheckError(stat,"Error getting influence objects.");
 
-			if( 0 == nInfs ) 
+			if( 0 == nInfs )
 			{
 				stat = MS::kFailure;
 				CheckError(stat,"Error: No influence objects found.");
 			}
-			
+
 			// loop through the geometries affected by this cluster
 			//
 			unsigned int nGeoms = skinCluster.numOutputConnections();
-			for (size_t ii = 0; ii < nGeoms; ++ii) 
+			for (size_t ii = 0; ii < nGeoms; ++ii)
 			{
 				unsigned int index = skinCluster.indexForOutputConnection(ii,&stat);
 				CheckError(stat,"Error getting geometry index.");
@@ -1163,17 +1163,17 @@ int DigestSoftSkin(VActor *Thing )
 				//
 				// #TODO
 				// fprintf(file,"%s [vertexcount %d] [Influences %d] \r\n",skinPath.partialPathName().asChar(), gIter.count(),	nInfs);
-				
+
 				// print out the influence objects
 				//
-				for (size_t kk = 0; kk < nInfs; ++kk) 
+				for (size_t kk = 0; kk < nInfs; ++kk)
 				{
 					// #TODO
 					MayaLog("[%s] \r\n",infs[kk].partialPathName().asChar());
 				}
 				// fprintf(file,"\r\n");
-			
-				for (  ; !gIter.isDone(); gIter.next() ) 
+
+				for (  ; !gIter.isDone(); gIter.next() )
 				{
 					MObject comp = gIter.component(&stat);
 					CheckError(stat,"Error getting component.");
@@ -1184,7 +1184,7 @@ int DigestSoftSkin(VActor *Thing )
 					unsigned int infCount;
 					stat = skinCluster.getWeights(skinPath,comp,wts,infCount);
 					CheckError(stat,"Error getting weights.");
-					if (0 == infCount) 
+					if (0 == infCount)
 					{
 						stat = MS::kFailure;
 						CheckError(stat,"Error: 0 influence objects.");
@@ -1196,7 +1196,7 @@ int DigestSoftSkin(VActor *Thing )
 
 					// fprintf(file,"[%4d] ",gIter.index());
 
-					for (unsigned int jj = 0; jj < infCount ; ++jj ) 
+					for (unsigned int jj = 0; jj < infCount ; ++jj )
 					{
 						float BoneWeight = wts[jj];
 						if( BoneWeight != 0.0f )
@@ -1225,7 +1225,7 @@ int DigestSoftSkin(VActor *Thing )
 //
 // Get total number of blend curves
 // Each blend shape can have multiple curves
-// Looking for total number of curves 
+// Looking for total number of curves
 //
 INT GetTotalNumOfBlendCurves()
 {
@@ -1239,9 +1239,9 @@ INT GetTotalNumOfBlendCurves()
 	return TotalNumCurves;
 }
 
-// 
+//
 // Get alias name from the input attribute and copy to output
-// 
+//
 int GetAliasName(const char * AttributeName, char * Output, INT OutputLen)
 {
 	if ( AttributeName && Output && OutputLen>0 )
@@ -1250,7 +1250,7 @@ int GetAliasName(const char * AttributeName, char * Output, INT OutputLen)
 		MString QueryString = "aliasAttr -q ";
 		QueryString += AttributeName;
 		Memzero(Output, OutputLen);
-		
+
 		MStatus Result = MGlobal::executeCommand(QueryString, ResultString);
 		if (Result == MS::kSuccess)
 		{
@@ -1259,11 +1259,11 @@ int GetAliasName(const char * AttributeName, char * Output, INT OutputLen)
 			// remove namespace
 			if (Colon)
 			{
-				strcpysafe( Output, Colon+sizeof(char), OutputLen );			
+				strcpysafe( Output, Colon+sizeof(char), OutputLen );
 			}
 			else
 			{
-				strcpysafe( Output, ResultString.asChar(), OutputLen );			
+				strcpysafe( Output, ResultString.asChar(), OutputLen );
 			}
 
 			return (Output[0]!=0);
@@ -1273,13 +1273,13 @@ int GetAliasName(const char * AttributeName, char * Output, INT OutputLen)
 	return 0;
 }
 
-// 
+//
 // Initialize Curves
 // Allocate memory for each curve
 // And assign name for each curve
 // Each curve for each blendshape, it gets one BlendCurve
 // Each curve gets Frame count of weights with name
-// 
+//
 int SceneIFC::InitializeCurve(VActor *Thing, INT TotalFrameCount )
 {
 	INT TotalNumCurves = GetTotalNumOfBlendCurves();
@@ -1299,7 +1299,7 @@ int SceneIFC::InitializeCurve(VActor *Thing, INT TotalFrameCount )
 	// for each curve, initialize information, such as name
 	for (INT I=0; I<AxBlendShapes.length(); ++I)
 	{
-		MObject Object = AxBlendShapes[I]; 
+		MObject Object = AxBlendShapes[I];
 		// if blend shape exists
 		if ( Object.hasFn(MFn::kBlendShape) )
 		{
@@ -1309,7 +1309,7 @@ int SceneIFC::InitializeCurve(VActor *Thing, INT TotalFrameCount )
 			{
 				char AttributeName[MAX_PATH], OutputName[128];
 
-				sprintf_s(AttributeName,"%s.weight[%d]",fn.name().asChar(),J);		
+				sprintf_s(AttributeName,"%s.weight[%d]",fn.name().asChar(),J);
 
 				if (GetAliasName(AttributeName, OutputName, 128))
 				{
@@ -1375,16 +1375,16 @@ int SceneIFC::DigestAnim(class VActor *Thing,char *SequenceName,char *RangeStrin
 
 	// Parse a framerange that's identical to or a subset (possibly including same frame multiple times) of the slider range.
 	ParseFrameRange( RangeString, FirstFrame, LastFrame );
-	OurTotalFrames = FrameList.GetTotal();	
+	OurTotalFrames = FrameList.GetTotal();
 
 	//PopupBox(" Animation range: start %f  end %f  frames %i ", TimeStart, TimeEnd, OurTotalFrames );
 
 	Thing->RawAnimKeys.Empty();
-	Thing->RawNumFrames = OurTotalFrames; 
+	Thing->RawNumFrames = OurTotalFrames;
 	Thing->RawNumBones  = TotalBones;
 	Thing->RawAnimKeys.SetSize( OurTotalFrames * TotalBones );
 	Thing->RawNumBones  = TotalBones;
-	Thing->FrameTotalTicks = OurTotalFrames; // * FrameTicks; 
+	Thing->FrameTotalTicks = OurTotalFrames; // * FrameTicks;
 	Thing->FrameRate = 30.0f; // GetFrameRate(); //FrameRate;  #TODO proper Maya framerate retrieval.
 
 	// PopupBox(" Frame rate %f  Ticks per frame %f  Total frames %i FrameTimeInfo %f ",(FLOAT)GetFrameRate(), (FLOAT)FrameTicks, (INT)OurTotalFrames, (FLOAT)Thing->FrameTotalTicks );
@@ -1398,7 +1398,7 @@ int SceneIFC::DigestAnim(class VActor *Thing,char *SequenceName,char *RangeStrin
 
 	int KeyIndex  = 0;
 	int FrameCount = 0;
-	int TotalAnimNodes = SerialTree.Num()-RootBoneIndex; 
+	int TotalAnimNodes = SerialTree.Num()-RootBoneIndex;
 	INT TotalNumCurves = GetTotalNumOfBlendCurves();
 
 	// initialize curve data
@@ -1411,21 +1411,21 @@ int SceneIFC::DigestAnim(class VActor *Thing,char *SequenceName,char *RangeStrin
 	}
 
 	DebugBox("Start digesting the animation frames in the FrameList");
-	
-	for( INT t=0; t<FrameList.GetTotal(); t++)		
+
+	for( INT t=0; t<FrameList.GetTotal(); t++)
 	{
 		FLOAT TimeNow = FrameList.GetFrame(t); // * FrameTicks;
 		SetMayaSceneTime( TimeNow );
 
 		for (int i = 0; i<SerialTree.Num(); i++) // i = RootBoneIndex...
 		{
-			if ( SerialTree[i].InSkeleton ) 
-			{			
-				MFnDagNode DagNode  = AxSceneObjects[ (int)SerialTree[i].node ]; 
-				MObject JointObject = AxSceneObjects[ (int)SerialTree[i].node ]; 
+			if ( SerialTree[i].InSkeleton )
+			{
+				MFnDagNode DagNode  = AxSceneObjects[ (int)SerialTree[i].node ];
+				MObject JointObject = AxSceneObjects[ (int)SerialTree[i].node ];
 
 				// Check whether root bone
-				INT RootCheck = ( Thing->MatchNodeToSkeletonIndex( (void*) i ) == 0) ? 1:0 ;			
+				INT RootCheck = ( Thing->MatchNodeToSkeletonIndex( (void*) i ) == 0) ? 1:0 ;
 
 				DLog.LogfLn("#DIGESTANIM Skeletal bone name [] num %i parent %i  NumChildren %i  Isroot %i RootCheck %i",i,(int)SerialTree[i].ParentIndex,SerialTree[i].NumChildren, (i != RootBoneIndex)?0:1,RootCheck );
 
@@ -1438,21 +1438,21 @@ int SceneIFC::DigestAnim(class VActor *Thing,char *SequenceName,char *RangeStrin
 				RetrieveTrafoForJoint( JointObject, LocalMatrix, LocalQuat, RootCheck, BoneScale );
 
 				// Raw translation
-				FVector Trans( LocalMatrix.WPlane.X, LocalMatrix.WPlane.Y, LocalMatrix.WPlane.Z );				
+				FVector Trans( LocalMatrix.WPlane.X, LocalMatrix.WPlane.Y, LocalMatrix.WPlane.Z );
 				// Incorporate matrix scaling - for translation only.
 				Trans.X *= BoneScale.X;
 				Trans.Y *= BoneScale.Y;
 				Trans.Z *= BoneScale.Z;
 
 				FQuat Orient;
-				//if ( RootCheck ) 				
+				//if ( RootCheck )
 				Orient = FQuat(LocalQuat.X,LocalQuat.Y,LocalQuat.Z,LocalQuat.W);
-			
+
 				Thing->RawAnimKeys[KeyIndex].Orientation = Orient;
 				Thing->RawAnimKeys[KeyIndex].Position = Trans;
 
 				KeyIndex++;
-			}			
+			}
 		}
 
 		if ( TotalNumCurves > 0 )
@@ -1461,7 +1461,7 @@ int SceneIFC::DigestAnim(class VActor *Thing,char *SequenceName,char *RangeStrin
 			// get the curve information out
 			for (INT I=0; I<AxBlendShapes.length(); ++I)
 			{
-				MObject Object = AxBlendShapes[I]; 
+				MObject Object = AxBlendShapes[I];
 				// if blend shape exists
 				if ( Object.hasFn(MFn::kBlendShape) )
 				{
@@ -1476,9 +1476,9 @@ int SceneIFC::DigestAnim(class VActor *Thing,char *SequenceName,char *RangeStrin
 				}
 			}
 		}
-		
+
 		FrameCount++;
-	}	
+	}
 
 	DLog.Close();
 
@@ -1500,16 +1500,16 @@ int SceneIFC::WriteVertexAnims(VActor *Thing, char* DestFileName, char* RangeStr
 	//	AuxLog.Open(LogPath,LogFileName, 1 );//DEBUGFILE);
 	//}
 
-	INT FirstFrame = (INT)FrameStart / FrameTicks; // Convert ticks to frames. FrameTicks set in 
+	INT FirstFrame = (INT)FrameStart / FrameTicks; // Convert ticks to frames. FrameTicks set in
 	INT LastFrame = (INT)FrameEnd / FrameTicks;
 
 	ParseFrameRange( RangeString, FirstFrame, LastFrame );
 
-	OurTotalFrames = FrameList.GetTotal();	
-	Thing->RawNumFrames = OurTotalFrames; 
+	OurTotalFrames = FrameList.GetTotal();
+	Thing->RawNumFrames = OurTotalFrames;
 	Thing->RawAnimKeys.SetSize( OurTotalFrames * TotalBones );
 	Thing->RawNumBones  = TotalBones;
-	Thing->FrameTotalTicks = OurTotalFrames * FrameTicks; 
+	Thing->FrameTotalTicks = OurTotalFrames * FrameTicks;
 	Thing->FrameRate = 1.0f; //GetFrameRate(); //FrameRate - unused for vert anim....
 
 	INT FrameCount = 0;
@@ -1517,17 +1517,17 @@ int SceneIFC::WriteVertexAnims(VActor *Thing, char* DestFileName, char* RangeStr
 
 	VertexMeshHeader MeshHeader;
 	Memzero( &MeshHeader, sizeof( MeshHeader ) );
-	
+
 	VertexAnimHeader AnimHeader;
 	Memzero( &AnimHeader, sizeof( AnimHeader ) );
-	
+
 	TArray<VertexMeshTri> VAFaces;
 	TArray<FMeshVert> VAVerts;
 	TArray<FVector> VARawVerts;
 
 	// Get 'reference' triangles; write the _d.3d file. Scene time of sampling actually unimportant.
-	OurScene.DigestSkin(&TempActor );  
-	
+	OurScene.DigestSkin(&TempActor );
+
 	// Gather triangles
 	for( INT t=0; t< TempActor.SkinData.Faces.Num(); t++)
 	{
@@ -1550,12 +1550,12 @@ int SceneIFC::WriteVertexAnims(VActor *Thing, char* DestFileName, char* RangeStr
 			NewTri.Tex[v].U1 = (INT)( TexScaler * TempActor.SkinData.Wedges[ TempActor.SkinData.Faces[t].WedgeIndex[v] ].ExtraUVs[0].U );
 			NewTri.Tex[v].V1 = (INT)( TexScaler * TempActor.SkinData.Wedges[ TempActor.SkinData.Faces[t].WedgeIndex[v] ].ExtraUVs[0].V );
 		}
-		
+
 		NewTri.TextureNum = TempActor.SkinData.Faces[t].MatIndex;
 
 		// #TODO - Verify that this is the proper flag assignment for things like alpha, masked, doublesided, etc...
 		if( NewTri.TextureNum < Thing->SkinData.RawMaterials.Num() )
-			NewTri.Flags = Thing->SkinData.Materials[NewTri.TextureNum].PolyFlags; 
+			NewTri.Flags = Thing->SkinData.Materials[NewTri.TextureNum].PolyFlags;
 
 		VAFaces.AddItem( NewTri );
 	}
@@ -1567,9 +1567,9 @@ int SceneIFC::WriteVertexAnims(VActor *Thing, char* DestFileName, char* RangeStr
 	{
 		FastFileClass OutFile;
 		char OutPath[MAX_PATH];
-		sprintf_s(OutPath,"%s\\%s_d.3d",(char*)to_path,(char*)DestFileName);		
-		//PopupBox("OutPath for _d file: %s",OutPath); 
-		if ( OutFile.CreateNewFile(OutPath) != 0) 
+		sprintf_s(OutPath,"%s\\%s_d.3d",(char*)to_path,(char*)DestFileName);
+		//PopupBox("OutPath for _d file: %s",OutPath);
+		if ( OutFile.CreateNewFile(OutPath) != 0)
 			ErrorBox( "Vertex Anim File creation error. ");
 
 		MeshHeader.NumPolygons = VAFaces.Num();
@@ -1583,7 +1583,7 @@ int SceneIFC::WriteVertexAnims(VActor *Thing, char* DestFileName, char* RangeStr
 		for( INT f=0; f< VAFaces.Num(); f++)
 		{
 			OutFile.Write( &(VAFaces[f]), sizeof(VertexMeshTri) );
-		}		
+		}
 
 		OutFile.CloseFlush();
 
@@ -1595,17 +1595,17 @@ int SceneIFC::WriteVertexAnims(VActor *Thing, char* DestFileName, char* RangeStr
 	// retrieve mesh for every frame & write to (to_skinfile_a.3d. Optionally append it to existing.
 	//
 
-	for( INT f=0; f<FrameList.GetTotal(); f++)		
+	for( INT f=0; f<FrameList.GetTotal(); f++)
 	{
 		FLOAT TimeNow = FrameList.GetFrame(f) * FrameTicks;
 
 		// Advance progress bar; obey bailout. (MAX specific.)
 		/*
 		INT Progress = (INT) 100.0f * ( f/(FrameList.GetTotal()+0.01f) );
-		TheMaxInterface->ProgressUpdate(Progress); 
+		TheMaxInterface->ProgressUpdate(Progress);
 
 		// give user opportunity to cancel
-		if (TheMaxInterface->GetCancel()) 
+		if (TheMaxInterface->GetCancel())
 		{
 			INT retval = MessageBox(TheMaxInterface->GetMAXHWnd(), _T("Really Cancel"),
 				_T("Question"), MB_ICONQUESTION | MB_YESNO);
@@ -1615,16 +1615,16 @@ int SceneIFC::WriteVertexAnims(VActor *Thing, char* DestFileName, char* RangeStr
 				TheMaxInterface->SetCancel(FALSE);
 		}
 		*/
-	
+
 		// Capture current mesh as a 'reference pose'  at 'TimeNow'.
-		TimeStatic = TimeNow;		
-		OurScene.DigestSkin(&TempActor ); 
+		TimeStatic = TimeNow;
+		OurScene.DigestSkin(&TempActor );
 		for( INT v=0; v< Thing->SkinData.Points.Num(); v++ )
-		{			
+		{
 			VARawVerts.AddItem( Thing->SkinData.Points[v].Point ); //Store full 3d point, since we may be rescaling stuff later.
 		}
 
-		// Add raw skin verts to buffer; we don't care about bones.		
+		// Add raw skin verts to buffer; we don't care about bones.
 
 		FrameCount++;
 	} // Time.
@@ -1635,7 +1635,7 @@ int SceneIFC::WriteVertexAnims(VActor *Thing, char* DestFileName, char* RangeStr
 	if( VARawVerts.Num() )
 	{
 		INT FileError = 0;
-		
+
 		if( OurScene.DoScaleVertex )
 		{
 			//
@@ -1664,7 +1664,7 @@ int SceneIFC::WriteVertexAnims(VActor *Thing, char* DestFileName, char* RangeStr
 		//
 		FastFileClass OutFile;
 		char OutPath[MAX_PATH];
-		sprintf_s(OutPath,"%s\\%s_a.3d",(char*)to_path,(char*)DestFileName);				
+		sprintf_s(OutPath,"%s\\%s_a.3d",(char*)to_path,(char*)DestFileName);
 
 		if( ! OurScene.DoAppendVertex )
 		{
@@ -1682,7 +1682,7 @@ int SceneIFC::WriteVertexAnims(VActor *Thing, char* DestFileName, char* RangeStr
 				FileError = 1;
 			}
 			// Need to explicitly move file ptr to end for appending.
-			AppendSeekLocation = OutFile.GetSize(); 
+			AppendSeekLocation = OutFile.GetSize();
 			if( AppendSeekLocation <= 0 )
 			{
 				ErrorBox(" File appending error: file on disk has no data.");
@@ -1701,7 +1701,7 @@ int SceneIFC::WriteVertexAnims(VActor *Thing, char* DestFileName, char* RangeStr
 				OutFile.Write( &AnimHeader, sizeof(AnimHeader));
 			}
 			else
-			{				
+			{
 				VertexAnimHeader ExistingAnimHeader;
 				ExistingAnimHeader.FrameSize = 0;
 				ExistingAnimHeader.NumFrames = 0;
@@ -1726,8 +1726,8 @@ int SceneIFC::WriteVertexAnims(VActor *Thing, char* DestFileName, char* RangeStr
 			// Write animated vertex data (all frames, all verts).
 			for( INT f=0; f< VAVerts.Num(); f++)
 			{
-				OutFile.Write( &(VAVerts[f]), sizeof(FMeshVert));				
-			}	
+				OutFile.Write( &(VAVerts[f]), sizeof(FMeshVert));
+			}
 
 			OutFile.CloseFlush();
 
@@ -1750,7 +1750,7 @@ int SceneIFC::WriteVertexAnims(VActor *Thing, char* DestFileName, char* RangeStr
 
 
 
-			
+
 //
 // Digest points, weights, wedges, faces for a skeletal mesh.
 //
@@ -1770,7 +1770,7 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 
 	MFnMesh MeshFunction( SkinObject, &stat );
 	// #todo act on SmoothSkin flag
-	if ( stat != MS::kSuccess ) 
+	if ( stat != MS::kSuccess )
 	{
 			PopupBox(" Mesh methods could not be created for MESH %s",currentDagNode.name(&stat).asChar() );
 			return 0;
@@ -1784,12 +1784,12 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 
 
 
-	// If we are doing world space, then we need to initialize the 
+	// If we are doing world space, then we need to initialize the
 	// Mesh with a DagPath and not just the node
 
-	MFloatPointArray	Points;	
+	MFloatPointArray	Points;
 	// Get points array & iterate vertices.
-	// MeshFunction.getPoints( Points, MSpace::kWorld); // can also get other spaces!!				
+	// MeshFunction.getPoints( Points, MSpace::kWorld); // can also get other spaces!!
 	MeshFunction.setObject( ShapedagPath );
 	MeshFunction.getPoints( Points, MSpace::kWorld ); // MSpace::kTransform);  //KWorld is wrong ?...
 
@@ -1797,14 +1797,14 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 
 	// Traverse hierarchy to find valid parent joint for this mesh. #DEBUG - make NoExport work !
 	if( ParentJoint > -1) SerialTree[ParentJoint].NoExport = 0; //#SKEL
-	
+
 	while( (ParentJoint > 0)  &&  ((!SerialTree[ParentJoint].InSkeleton ) || ( SerialTree[ParentJoint].NoExport ) ) )
 	{
 		ParentJoint = SerialTree[ParentJoint].ParentIndex;
 	}
 
 	if( ParentJoint < 0) ParentJoint = 0;
-	
+
 	INT MatchedNode = Thing->MatchNodeToSkeletonIndex( (void*)ParentJoint ); // SkinNode ) ;
 
 	// Not linked to a joint?
@@ -1813,7 +1813,7 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 		MatchedNode = 0;
 	}
 
-	INT SkinClusterVertexCount = 0;	
+	INT SkinClusterVertexCount = 0;
 
 	if( !SmoothSkin )
 	{
@@ -1822,7 +1822,7 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 			MFloatPoint	Vertex;
 			// Get the vertex info.
 			Vertex = Points[PointIndex];
-			
+
 			// Max: SkinLocal brings the skin 3d vertices into world space.
 			// Point3 VxPos = OurTriMesh->getVert(i)*SkinLocalTM;
 
@@ -1832,7 +1832,7 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 			NewPoint.Point.Y =  Vertex.y; // -x
 			NewPoint.Point.Z =  Vertex.z; //  y
 
-			LocalSkin.Points.AddItem(NewPoint); 		
+			LocalSkin.Points.AddItem(NewPoint);
 
 			DLog.Logf(" # Skin vertex %i   Position: %f %f %f \n",PointIndex,NewPoint.Point.X,NewPoint.Point.Y,NewPoint.Point.Z);
 
@@ -1841,7 +1841,7 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 			TempInf.BoneIndex  = MatchedNode; // Bone is it's own node.
 			TempInf.Weight     = 1.0f;
 
-			LocalSkin.RawWeights.AddItem(TempInf);  					
+			LocalSkin.RawWeights.AddItem(TempInf);
 		}
 	}
 	else // Smooth skin (SkinCluster)
@@ -1853,7 +1853,7 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 				MFloatPoint	Vertex;
 				// Get the vertex info.
 				Vertex = Points[PointIndex];
-				
+
 				// Max: SkinLocal brings the skin 3d vertices into world space.
 				// Point3 VxPos = OurTriMesh->getVert(i)*SkinLocalTM;
 
@@ -1863,7 +1863,7 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 				NewPoint.Point.Y =  Vertex.y; // -x
 				NewPoint.Point.Z =  Vertex.z; //  y
 
-				LocalSkin.Points.AddItem(NewPoint); 		
+				LocalSkin.Points.AddItem(NewPoint);
 		}
 
 		// Current object:"SkinObject/ShapedagPath".
@@ -1881,7 +1881,7 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 		TArray <INT> BoneIndices;
 		// Match bone to influence
 		for( DWORD b=0; b < nInfs; b++)
-		{			
+		{
 			INT BoneIndex = -1;
 			for (int i=0; i<Thing->RefSkeletonNodes.Num(); i++)
 			{
@@ -1890,7 +1890,7 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 				MFnDagNode DNode( TestBoneObj, &stat );
 				MDagPath BonePath;
 				DNode.getPath( BonePath );
-				
+
 				if ( infs[b] == BonePath )
 					BoneIndex = i;  // Skeletal index..
 			}
@@ -1907,7 +1907,7 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 					MObject TestBoneObj( AxSceneObjects[(INT)SerialTree[i].node ] );
 					MFnDagNode DNode( TestBoneObj, &stat );
 					MDagPath BonePath;
-					DNode.getPath( BonePath );					
+					DNode.getPath( BonePath );
 					if ( infs[b] == BonePath )
 					{
 						LeadIndex = i;
@@ -1915,10 +1915,10 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 				}
 				//
 				// See if SerialTree[i].node has known-bone parent...
-				//				
+				//
 				if( (LeadIndex > -1 ) && SerialTree[LeadIndex].NoExport ) // ??? //#SKEL: do this for ALL leadIndex>-1...
 				{
-					//PopupBox("Finding alternative BoneIndex = %i ",BoneIndex); 
+					//PopupBox("Finding alternative BoneIndex = %i ",BoneIndex);
 					// Traverse until we find a bone parent... assumes all hierarchy up-chains end at -1 / 0
 					while( LeadIndex > 0 && !SerialTree[LeadIndex].IsBone )
 					{
@@ -1932,13 +1932,13 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 						{
 							if( Thing->RefSkeletonNodes[i] == (void*)AltParentNode )
 							{
-								BoneIndex = i; 
-								//PopupBox(" Alternative bone parent found for noexport-bone: %i ",BoneIndex ); 
+								BoneIndex = i;
+								//PopupBox(" Alternative bone parent found for noexport-bone: %i ",BoneIndex );
 							}
-						}						
+						}
 					}
 				}
-		
+
 			}
 			#endif
 
@@ -1946,14 +1946,14 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 			BoneIndices.AddItem(BoneIndex > -1 ? BoneIndex: 0 );
 		}
 
-	
 
-		// Also allow for things linked to bones 
+
+		// Also allow for things linked to bones
 		// SerialTree[i].NoExport = 1;
-		
+
 		unsigned int nGeoms = skinCluster.numOutputConnections();
 
-		for (DWORD ii = 0; ii < nGeoms; ++ii) 
+		for (DWORD ii = 0; ii < nGeoms; ++ii)
 		{
 			unsigned int index = skinCluster.indexForOutputConnection(ii,&stat);
 
@@ -1971,10 +1971,10 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 				//
 				MItGeometry gIter(skinPath);
 				//
-				// PopupBox(" Found CLusterPath  %s [vertexcount %d] [Influences %d] \r\n",skinPath.partialPathName().asChar(),gIter.count(),nInfs) ;			
-							
+				// PopupBox(" Found CLusterPath  %s [vertexcount %d] [Influences %d] \r\n",skinPath.partialPathName().asChar(),gIter.count(),nInfs) ;
+
 				INT VertexCount = 0;
-				for ( ; !gIter.isDone(); gIter.next() ) 
+				for ( ; !gIter.isDone(); gIter.next() )
 				{
 					MObject comp = gIter.component(&stat);
 					CheckError(stat,"Error getting component.");
@@ -1994,7 +1994,7 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 					float TotalWeight = 0.0f;
 
 					//fprintf(file,"[%4d] ",gIter.index());
-					for (unsigned int jj = 0; jj < infCount ; ++jj ) 
+					for (unsigned int jj = 0; jj < infCount ; ++jj )
 					{
 						float BoneWeight = wts[jj];
 						if( BoneWeight != 0.0f )
@@ -2004,15 +2004,15 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 							TempInf.BoneIndex  = BoneIndices[jj];          //Translate bone index into skeleton bone index
 							TempInf.Weight     = wts[jj];
 
-							LocalSkin.RawWeights.AddItem(TempInf);  												
+							LocalSkin.RawWeights.AddItem(TempInf);
 							//fprintf(file,"Bone: %4i Weight: %9f ",jj,wts[jj]);
 						}
 					}
 					VertexCount++;
 					SkinClusterVertexCount++;
-				}				
+				}
 			}
-		}		
+		}
 	}
 
 	//
@@ -2029,15 +2029,15 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 
 	// Get mesh-to-worldspace matrix
 	//Matrix3 Mesh2WorldTM = ((INode*)SkinNode)->GetObjectTM(TimeStatic);
-	//Mesh2WorldTM.NoScale();		
-
-	
+	//Mesh2WorldTM.NoScale();
 
 
-	//MFnMesh:: getConnectedShaders ( unsigned instanceNumber, MObjectArray & shaders, MIntArray & indices ) const 
+
+
+	//MFnMesh:: getConnectedShaders ( unsigned instanceNumber, MObjectArray & shaders, MIntArray & indices ) const
 	//Arguments
-	//instanceNumber The instance number of the mesh to query 
-	//shaders Storage for set objects (shader objects) 
+	//instanceNumber The instance number of the mesh to query
+	//shaders Storage for set objects (shader objects)
 	//indices Storage for indices matching faces to shaders. For each face, this array contains the index into the shaders array for the shader assigned to the face.
 
 	MObjectArray MayaShaders;
@@ -2051,7 +2051,7 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 //PCF BEGIN
 // maya api triangulation
 #ifdef NEWMAYAEXPORT
-	if( MayaShaders.length() == 0) 
+	if( MayaShaders.length() == 0)
 	{
 		MGlobal::displayWarning(MString("Warning: possible shader-less geometry encountered for node  ") + Node.name());
 	}
@@ -2079,10 +2079,10 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 	if( OurScene.DoUnSmooth )
 	{
 		// Construct smoothing groups using current mesh's DagPath.
-		// TempTranslator.buildEdgeTable( ShapedagPath ); 	// OLD Maya-SDK code. 
+		// TempTranslator.buildEdgeTable( ShapedagPath ); 	// OLD Maya-SDK code.
 		TempTranslator.createNewSmoothingGroupsFromTriangulatedMesh( triMesh );   // New max-compatible multiple smoothing groups converter.
 
-		if( TempTranslator.PolySmoothingGroups.Num() >= NumFaces ) 
+		if( TempTranslator.PolySmoothingGroups.Num() >= NumFaces )
 		{
 			bSmoothingGroups = true;
 		}
@@ -2105,7 +2105,7 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 	TArray<VColor> VertexColors;
 	if( bHasColors )
 	{
-		// Iterate through all colors and convert them to bytes 
+		// Iterate through all colors and convert them to bytes
 		for( INT ColorIdx = 0; ColorIdx < ColorArray.length(); ++ColorIdx )
 		{
 			VColor Color(255,255,255,255);
@@ -2129,11 +2129,11 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 		INT MaterialIndex = t.ShadingGroupIndex & 255;
 
 		INT ThisMaterial;
-		if( (INT) MayaShaders.length() <= MaterialIndex ) 
-		{			
+		if( (INT) MayaShaders.length() <= MaterialIndex )
+		{
 			ThisMaterial = 0;
 		}
-		else		
+		else
 		{
 			ThisMaterial = DigestMayaMaterial( MayaShaders[MaterialIndex]);
 		}
@@ -2150,12 +2150,12 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 
 			VVertex Wedge;
 			NewFace.WedgeIndex[j] = LocalSkin.Wedges.Num()+j;
-			Wedge.PointIndex = VertIdx; 
+			Wedge.PointIndex = VertIdx;
 			FVector WV = LocalSkin.Points[ Wedge.PointIndex ].Point;
 			Wedge.Reserved = 0;
 
 
-			GWedge NewWedge;				
+			GWedge NewWedge;
 			//INT NewWedgeIdx = StaticPrimitives[PrimIndex].Wedges.AddZeroed(1);
 			NewWedge.MaterialIndex = ThisMaterial; // Per-corner material index..
 			NewWedge.PointIndex = VertIdx; // Maya's face vertices indices for this face.
@@ -2178,13 +2178,13 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 
 			if( bHasColors )
 			{
-				// Find the vertex color for this wedge 
-				// This has to be done after triangulation as vertex order 
+				// Find the vertex color for this wedge
+				// This has to be done after triangulation as vertex order
 				// may have changed
 				INT colorIndex = t.Indices[j].vertexColor;
 				Wedge.Color = VertexColors[ colorIndex ];
 			}
-		
+
 			Wedge.MatIndex = ThisMaterial;
 			LocalSkin.Wedges.AddItem(Wedge);
 
@@ -2197,13 +2197,13 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 //PCF END
 
 // old export code
-#else 
+#else
 
 	MStatus status;
 	MFnDependencyN( &status );
 
 	NumFaces = 0;
-	if( MayaShaders.length() == 0) 
+	if( MayaShaders.length() == 0)
 	{
 
 		ErrorBox("Node without matching vertices encountered: [%s]", NodeName);
@@ -2233,10 +2233,10 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 	if( OurScene.DoUnSmooth )
 	{
 		// Construct smoothing groups using current mesh's DagPath.
-		// TempTranslator.buildEdgeTable( ShapedagPath ); 	// OLD Maya-SDK code. 
+		// TempTranslator.buildEdgeTable( ShapedagPath ); 	// OLD Maya-SDK code.
 		TempTranslator.createNewSmoothingGroups( ShapedagPath );   // New max-compatible multiple smoothing groups converter.
 
-		if( TempTranslator.PolySmoothingGroups.Num() >= NumFaces ) 
+		if( TempTranslator.PolySmoothingGroups.Num() >= NumFaces )
 		{
 			bSmoothingGroups = true;
 		}
@@ -2246,7 +2246,7 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 	MeshFunction.getUVSetNames   (UVSetsNames) ;
 	bool secondUvSet =0;
 	if (UVSetsNames.length() >1) secondUvSet =1;
-	
+
 	//if (secondUvSet)
 	//	cerr << "	exporting 2 UVSets" << endl;
 	//else
@@ -2267,36 +2267,36 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 		}
 
 		while( VertCount >= 3 )
-		{			
+		{
 			// Fill vertex indices - breaks up face in triangle polygons.
 			INT VertIdx[3];
 			VertIdx[0] = 0;
 			VertIdx[1] = VertCount-2;
 			VertIdx[2] = VertCount-1;
-			
+
 			VVertex Wedge0;
 			VVertex Wedge1;
 			VVertex Wedge2;
 			VTriangle NewFace;
-			
+
 			// Get SKELETAL skin face's smoothing mask from the TempTranslator.
 			// When NO smoothing groups explicitly default to 1 !! (all facets SHARE smooth boundaries.)
 			NewFace.SmoothingGroups = bSmoothingGroups ? TempTranslator.PolySmoothingGroups[PolyIndex] : 1 ;
-			
+
 			// Normals (determine handedness...
-			// Point3 MaxNormal = OurTriMesh->getFaceNormal(PolyIndex);		
-			// Transform normal vector into world space along with 3 vertices. 
+			// Point3 MaxNormal = OurTriMesh->getFaceNormal(PolyIndex);
+			// Transform normal vector into world space along with 3 vertices.
 			// MaxNormal = VectorTransform( Mesh2WorldTM, MaxNormal );
 
 			// FVector FaceNormal = MeshNormals(PolyIndex );
-			// Can't use MeshNormals -> vertex normals, we want face normals. 
+			// Can't use MeshNormals -> vertex normals, we want face normals.
 
 			NewFace.WedgeIndex[0] = LocalSkin.Wedges.Num();
 			NewFace.WedgeIndex[1] = LocalSkin.Wedges.Num()+1;
-			NewFace.WedgeIndex[2] = LocalSkin.Wedges.Num()+2;		
+			NewFace.WedgeIndex[2] = LocalSkin.Wedges.Num()+2;
 
 			// Face's vertex indices ('point indices')
-			
+
 			Wedge0.PointIndex = FaceVertices[VertIdx[0]]; //MeshFunction.getPolygonVertices( 0,VertexIndex );
 			Wedge1.PointIndex = FaceVertices[VertIdx[1]]; //MeshFunction.getPolygonVertices( 1,VertexIndex );
 			Wedge2.PointIndex = FaceVertices[VertIdx[2]]; //MeshFunction.getPolygonVertices( 2,VertexIndex );
@@ -2308,10 +2308,10 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 
 
 			/*
-			// #DEBUG 
+			// #DEBUG
 			// Check for degenerate triangles...
 			static INT FirstWarn = 0;
-			if ( Wedge0.PointIndex == Wedge1.PointIndex || Wedge0.PointIndex == Wedge2.PointIndex || Wedge1.PointIndex == Wedge2.PointIndex 
+			if ( Wedge0.PointIndex == Wedge1.PointIndex || Wedge0.PointIndex == Wedge2.PointIndex || Wedge1.PointIndex == Wedge2.PointIndex
 				 || Wedge0.PointIndex >= LocalSkin.Points.Num() || Wedge1.PointIndex >= LocalSkin.Points.Num() || Wedge2.PointIndex >= LocalSkin.Points.Num() )
 			{
 				if( FirstWarn < 4) PopupBox("Degenerate triangle: (indices) %i  indices %i %i %i max index: %i", PolyIndex,Wedge0.PointIndex,Wedge1.PointIndex,Wedge2.PointIndex, LocalSkin.Points.Num() );
@@ -2323,28 +2323,28 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 				FirstWarn++;
 			}
 			*/
-		
-			// Figure out the handedness of the face by constructing a normal and comparing it to Maya's (??)s normal.		
+
+			// Figure out the handedness of the face by constructing a normal and comparing it to Maya's (??)s normal.
 			// FVector OurNormal = (WV0 - WV1) ^ (WV2 - WV0);
-			// OurNormal /= sqrt(OurNormal.SizeSquared()+0.001f);// Normalize size (unnecessary ?);			
+			// OurNormal /= sqrt(OurNormal.SizeSquared()+0.001f);// Normalize size (unnecessary ?);
 			// Handedness = ( ( OurNormal | FaceNormal ) < 0.0f); // normals anti-parallel ?
 
-		
+
 			//NewFace.MatIndex = MaterialIndex;
 			Wedge0.Reserved = 0;
 			Wedge1.Reserved = 0;
 			Wedge2.Reserved = 0;
 
 			//
-			// Get UV texture coordinates: allocate a Wedge with for each and every 
-			// UV+ MaterialIndex ID; then merge these, and adjust links in the Triangles 
+			// Get UV texture coordinates: allocate a Wedge with for each and every
+			// UV+ MaterialIndex ID; then merge these, and adjust links in the Triangles
 			// that point to them.
 			//
-			
+
 			// check mapped face
 			//if( 1 ) // TriFace->flags & HAS_TVERTS )
 			{
-				//MString  UVSet1; // ? - Despite being optional, this helps prevent a weird crash...?				
+				//MString  UVSet1; // ? - Despite being optional, this helps prevent a weird crash...?
 
 
 				FLOAT U,V;
@@ -2356,7 +2356,7 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 							we= &Wedge0;
 					else if (rr == 1)
 							we= &Wedge1;
-					else 
+					else
 							we= &Wedge2;
 
 					VVertex & wed = *we;
@@ -2366,7 +2366,7 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 					stat = MeshFunction.getPolygonUV( PolyIndex,VertIdx[rr],U,V,&UVSetsNames[0]  );
 					if (stat == MS::kSuccess)
 					{
-					
+
 						//if ( stat != MS::kSuccess )
 						//	DLog.Logf(" Invalid UV retrieval ");
 						wed.U =  U;
@@ -2374,7 +2374,7 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 
 						// second uv set
 						wed.U1 =  Wedge0.U;
-						wed.V1 =  Wedge0.V; // The Y-flip: an Unreal requirement..	
+						wed.V1 =  Wedge0.V; // The Y-flip: an Unreal requirement..
 					}
 					else
 					{
@@ -2384,13 +2384,13 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 
 						// second uv set
 						wed.U1 =  0;
-						wed.V1 =  0; // The Y-flip: an Unreal requirement..	
+						wed.V1 =  0; // The Y-flip: an Unreal requirement..
 					}
 
 					cerr << "	uvs0 " << Wedge0.U << "/"<< Wedge0.V<< endl;
 					if (secondUvSet)
 					{
-						
+
 						stat = MeshFunction.getPolygonUV( PolyIndex,VertIdx[rr],U,V,&UVSetsNames[1]  );
 						cerr << "	secondUvSet "   << endl;
 
@@ -2412,12 +2412,12 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 				}
 
 			}
-			
+
 			// PCF COMMENT - its wrong - totally messes uv sets, takes uv from any other mapped vert
 			// if there is no uv - should zero it not mess
 
 			//// Above may fail retrieving UV's - detect by comparing U/V's, if so retry old method:
-			
+
 			//if( (Wedge0.U == Wedge1.U) && (Wedge0.V == Wedge1.V) ) // TriFace->flags & HAS_TVERTS )
 			//{
 			//	FLOAT U,V;
@@ -2432,7 +2432,7 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 			//	//if ( stat != MS::kSuccess )
 			//	//	DLog.Logf(" Invalid UV retrieval ");
 			//	Wedge1.U =  U;
-			//	Wedge1.V =  1.0f - V; 
+			//	Wedge1.V =  1.0f - V;
 
 			//	stat = MeshFunction.getPolygonUV( PolyIndex,VertIdx[2],U,V );
 			//	//if ( stat != MS::kSuccess )
@@ -2441,18 +2441,18 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 			//	Wedge2.V =  1.0f - V;
 			//}
 
-			
-			// To verify: DigestMaterial should give a correct final material index 
+
+			// To verify: DigestMaterial should give a correct final material index
 			// even for multiple multi/sub materials on complex hierarchies of meshes.
 
 			INT MaterialIndex = ShaderIndices[PolyIndex] & 255;
 
 			INT ThisMaterial;
-			if( (INT) MayaShaders.length() <= MaterialIndex ) 
-			{			
+			if( (INT) MayaShaders.length() <= MaterialIndex )
+			{
 				ThisMaterial = 0;
 			}
-			else		
+			else
 			{
 				ThisMaterial = DigestMayaMaterial( MayaShaders[MaterialIndex]);
 			}
@@ -2461,13 +2461,13 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 			Wedge0.MatIndex = ThisMaterial;
 			Wedge1.MatIndex = ThisMaterial;
 			Wedge2.MatIndex = ThisMaterial;
-			
+
 			LocalSkin.Wedges.AddItem(Wedge0);
 			LocalSkin.Wedges.AddItem(Wedge1);
 			LocalSkin.Wedges.AddItem(Wedge2);
-			
+
 			LocalSkin.Faces.AddItem(NewFace);
-			
+
 			/*
 			int PointIdx = LocalSkin.Wedges[ LocalSkin.Wedges.Num()-1 ].PointIndex; // last added 3d point
 			FVector VertPoint = LocalSkin.Points[ PointIdx ].Point;
@@ -2485,7 +2485,7 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 	TArray  <VVertex> NewWedges;
 	TArray  <INT>     WedgeRemap;
 
-	WedgeRemap.SetSize( LocalSkin.Wedges.Num() ); 
+	WedgeRemap.SetSize( LocalSkin.Wedges.Num() );
 
 	DebugBox( "Digesting %i Wedges.", LocalSkin.Wedges.Num() );
 
@@ -2497,7 +2497,7 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 		if( LocalSkin.Wedges[t].Reserved != 0xFF ) // not flagged ?
 		{
 			// Remember this wedge's unique new index.
-			WedgeRemap[t] = NewWedges.Num();		
+			WedgeRemap[t] = NewWedges.Num();
 			NewWedges.AddItem( LocalSkin.Wedges[t] ); // then it's unique.
 
 			// Any copies ?
@@ -2514,10 +2514,10 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 
 	//
 	// Re-point all indices from all Triangles to the proper unique-ified Wedges.
-	// 
+	//
 
 	for( INT FaceIndex = 0; FaceIndex < LocalSkin.Faces.Num(); FaceIndex++)
-	{		
+	{
 		LocalSkin.Faces[FaceIndex].WedgeIndex[0] = WedgeRemap[FaceIndex*3+0];
 		LocalSkin.Faces[FaceIndex].WedgeIndex[1] = WedgeRemap[FaceIndex*3+1];
 		LocalSkin.Faces[FaceIndex].WedgeIndex[2] = WedgeRemap[FaceIndex*3+2];
@@ -2525,12 +2525,12 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 		// Verify we all mapped within new bounds.
 		if (LocalSkin.Faces[FaceIndex].WedgeIndex[0] >= NewWedges.Num()) ErrorBox("Wedge Overflow 1");
 		if (LocalSkin.Faces[FaceIndex].WedgeIndex[1] >= NewWedges.Num()) ErrorBox("Wedge Overflow 1");
-		if (LocalSkin.Faces[FaceIndex].WedgeIndex[2] >= NewWedges.Num()) ErrorBox("Wedge Overflow 1");	
+		if (LocalSkin.Faces[FaceIndex].WedgeIndex[2] >= NewWedges.Num()) ErrorBox("Wedge Overflow 1");
 
 		// Flip faces?
-		
-		if (1) // (Handedness ) 
-		{			
+
+		if (1) // (Handedness )
+		{
 			//FlippedFaces++;
 			INT Index1 = LocalSkin.Faces[FaceIndex].WedgeIndex[2];
 			LocalSkin.Faces[FaceIndex].WedgeIndex[2] = LocalSkin.Faces[FaceIndex].WedgeIndex[1];
@@ -2551,10 +2551,10 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 			NewWedges[t].UV.U,
 			NewWedges[t].UV.V,
 			NewWedges[t].MatIndex,
-			NewWedges[t].PointIndex, 
+			NewWedges[t].PointIndex,
 			LocalSkin.Points[NewWedges[t].PointIndex].Point.X,
 			LocalSkin.Points[NewWedges[t].PointIndex].Point.Y,
-			LocalSkin.Points[NewWedges[t].PointIndex].Point.Z 
+			LocalSkin.Points[NewWedges[t].PointIndex].Point.Z
 			);
 	}
 
@@ -2598,36 +2598,36 @@ DWORD FlagsFromName(char* pName )
 	if (CheckSubString(pName,_T("trans")))  translucent=true;
 	if (CheckSubString(pName,_T("opaque"))) translucent=false;
 	if (CheckSubString(pName,_T("alph"))) alpha=true;
- 
+
 	BYTE MatFlags= MTT_Normal;
-	
+
 	if (two)
 		MatFlags|= MTT_NormalTwoSided;
-	
+
 	if (translucent)
 		MatFlags|= MTT_Translucent;
-	
+
 	if (masked)
 		MatFlags|= MTT_Masked;
-	
+
 	if (modulate)
 		MatFlags|= MTT_Modulate;
-	
+
 	if (unlit)
 		MatFlags|= MTT_Unlit;
-	
+
 	if (flat)
 		MatFlags|= MTT_Flat;
-	
+
 	if (enviro)
 		MatFlags|= MTT_Environment;
-	
+
 	if (nofiltering)
 		MatFlags|= MTT_NoSmooth;
 
 	if (alpha)
 		MatFlags|= MTT_Alpha;
-	
+
 	if (weapon)
 		MatFlags= MTT_Placeholder;
 
@@ -2636,7 +2636,7 @@ DWORD FlagsFromName(char* pName )
 
 
 //
-// Unreal flags from materials (original material tricks by Steve Sinclair, Digital Extremes ) 
+// Unreal flags from materials (original material tricks by Steve Sinclair, Digital Extremes )
 // - uses classic Unreal/UT flag conventions for now.
 // Determine the polyflags, in case a multimaterial is present
 // reference the matID value (pass in the face's matID).
@@ -2644,25 +2644,25 @@ DWORD FlagsFromName(char* pName )
 
 void CalcMaterialFlags( MObject& MShaderObject, VMaterial& Stuff )
 {
-	
+
 	char pName[MAX_PATH];
-	MFnDependencyNode MFnShader( MShaderObject );		
+	MFnDependencyNode MFnShader( MShaderObject );
 	strcpysafe( pName, MFnShader.name().asChar(), MAX_PATH );
 
-	// Check skin index 
+	// Check skin index
 	INT skinIndex = FindValueTag( pName, _T("skin") ,2 ); // Double (or single) digit skin index.......
-	if ( skinIndex < 0 ) 
+	if ( skinIndex < 0 )
 	{
 		skinIndex = 0;
-		Stuff.AuxFlags = 0;  
+		Stuff.AuxFlags = 0;
 	}
 	else
 		Stuff.AuxFlags = 1; // Indicates an explicitly defined skin index.
 
 	Stuff.TextureIndex = skinIndex;
-	
+
 	// Lodbias
-	INT LodBias = FindValueTag( pName, _T("lodbias"),2); 
+	INT LodBias = FindValueTag( pName, _T("lodbias"),2);
 	if ( LodBias < 0 ) LodBias = 5; // Default value when tag not found.
 	Stuff.LodBias = LodBias;
 
@@ -2682,7 +2682,7 @@ int	SceneIFC::DigestSkin(VActor *Thing )
 	//cerr << endl<< "	DigestSkin()"  << endl;
 	//
 	// if (OurSkins.Num() == 0) return 0; // no physique skin detected !!
-	//	
+	//
 	// We need a digest of all objects in the scene that are meshes belonging
 	// to the skin; then go over these and use the parent node for non-physique ones,
 	// and physique bones digestion where possible.
@@ -2702,7 +2702,7 @@ int	SceneIFC::DigestSkin(VActor *Thing )
 
 	if( DEBUGFILE )
 	{
-		char LogFileName[MAX_PATH]; // = _T("\\X_AnimInfo_")+ _T(AnimName) +_T(".LOG");	
+		char LogFileName[MAX_PATH]; // = _T("\\X_AnimInfo_")+ _T(AnimName) +_T(".LOG");
 		sprintf_s(LogFileName,"\\ActXSkin.LOG");
 		DLog.Open( LogPath,LogFileName, DEBUGFILE );
 	}
@@ -2717,9 +2717,9 @@ int	SceneIFC::DigestSkin(VActor *Thing )
 		INT HasRootAsParent = 0;
 
 		// If not a skincluster subject, figure out whether the skeletal root is this mesh's parent somehow,
-		// so that it is definitely part of the skin. 
+		// so that it is definitely part of the skin.
 		if( SerialTree[i].IsSkin )
-		{			
+		{
 			MObject Object = AxSceneObjects[ (INT)SerialTree[i].node ];
 			MObject RootBoneObj( AxSceneObjects[(INT)Thing->RefSkeletonNodes[0]] );
 			MFnDagNode RootNode( RootBoneObj );
@@ -2737,18 +2737,18 @@ int	SceneIFC::DigestSkin(VActor *Thing )
 
 			// Smooth-skinned or regular?
 			if( SerialTree[i].IsSmooth)
-			{								
+			{
 				// Skincluster deformable mesh.
 				ProcessMesh( (void*)((INT)SerialTree[i].node), i, Thing, LocalSkin, 1 );
 			}
 			else
-			{				
+			{
 				// Regular mesh - but throw away if its parent is ROOT !
 				ProcessMesh( (void*)((INT)SerialTree[i].node), i, Thing, LocalSkin, 0 );
 			}
 
 			DLog.LogfLn(" New points %i faces %i Wedges %i rawweights %i", LocalSkin.Points.Num(), LocalSkin.Faces.Num(), LocalSkin.Wedges.Num(), LocalSkin.RawWeights.Num() );
-			
+
 			// Add points, wedges, faces, RAW WEIGHTS from localskin to Thing->Skindata.
 			// Indices need to be shifted to create a single mesh soup!
 
@@ -2799,7 +2799,7 @@ int	SceneIFC::DigestSkin(VActor *Thing )
 
 	FixMaterials(Thing);
 
-	DLog.Close();	
+	DLog.Close();
 	return 1;
 }
 
@@ -2837,7 +2837,7 @@ int SceneIFC::DigestBrush( VActor *Thing )
 		// If not a skincluster subject, Figure out whether the skeletal root is this mesh's parent somehow,
 		// so that it is definitely part of the skin.
 		if( SerialTree[i].IsSkin )
-		{			
+		{
 			MObject Object = AxSceneObjects[ (INT)SerialTree[i].node ];
 
 			// Allow for zero-bone mesh digesting
@@ -2868,12 +2868,12 @@ int SceneIFC::DigestBrush( VActor *Thing )
 
 			// Smooth-skinned or regular?
 			if( SerialTree[i].IsSmooth )
-			{								
+			{
 				// Skincluster deformable mesh.
 				ProcessMesh( (void*)((INT)SerialTree[i].node), i, Thing, LocalSkin, 1 );
 			}
 			else
-			{				
+			{
 				// Regular mesh - but throw away if its parent is ROOT !
 				ProcessMesh( (void*)((INT)SerialTree[i].node), i, Thing, LocalSkin, 0 );
 			}
@@ -2881,7 +2881,7 @@ int SceneIFC::DigestBrush( VActor *Thing )
 			// PopupBox(" New points %i faces %i Wedges %i rawweights %i", LocalSkin.Points.Num(), LocalSkin.Faces.Num(), LocalSkin.Wedges.Num(), LocalSkin.RawWeights.Num() );
 
 			// DLog.LogfLn(" New points %i faces %i Wedges %i rawweights %i", LocalSkin.Points.Num(), LocalSkin.Faces.Num(), LocalSkin.Wedges.Num(), LocalSkin.RawWeights.Num() );
-			
+
 			// Add points, wedges, faces, RAW WEIGHTS from localskin to Thing->Skindata.
 			// Indices need to be shifted to create a single mesh soup!
 
@@ -2935,7 +2935,7 @@ int SceneIFC::DigestBrush( VActor *Thing )
 
 	FixMaterials(Thing);
 
-	//DLog.Close();	
+	//DLog.Close();
 	return 1;
 }
 
@@ -2954,25 +2954,25 @@ void GetBitmapName(TCHAR* Name, size_t NameLen, TCHAR* Path, MObject& ThisShader
 	Name[0]=0;
 	Path[0]=0;
 
-	// Get path and bitmap name from shader.		
+	// Get path and bitmap name from shader.
 	GetTextureNameFromShader( ThisShader, TextureSourceString, MAX_PATH );
 
 	// extract bitmap/path name from path...
 	if( strlen( TextureSourceString ) >0 )
 	{
 		GetFolderFromPath( BmpPathname, TextureSourceString, MAX_PATH );
-		GetNameFromPath( BmpFilename, TextureSourceString, MAX_PATH );	
+		GetNameFromPath( BmpFilename, TextureSourceString, MAX_PATH );
 		GetExtensionFromPath( BmpExtension, TextureSourceString, MAX_PATH );
 
 		sprintf_s( Name,NameLen,"%s.%s",BmpFilename,BmpExtension);
-		strcpysafe(Path,CleanString(BmpPathname),MAX_PATH);	
+		strcpysafe(Path,CleanString(BmpPathname),MAX_PATH);
 	}
 	else
 	{
 		sprintf_s( Name,NameLen,"unknown_bitmap.bmp");
 	}
 }
-	
+
 
 
 
@@ -3010,9 +3010,9 @@ int	SceneIFC::FixMaterials(VActor *Thing )
 		// Skin index override detection.
 		if (Stuff.AuxFlags ) IndexOverride = true;
 
-		// Add texture source path		
+		// Add texture source path
 		VBitmapOrigin TextureSource;
-		GetBitmapName( TextureSource.RawBitmapName, _countof(TextureSource.RawBitmapName), TextureSource.RawBitmapPath, AxShaders[i] );		
+		GetBitmapName( TextureSource.RawBitmapName, _countof(TextureSource.RawBitmapName), TextureSource.RawBitmapPath, AxShaders[i] );
 		Thing->SkinData.RawBMPaths.AddItem( TextureSource );
 
 		// Retrieve texture size from MFnShader somehow..
@@ -3044,13 +3044,13 @@ int	SceneIFC::FixMaterials(VActor *Thing )
 			Thing->SkinData.Materials[t].AuxMaterial = t;
 		}
 
-		// Bubble sort.		
+		// Bubble sort.
 		int Sorted = 0;
 		while (Sorted==0)
 		{
 			Sorted=1;
 			for (int t=0; t<(NumMaterials-1);t++)
-			{	
+			{
 				UBOOL SwapNeeded = false;
 				if( Thing->SkinData.Materials[t].AuxFlags && (!Thing->SkinData.Materials[t+1].AuxFlags) )
 				{
@@ -3061,18 +3061,18 @@ int	SceneIFC::FixMaterials(VActor *Thing )
 					if( ( Thing->SkinData.Materials[t].AuxFlags && Thing->SkinData.Materials[t+1].AuxFlags ) &&
 						( Thing->SkinData.Materials[t].TextureIndex > Thing->SkinData.Materials[t+1].TextureIndex ) )
 						SwapNeeded = true;
-				}				
+				}
 				if( SwapNeeded )
 				{
 					Sorted=0;
 
 					VMaterial VMStore = Thing->SkinData.Materials[t];
 					Thing->SkinData.Materials[t]=Thing->SkinData.Materials[t+1];
-					Thing->SkinData.Materials[t+1]=VMStore;					
-										
+					Thing->SkinData.Materials[t+1]=VMStore;
+
 					VBitmapOrigin BOStore = Thing->SkinData.RawBMPaths[t];
 					Thing->SkinData.RawBMPaths[t] =Thing->SkinData.RawBMPaths[t+1];
-					Thing->SkinData.RawBMPaths[t+1] = BOStore;					
+					Thing->SkinData.RawBMPaths[t+1] = BOStore;
 
 					INT USize = Thing->SkinData.MaterialUSize[t];
 					INT VSize = Thing->SkinData.MaterialVSize[t];
@@ -3080,11 +3080,11 @@ int	SceneIFC::FixMaterials(VActor *Thing )
 					Thing->SkinData.MaterialVSize[t] = Thing->SkinData.MaterialVSize[t+1];
 					Thing->SkinData.MaterialUSize[t+1] = USize;
 					Thing->SkinData.MaterialVSize[t+1] = VSize;
-				}			
+				}
 			}
 		}
 
-		DebugBox("Re-sorted material order for skin-index override.");	
+		DebugBox("Re-sorted material order for skin-index override.");
 
 		// Remap wedge material indices.
 		if (1)
@@ -3100,7 +3100,7 @@ int	SceneIFC::FixMaterials(VActor *Thing )
 				INT MatIdx = Thing->SkinData.Wedges[i].MatIndex;
 				if ( MatIdx >=0 && MatIdx < Thing->SkinData.Materials.Num() )
 					Thing->SkinData.Wedges[i].MatIndex =  RemapArray[MatIdx];
-			}}		
+			}}
 		}
 	}
 
@@ -3111,7 +3111,7 @@ int	SceneIFC::FixMaterials(VActor *Thing )
 int SceneIFC::DigestMaterial(AXNode *node,  INT matIndex,  TArray<void*>& RawMaterials)
 {
 	void* ThisMtl = (void*) matIndex;
-	
+
 	// The different material properties can be investigated at the end, for now we care about uniqueness only.
 	RawMaterials.AddUniqueItem( (void*) ThisMtl );
 
@@ -3126,11 +3126,11 @@ int SceneIFC::RecurseValidBones(const int RIndex, int &BoneCount)
 	SerialTree[RIndex].InSkeleton = 1; //part of our skeleton.
 	BoneCount++;
 
-	for (int c = 0; c < SerialTree[RIndex].NumChildren; c++) 
+	for (int c = 0; c < SerialTree[RIndex].NumChildren; c++)
 	{
 		if( GetChildNodeIndex(RIndex,c) <= 0 ) ErrorBox("GetChildNodeIndex assertion failed");
 
-		RecurseValidBones( GetChildNodeIndex(RIndex,c), BoneCount); 
+		RecurseValidBones( GetChildNodeIndex(RIndex,c), BoneCount);
 	}
 	return 1;
 }
@@ -3147,7 +3147,7 @@ int	SceneIFC::MarkBonesOfSystem(int RIndex)
 
 	RecurseValidBones( RIndex, BoneCount );
 
-	// How to get the hierarchy with support of our 
+	// How to get the hierarchy with support of our
 	// flags, too:
 	// - ( a numchildren, and look-for-nth-child routine for our array !)
 
@@ -3184,14 +3184,14 @@ int SceneIFC::EvaluateSkeleton(INT RequireBones)
 		if( SerialTree[i].IsBone )
 		{
 			if (RootBoneIndex == -1)
-				RootBoneIndex = i; 
+				RootBoneIndex = i;
 
 			// All bones assumed to be in skeleton.
 			SerialTree[i].InSkeleton = 1 ;
 			BonesMax++;
 		}
 	}
-	
+
 	if (RootBoneIndex == -1)
 	{
 		if ( RequireBones ) PopupBox("ERROR: Failed to find a root bone.");
@@ -3207,7 +3207,7 @@ int SceneIFC::EvaluateSkeleton(INT RequireBones)
 
 	/*
 	for( int i=0; i<SerialTree.Num(); i++)
-	{	
+	{
 		if( (SerialTree[i].IsBone != 0 ) && (SerialTree[i].ParentIndex == 0) )
 		{
 			// choose one with the biggest number of bones, that must be the
@@ -3237,10 +3237,10 @@ int SceneIFC::EvaluateSkeleton(INT RequireBones)
 	//
 	for (INT i=0; i<SerialTree.Num(); i++) // i = RootBoneIndex...
 	{
-		if ( SerialTree[i].InSkeleton ) 
+		if ( SerialTree[i].InSkeleton )
 		{
-			MFnDagNode DagNode = AxSceneObjects[ (int)SerialTree[i].node ]; 
-			MObject JointObject = AxSceneObjects[ (int)SerialTree[i].node ]; 
+			MFnDagNode DagNode = AxSceneObjects[ (int)SerialTree[i].node ];
+			MObject JointObject = AxSceneObjects[ (int)SerialTree[i].node ];
 
 			// Grab the name of this bone.  If the name has a prefix because it came from a reference
 			// file, we'll strip that off first.
@@ -3250,7 +3250,7 @@ int SceneIFC::EvaluateSkeleton(INT RequireBones)
 
 			SerialTree[i].NoExport = 0;
 			// noexport: simply force this node not to be a bone
-			if (CheckSubString(BoneName,_T("noexport")))  
+			if (CheckSubString(BoneName,_T("noexport")))
 			{
 				SerialTree[i].IsBone = 0;
 				SerialTree[i].InSkeleton = 0;	// DAVE: for hiding joints in hierarchy.  DigestSkeleton looks at InSkeleton, so zero it out.
@@ -3258,7 +3258,7 @@ int SceneIFC::EvaluateSkeleton(INT RequireBones)
 			}
 
 			// Ignore: make sure anything down the hierarchy is not exported.
-			if (CheckSubString(BoneName,_T("ignore")))  
+			if (CheckSubString(BoneName,_T("ignore")))
 			{
 				SerialTree[i].IsBone = 0;
 				SerialTree[i].InSkeleton = 0;	// DAVE: for hiding joints in hierarchy.  DigestSkeleton looks at InSkeleton, so zero it out.
@@ -3266,11 +3266,11 @@ int SceneIFC::EvaluateSkeleton(INT RequireBones)
 			}
 
 			// Todo? any exported geometry/skincluster references  that refer to such a non-exported
-			// bone should default to bones higher in the hierarchy...			
+			// bone should default to bones higher in the hierarchy...
 		}
 	}
 
-	// IgnoreSubTree 
+	// IgnoreSubTree
 	for (INT i=0; i<SerialTree.Num(); i++) // i = RootBoneIndex...
 	{
 		INT pIdx = SerialTree[i].ParentIndex;
@@ -3279,7 +3279,7 @@ int SceneIFC::EvaluateSkeleton(INT RequireBones)
 			SerialTree[i].IsBone = 0;
 			SerialTree[i].InSkeleton = 0;	// DAVE: for hiding joints in hierarchy.  DigestSkeleton looks at InSkeleton, so zero it out.
 			SerialTree[i].IgnoreSubTree = 1;
-		}		
+		}
 	}
 
 
@@ -3318,7 +3318,7 @@ MString SceneIFC::StripFilePathAndExtension( const MString& InFullFilePath )
 	// Finds the first occurrence of a '/' from the right of the string.
 	// Assigns the location of the first '/' as an index of FilePathOnly.
 	int SlashIndex = FilePathOnly.rindex( '/' );
-	
+
 	// As long as a '/' is found
 	if( SlashIndex != -1 )
 	{
@@ -3330,7 +3330,7 @@ MString SceneIFC::StripFilePathAndExtension( const MString& InFullFilePath )
 	// Finds the first occurrence of a '.' from the left of the string.
 	// Assigns the location of the first '.' as an index of FilePathOnly.
 	int DotIndex = FilePathOnly.index( '.' );
-	
+
 	// As long as a '.' is found
 	if( DotIndex != -1 )
 	{
@@ -3338,7 +3338,7 @@ MString SceneIFC::StripFilePathAndExtension( const MString& InFullFilePath )
 		// This leaves us with just <file name>
 		FilePathOnly = FilePathOnly.substring( 0 , DotIndex - 1 );
 	}
-	
+
 	// Returns only the file name
 	return FilePathOnly;
 }
@@ -3366,7 +3366,7 @@ MString SceneIFC::GetCleanNameForNode( MFnDagNode& DagNode )
 		{
 			// Gets an array of all references in the scene
 			MStringArray MayaReferenceList;
-			MFileIO::getReferences( MayaReferenceList );				
+			MFileIO::getReferences( MayaReferenceList );
 //			MayaLog( "Found %i references.\n", MayaReferenceList.length() );
 
 			for( int ReferenceNumber = 0 ; ReferenceNumber < MayaReferenceList.length() ; ReferenceNumber++ )
@@ -3386,7 +3386,7 @@ MString SceneIFC::GetCleanNameForNode( MFnDagNode& DagNode )
 					// Rename the current node
 					MayaDagNodeName = MayaDagNodeName.substring( FileNameOnly.numChars() + 1 , MayaDagNodeName.numChars() - 1 );
 
-					// If the code gets to this point, no further action should be taken with the current node, even if 
+					// If the code gets to this point, no further action should be taken with the current node, even if
 					// there are other references in the scene.
 					break;
 				}
@@ -3399,7 +3399,7 @@ MString SceneIFC::GetCleanNameForNode( MFnDagNode& DagNode )
 					// Rename the current node
 					MayaDagNodeName = MayaDagNodeName.substring( FileNameOnly.numChars() + 1 , MayaDagNodeName.numChars() - 1 );
 
-					// If the code gets to this point, no further action should be taken with the current node, even if 
+					// If the code gets to this point, no further action should be taken with the current node, even if
 					// there are other references in the scene.
 					break;
 				}
@@ -3421,8 +3421,8 @@ int SceneIFC::DigestSkeleton(VActor *Thing)
 	}
 
 	// Digest bones and their transformations
-	DLog.Logf(" Starting DigestSkeleton log \n\n");                                 
-	
+	DLog.Logf(" Starting DigestSkeleton log \n\n");
+
 	Thing->RefSkeletonBones.SetSize(0);  // SetSize( SerialNodes ); //#debug  'ourbonetotal ?'
 	Thing->RefSkeletonNodes.SetSize(0);  // SetSize( SerialNodes );
 
@@ -3435,7 +3435,7 @@ int SceneIFC::DigestSkeleton(VActor *Thing)
 	// Rootbone is in tree starting from RootBoneIndex.
 
 	if( NOJOINTTEST )
-	{	
+	{
 		// MAYA specific: meshes aren't the hierarchy, TRANSFORMS are - so,
 		// make sure that transforms point back to the 'mesh bones'.
 		for (int c = 0; c<SerialTree.Num(); c++)
@@ -3443,7 +3443,7 @@ int SceneIFC::DigestSkeleton(VActor *Thing)
 			SerialTree[c].RepresentsBone = -1;
 		}
 		for (int j = 0; j<SerialTree.Num(); j++)
-		{	
+		{
 			if( SerialTree[j].InSkeleton )
 			{
 				SerialTree[j].RepresentsBone = j;
@@ -3457,21 +3457,21 @@ int SceneIFC::DigestSkeleton(VActor *Thing)
 		}
 
 		// If a node has multiple children but does not represent a mesh(representsbone >-1) then it
-		// should become its own bone to patch up a (jointless) hierarchy.	
+		// should become its own bone to patch up a (jointless) hierarchy.
 		for (int k = 0; k<SerialTree.Num(); k++)
-		{	
+		{
 			if( (SerialTree[k].RepresentsBone == -1 ) && (SerialTree[k].NumChildren > 1 ) && ! SerialTree[k].HasMesh )
 			{
 				SerialTree[k].InSkeleton = 1;
-				SerialTree[k].IsBone = 1;			
+				SerialTree[k].IsBone = 1;
 			}
 		}
 	}
 
-	
+
 	/*
-	// Move mesh 'represents' status linearly down any nodes.		
-	// Alternative: 
+	// Move mesh 'represents' status linearly down any nodes.
+	// Alternative:
 
 	INT AssignedMore = 0;
 	do
@@ -3479,13 +3479,13 @@ int SceneIFC::DigestSkeleton(VActor *Thing)
 		AssignedMore = 0;
 		TArray <INT> NewAssignments;
 		NewAssignments.AddZeroed( SerialTree.Num() );
-				
+
 		for( int b=0; b<SerialTree.Num(); b++)
 		{
 			INT ParentIndex = SerialTree[b].ParentIndex;
 			if( ( ParentIndex < 0 ) || (ParentIndex  >= SerialTree.Num())  )
 				ParentIndex = 0;
-			
+
 			if(( SerialTree[b].RepresentsBone == -1) && ( SerialTree[ParentIndex].RepresentsBone != -1 ))
 			{
 				// Only allowed to progress one step down the hierachy each cycle.
@@ -3497,21 +3497,21 @@ int SceneIFC::DigestSkeleton(VActor *Thing)
 					NewAssignments[ SerialTree[ParentIndex].RepresentsBone ] = 1;
 				}
 			}
-		}	
+		}
 	}
 	while( AssignedMore );
 	*/
-	
-	
-	
+
+
+
 	//for (int i = RootBoneIndex; i<SerialNodes; i++)
 	for (int i = 0; i<SerialTree.Num(); i++) // i = RootBoneIndex...
 	{
-		if ( SerialTree[i].InSkeleton ) 
-		{ 
+		if ( SerialTree[i].InSkeleton )
+		{
 			//PopupBox("Bone in skeleton: %i",i);
 
-			// DLog.LogfLn(" Adding index [%i] into NewParents..",i); 
+			// DLog.LogfLn(" Adding index [%i] into NewParents..",i);
 
 			// construct:
 			//Thing->RefSkeletonBones.
@@ -3521,19 +3521,19 @@ int SceneIFC::DigestSkeleton(VActor *Thing)
 			FNamedBoneBinary ThisBone; //= &Thing->RefSkeletonBones[BoneIndex];
 			Memzero( &ThisBone, sizeof( ThisBone ) );
 
-			//INode* ThisNode = (INode*) SerialTree[i].node;	
+			//INode* ThisNode = (INode*) SerialTree[i].node;
 
-			MFnDagNode DagNode = AxSceneObjects[ (int)SerialTree[i].node ]; 
-			MObject JointObject = AxSceneObjects[ (int)SerialTree[i].node ]; 
+			MFnDagNode DagNode = AxSceneObjects[ (int)SerialTree[i].node ];
+			MObject JointObject = AxSceneObjects[ (int)SerialTree[i].node ];
 
 			INT RootCheck = 0; // Thing->MatchNodeToSkeletonIndex( (void*) i );- skeletal hierarchy not yet digested.
 
-			
+
 			// Grab the name of this bone.  If the name has a prefix because it came from a reference
 			// file, we'll strip that off first.
 			MString MayaDagNodeName = GetCleanNameForNode( DagNode );
 
-			// Copy name. Truncate/pad for safety. 
+			// Copy name. Truncate/pad for safety.
 			char BoneName[MAX_PATH];
 			sprintf_s(BoneName,MayaDagNodeName.asChar());
 
@@ -3559,7 +3559,7 @@ int SceneIFC::DigestSkeleton(VActor *Thing)
 			ThisBone.NumChildren = SerialTree[i].NumChildren;//ThisBone.Info.NumChildren = SerialTree[i].NumChildren;
 
 
-			// Find this bone's local parent, if we're not the root. 
+			// Find this bone's local parent, if we're not the root.
 
 			if (i != RootBoneIndex)
 			{
@@ -3589,25 +3589,25 @@ int SceneIFC::DigestSkeleton(VActor *Thing)
 			/* #SKEL! - non-bone hierarchy experiments
 			if (i != RootBoneIndex)
 			{
-				int LocalParent = -1;				
-				int TryParent = SerialTree[i].ParentIndex; // This is a SERIALTREE index, _not_ a NewParents( bone-only array ) index ! 				
+				int LocalParent = -1;
+				int TryParent = SerialTree[i].ParentIndex; // This is a SERIALTREE index, _not_ a NewParents( bone-only array ) index !
 				int TryGrandParent = -1;
-				int TryGrandParentMesh = -1;				
+				int TryGrandParentMesh = -1;
 				if( (SerialTree.Num() > TryParent)  && (TryParent > 0) )
 					TryGrandParent = SerialTree[TryParent].ParentIndex;
 
 				if( (SerialTree.Num() > TryGrandParent)  && (TryGrandParent > 0) )
 					TryGrandParentMesh = SerialTree[TryGrandParent].RepresentsBone;
-				
+
 				DLog.LogfLn(" SerialTree[%i] parent: %i  Parentmesh: %i - looking for it in NewParents..(num: %i)...",i,TryParent,TryGrandParentMesh,NewParents.Num() );
-				
+
 				// Find what new index this corresponds to. Parent (or grandparent) must already be in set..
 				INT Runaway=0;
 				INT GrandParent = -1;
 
 				for (int f=0; f<NewParents.Num(); f++)
 				{
-					if( (NewParents[f] == TryParent) || (NewParents[f] == TryGrandParentMesh) || (NewParents[f] == TryGrandParent)  ) 
+					if( (NewParents[f] == TryParent) || (NewParents[f] == TryGrandParentMesh) || (NewParents[f] == TryGrandParent)  )
 					{
 						LocalParent=f;
 					}
@@ -3615,7 +3615,7 @@ int SceneIFC::DigestSkeleton(VActor *Thing)
 				if (LocalParent == -1 )
 				{
 					// ErrorBox(" Local parent lookup failed."); >> may be a transform rather than the root scene.
-					LocalParent = 0;					
+					LocalParent = 0;
 				}
 
 				ThisBone.ParentIndex = LocalParent; // ThisBone.Info.ParentIndex = LocalParent;
@@ -3625,7 +3625,7 @@ int SceneIFC::DigestSkeleton(VActor *Thing)
 				ThisBone.ParentIndex = 0; // root links to itself...? .Info.ParentIndex
 			}
 			*/
-			
+
 			RootCheck = ( Thing->RefSkeletonBones.Num() == 0 ) ? 1:0; //#debug
 
 			DLog.LogfLn(" Skeletal bone name %s num %i parent %i skelparent %i  NumChildren %i  Isroot %i RootCheck %i",BoneName,i,SerialTree[i].ParentIndex,ThisBone.ParentIndex,SerialTree[i].NumChildren, (i != RootBoneIndex)?0:1,RootCheck );
@@ -3638,13 +3638,13 @@ int SceneIFC::DigestSkeleton(VActor *Thing)
 			RetrieveTrafoForJoint( JointObject, LocalMatrix, LocalQuat, RootCheck, BoneScale );
 			{
 				DLog.LogfLn("Bone scale for  joint [%i]  %f %f %f ",i, BoneScale.X,BoneScale.Y,BoneScale.Z ); //********
-				MStatus stat;	
+				MStatus stat;
 				MFnDagNode fnTransNode( JointObject, &stat );
 				MDagPath dagPath;
 				stat = fnTransNode.getPath( dagPath );
 				if(stat == MS::kSuccess) DLog.LogfLn("Path for joint [%i] [%s]",i,dagPath.fullPathName().asChar()); //********
 			}
-			
+
 			// Clean up matrix scaling.
 
 			// Raw translation.
@@ -3654,14 +3654,14 @@ int SceneIFC::DigestSkeleton(VActor *Thing)
 			Trans.Y *= BoneScale.Y;
 			Trans.Z *= BoneScale.Z;
 
-			// PopupBox("Local Bone offset for %s is %f %f %f ",DagNode.name().asChar(),Trans.X,Trans.Y,Trans.Z );			
+			// PopupBox("Local Bone offset for %s is %f %f %f ",DagNode.name().asChar(),Trans.X,Trans.Y,Trans.Z );
 
 			// Affine decomposition ?
 			ThisBone.BonePos.Length = 0.0f ; //#TODO yet to be implemented
 
 			// Is this node the root (first bone) of the skeleton ?
 
-			// if ( RootCheck ) 
+			// if ( RootCheck )
 			//LocalQuat =  FQuat( LocalQuat.X,LocalQuat.Y,LocalQuat.Z, LocalQuat.W );
 
 			ThisBone.BonePos.Orientation = LocalQuat; // FQuat( LocalQuat.X,LocalQuat.Y,LocalQuat.Z,LocalQuat.W );
@@ -3670,7 +3670,7 @@ int SceneIFC::DigestSkeleton(VActor *Thing)
 			//ThisBone.BonePos.Orientation.Normalize();
 
 			Thing->RefSkeletonNodes.AddItem( (void*) (int)SerialTree[i].node ); //index
-			Thing->RefSkeletonBones.AddItem(ThisBone);			
+			Thing->RefSkeletonBones.AddItem(ThisBone);
 		}
 	}
 
@@ -3680,7 +3680,7 @@ int SceneIFC::DigestSkeleton(VActor *Thing)
 	{
 		for(INT j=0; j< Thing->RefSkeletonBones.Num(); j++)
 		{
-			if( (i!=j) && ( strcmp( Thing->RefSkeletonBones[i].Name, Thing->RefSkeletonBones[j].Name)==0)  ) 
+			if( (i!=j) && ( strcmp( Thing->RefSkeletonBones[i].Name, Thing->RefSkeletonBones[j].Name)==0)  )
 			{
 				DuplicateBones++;
 				WarningBox( " Duplicate bone name encountered in skeleton: %s ", Thing->RefSkeletonBones[j].Name );
@@ -3689,7 +3689,7 @@ int SceneIFC::DigestSkeleton(VActor *Thing)
 	}}
 	if (DuplicateBones)
 	{
-		WarningBox( "%i total duplicate bone name(s) detected.", DuplicateBones );		
+		WarningBox( "%i total duplicate bone name(s) detected.", DuplicateBones );
 	}
 
 	DLog.Close();
@@ -3699,8 +3699,8 @@ int SceneIFC::DigestSkeleton(VActor *Thing)
 
 void SceneIFC::SurveyScene()
 {
-	
-	// Serialize scene tree 
+
+	// Serialize scene tree
 	SerializeSceneTree();
 
 }
@@ -3725,13 +3725,13 @@ void ClearOutAnims()
 		TempActor.OutAnims[c].KeyTrack.Empty();
 	}}
 	TempActor.OutAnims.Empty();
-	
+
 	{for( INT c=0; c<TempActor.Animations.Num(); c++)
 	{
 		TempActor.Animations[c].KeyTrack.Empty();
 	}}
 	TempActor.Animations.Empty();
-		
+
 }
 
 
@@ -3753,31 +3753,31 @@ MStatus AXWriteSequence(BOOL bUseSourceOutPath)
 	}
 
 	INT TotalKeys = 0;
-	
+
 	framerangestring[0] = 0; //  Clear framerange to default.
-	
+
 	// Digest full scene anim..
-	OurScene.SurveyScene(); 
-	
+	OurScene.SurveyScene();
+
 	if( (OurScene.SerialTree.Num() > 1) && (strlen(SceneName) > 0) ) // Anything detected; valid anim name ?
 	{
 			OurScene.GetSceneInfo();
 			OurScene.EvaluateSkeleton(1);
 			ClearOutAnims();  // Tempactor animations discard.
 			OurScene.DigestSkeleton(&TempActor);
-			OurScene.DigestAnim(&TempActor, SceneName, framerangestring );  
-			OurScene.FixRootMotion( &TempActor );	
-			TotalKeys = TempActor.RecordAnimation();  
+			OurScene.DigestAnim(&TempActor, SceneName, framerangestring );
+			OurScene.FixRootMotion( &TempActor );
+			TotalKeys = TempActor.RecordAnimation();
 	}
-	
+
 	// Move to OutAnims
 	if( TempActor.Animations.Num() == 1 )
 	{
 		TempActor.OutAnims.AddZeroed(1); // Add a single element.
 		TempActor.CopyToOutputAnims(0, 0);
-		TempActor.Animations[0].KeyTrack.Empty(); 
+		TempActor.Animations[0].KeyTrack.Empty();
 	}
-	
+
 	//
 	// Save it.
 	//
@@ -3794,7 +3794,7 @@ MStatus AXWriteSequence(BOOL bUseSourceOutPath)
 	sprintf_s(OutPath,"%s\\%s.%s", OutFolder, SceneName, to_ext);
 
 	if( SaveAnimSet( OutPath ) )
-	{		
+	{
 		return MS::kSuccess;
 	}
 	else
@@ -3806,7 +3806,7 @@ MStatus AXWriteSequence(BOOL bUseSourceOutPath)
 
 //
 // Write EVERY single frame out as a special pose PSA, using the current output path
-// and scene name. 
+// and scene name.
 //
 MStatus AXWritePoses()
 {
@@ -3817,7 +3817,7 @@ MStatus AXWritePoses()
 
 	INT TotalPoses = 0;
 	INT ErrorTally = 0;
-	INT TotalKeys = 0;	
+	INT TotalKeys = 0;
 
 	FLOAT TimeStart = GetMayaTimeStart();
 	FLOAT TimeEnd = GetMayaTimeEnd();
@@ -3828,8 +3828,8 @@ MStatus AXWritePoses()
 	for( INT t=(INT)TimeStart; t<=(INT)TimeEnd; t++)
 	{
 		ClearOutAnims();
-			
-		// Put single number into framerange string.				
+
+		// Put single number into framerange string.
 		char NumberedSequenceName[512];
 		char SingleFrameString[63];
 		NumberedSequenceName[0] = 0;
@@ -3837,15 +3837,15 @@ MStatus AXWritePoses()
 		sprintf_s(NumberedSequenceName,"%s%i",SceneName,t);
 
 		// Digest full scene anim..
-		OurScene.SurveyScene(); 		
+		OurScene.SurveyScene();
 		if( (OurScene.SerialTree.Num() > 1) && (strlen(NumberedSequenceName) > 0) ) // Anything detected; valid anim name ?
 		{
 				OurScene.GetSceneInfo();
 				OurScene.EvaluateSkeleton(1);
 				OurScene.DigestSkeleton(&TempActor);
-				OurScene.DigestAnim(&TempActor, NumberedSequenceName, SingleFrameString );  
-				OurScene.FixRootMotion( &TempActor );	
-				TotalKeys = TempActor.RecordAnimation();  
+				OurScene.DigestAnim(&TempActor, NumberedSequenceName, SingleFrameString );
+				OurScene.FixRootMotion( &TempActor );
+				TotalKeys = TempActor.RecordAnimation();
 		}
 
 		//
@@ -3864,7 +3864,7 @@ MStatus AXWritePoses()
 
 		char to_ext[32];
 		_tcscpy_s(to_ext, ("PSA"));
-		sprintf_s( OutPath,"%s\\%s%i.%s",(char*)to_path,(char*)SceneName,FrameSweepCounter,to_ext);					
+		sprintf_s( OutPath,"%s\\%s%i.%s",(char*)to_path,(char*)SceneName,FrameSweepCounter,to_ext);
 
 		if ( TempActor.OutAnims.Num() == 0)
 		{
@@ -3872,7 +3872,7 @@ MStatus AXWritePoses()
 			ErrorTally++;
 		}
 		else
-		{											
+		{
 			FastFileClass OutFile;
 
 
@@ -3884,9 +3884,9 @@ MStatus AXWritePoses()
 			else
 			{
 				// PopupBox(" Bones in first track: %i",TempActor.RefSkeletonBones.Num());
-				TempActor.SerializeAnimation( OutFile );
+				bool ok = TempActor.SerializeAnimation( OutFile );
 				OutFile.CloseFlush();
-				if( OutFile.GetError()) 
+				if( OutFile.GetError() || !ok)
 				{
 					ErrorTally++;
 				}
@@ -3925,8 +3925,8 @@ MStatus AXWritePoses()
 
 
 
-//	
-// Take care of command definitions. 
+//
+// Take care of command definitions.
 //
 
 
@@ -3941,7 +3941,7 @@ MStatus AXWritePoses()
 //
 //	Return Value:
 //		MS::kSuccess - command succeeded
-//		MS::kFailure - command failed (returning this value will cause the 
+//		MS::kFailure - command failed (returning this value will cause the
 //                     MEL script that is being run to terminate unless the
 //                     error is caught using a "catch" statement.
 //
@@ -3954,7 +3954,7 @@ MStatus ActorXTool0::doIt( const MArgList& args )
 	HWND hWnd = GetActiveWindow();
 
 	ShowAbout(hWnd);
-	
+
 	setResult( "command About  executed.\n" );
 	return stat;
 }
@@ -3970,7 +3970,7 @@ MStatus ActorXTool1::doIt( const MArgList& args )
 	ShowPanelOne(hWnd);
 
 	ClearScenePointers();
-	
+
 	setResult( " command AxMain executed.\n" );
 	return stat;
 }
@@ -3988,7 +3988,7 @@ MStatus ActorXTool2::doIt( const MArgList& args )
 	return stat;
 }
 
- 
+
 //
 //"utexportmesh [arglist]" mel command.
 //
@@ -4020,22 +4020,22 @@ MStatus ActorXTool4::doIt( const MArgList& args )
 // "axmesh"
 MStatus ActorXTool5::doIt( const MArgList& args )
 {
-	ClearScenePointers(); 
+	ClearScenePointers();
 	MStatus stat = MS::kSuccess;
 	HWND hWnd = GetActiveWindow();
 
-	// Interpret PARAMETERS - if none, call the panel.	
+	// Interpret PARAMETERS - if none, call the panel.
 	if( args.length() > 0 )
 	{
-		//for (unsigned int i = 1; i < args.length(); ++i) 
+		//for (unsigned int i = 1; i < args.length(); ++i)
 		// Interpret arguments and export
 		// the mesh immediately with
 	    // the given name/filenames, don't pop up any windows.
-	}	
+	}
 	else
 	{
 		ShowStaticMeshPanel(hWnd);
-		ClearScenePointers(); 
+		ClearScenePointers();
 	}
 
 	setResult( "command axmesh executed.\n" );
@@ -4049,7 +4049,7 @@ MStatus ActorXTool6::doIt( const MArgList& args )
 	MStatus stat = MS::kSuccess;
 	ClearScenePointers();
 
-	HWND hWnd = GetActiveWindow();	
+	HWND hWnd = GetActiveWindow();
 	AXWriteSequence( true ); // Switch to indicate output path is scene location.
 
 	ClearScenePointers();
@@ -4063,13 +4063,13 @@ MStatus ActorXTool6::doIt( const MArgList& args )
 MStatus ActorXTool7::doIt( const MArgList& args )
 {
 	MStatus stat = MS::kSuccess;
-	ClearScenePointers(); 
+	ClearScenePointers();
 
 	HWND hWnd = GetActiveWindow();
-	
+
 	AXWritePoses();
 
-	ClearScenePointers(); 
+	ClearScenePointers();
 	setResult( "command axwriteposes executed.\n" );
 	return stat;
 }
@@ -4080,7 +4080,7 @@ MStatus ActorXTool8::doIt( const MArgList& args )
 	MStatus stat = MS::kSuccess;
 	ClearScenePointers();
 
-	HWND hWnd = GetActiveWindow();	
+	HWND hWnd = GetActiveWindow();
 	AXWriteSequence( false );
 
 	ClearScenePointers();
@@ -4093,12 +4093,12 @@ MStatus ActorXTool8::doIt( const MArgList& args )
 MStatus ActorXTool10::doIt( const MArgList& args )
 {
 
-	ClearScenePointers(); 
+	ClearScenePointers();
 	MStatus stat = MS::kSuccess;
 	HWND hWnd = GetActiveWindow();
-	
+
 	ShowVertExporter( hWnd );
-	ClearScenePointers(); 
+	ClearScenePointers();
 
 	setResult( "command AXVertex executed.\n" );
 	return stat;
@@ -4121,11 +4121,11 @@ INT ParseSpecifier(const MArgList& args, const char* specifier )
 }
 
 UBOOL ParseSwitch( const MArgList& args, const char* specifier )
-{	
+{
 	return( ParseSpecifier( args, specifier ) > -1 );
 }
 
-// 
+//
 // Find if specifier is in the argument list; if so, return the next argument .
 //
 UBOOL ParseCommand( const MArgList& args, const char* specifier, char* Output, size_t OutputLen )
@@ -4143,14 +4143,14 @@ UBOOL ParseCommand( const MArgList& args, const char* specifier, char* Output, s
 		return false;
 
 	// Flatten the case...
-	_strlwr_s(TempOut); 
+	_strlwr_s(TempOut);
 
 	strcpy_s( Output, OutputLen, TempOut);
 	return true;
 }
 
 
-// 
+//
 // Find if specifier is in the argument list; if so, return the next argument .
 //
 UBOOL ParseCommandKeepCase( const MArgList& args, const char* specifier, char* Output, size_t OutputLen )
@@ -4167,7 +4167,7 @@ UBOOL ParseCommandKeepCase( const MArgList& args, const char* specifier, char* O
 	if( CheckSubString(  TempOut, "-") ) // UNLESS that starts with a - (another specifier...)
 		return false;
 
-	// Do not flatten the case.	
+	// Do not flatten the case.
 
 	strcpy_s( Output, OutputLen, TempOut);
 	return true;
@@ -4205,19 +4205,19 @@ UBOOL ParseMultiArgCommand( const MArgList& args, const char* specifier, char* O
 				strcpy_s( AllArguments, TempOut);
 			}
 			else
-			{							
+			{
 				if( CheckSubString( TempOut, "," ) || CheckSubString( TempOut,".")  )// Comma/dot part of argument?  just append literally, with space....
 					sprintf_s(AllArguments,"%s %s",AllArguments,TempOut);
 				else // any non-comma will be assumed part of a range and get a dash.
 					sprintf_s(AllArguments,"%s-%s",AllArguments,TempOut);
 			}
 			ArgCount++;
-		}		
+		}
 		SpecIdx++;
 	}
 
 	// Flatten the case...
-	_strlwr_s(AllArguments); 
+	_strlwr_s(AllArguments);
 
 	strcpy_s( Output, OutputLen, AllArguments );
 	return true;
@@ -4227,7 +4227,7 @@ UBOOL ParseMultiArgCommand( const MArgList& args, const char* specifier, char* O
 //
 //"AXExecute" - uses command line arguments to enable automation via MEL script.
 //
-// - Digest argument list, and perform the requested actions (save PSA/PSK, digest an animation of a certain range etc).	
+// - Digest argument list, and perform the requested actions (save PSA/PSK, digest an animation of a certain range etc).
 //
 
 // PCF BEGIN
@@ -4270,7 +4270,7 @@ static bool getStringFlagMayaCorrect(MArgDatabase & argData, const char* specifi
 MStatus ActorXTool11::doIt( const MArgList& args )
 {
 
-	ClearScenePointers(); 
+	ClearScenePointers();
 	MStatus stat = MS::kSuccess;
 	HWND hWnd = GetActiveWindow();
 
@@ -4294,7 +4294,7 @@ MStatus ActorXTool11::doIt( const MArgList& args )
 	UBOOL NewPath =getStringFlagMayaCorrect(argData, "-path", ExPathName);
 
 	UBOOL DoDigestAnim = getStringFlagMayaCorrect(argData, "-sequence", ExSequenceName);
-		
+
 
 	//UBOOL NewPath = ParseCommand( args, "-path", ExPathName );  // Path for all PSA / PSK output.
 
@@ -4311,9 +4311,9 @@ MStatus ActorXTool11::doIt( const MArgList& args )
 	UBOOL BackupDoUnSmooth =  OurScene.DoUnSmooth;
 
 	OurScene.DoAutoTriangles = argData.isFlagSet("-autotri");  // On by default, though ?
-	OurScene.DoUnSmooth = argData.isFlagSet("-unsmooth"); 
+	OurScene.DoUnSmooth = argData.isFlagSet("-unsmooth");
 	// Specified animation range?
-	
+
 
 	if (argData.isFlagSet("-range"))
 	{
@@ -4327,7 +4327,7 @@ MStatus ActorXTool11::doIt( const MArgList& args )
 		aa += range1;
 		strcpy_s( framerangestring, aa.asChar() );
 	}
-	
+
 	FLOAT ForcedRate = 0.0f;
 	if (argData.isFlagSet("-rate"))
 	{
@@ -4338,7 +4338,7 @@ MStatus ActorXTool11::doIt( const MArgList& args )
 	}
 	//if( ParseMultiArgCommand( args, "-range", ExRangeString) ) // Rangestring will contain any and all arguments (separated by spaces) until the next "-xxx" argument.
 	//{
-	//	strcpy_s( framerangestring, ExRangeString ); // Framerangestring is the plugin's default range text. when exporting a sequence.	
+	//	strcpy_s( framerangestring, ExRangeString ); // Framerangestring is the plugin's default range text. when exporting a sequence.
 	//}
 
 	//FLOAT ForcedRate = 0.0f;
@@ -4346,7 +4346,7 @@ MStatus ActorXTool11::doIt( const MArgList& args )
 	//{
 	//	ForcedRate = atof( ExRateString );
 	//}
-	
+
 	//
 	// Actions taken depend on arguments.  Multiple file actions can take place.
 	//   -skin specified:   digest+save skin.
@@ -4356,18 +4356,18 @@ MStatus ActorXTool11::doIt( const MArgList& args )
 	//   -appendanims:   save animations( append to existing PSA if compatible...)- erase any sequences in the buffer.
 	//
 
-	//  Temporarily suppress all window popups - we're dealing with script-initiated actions...	
+	//  Temporarily suppress all window popups - we're dealing with script-initiated actions...
 	INT SavedAnimPopupState = OurScene.DoSuppressAnimPopups;
 	INT SavedPopupState = OurScene.DoSuppressPopups;
 
 	OurScene.DoSuppressAnimPopups = true;
 	OurScene.DoSuppressPopups = true;
 
-	// If a valid path was specified, change the global output path to it.	
+	// If a valid path was specified, change the global output path to it.
 	if( strlen( ExPathName) > 0 ) // TODO - could use a better validity criterium...
 	{
-		_tcscpy_s(to_path,ExPathName); 
-		_tcscpy_s(LogPath,ExPathName);	
+		_tcscpy_s(to_path,ExPathName);
+		_tcscpy_s(LogPath,ExPathName);
 	}
 
 	if( DoSkin )
@@ -4381,7 +4381,7 @@ MStatus ActorXTool11::doIt( const MArgList& args )
 	}
 
 	if( DoDigestAnim )
-	{		
+	{
 		// Specified sequence name ?
 		if( strlen( ExSequenceName ) )
 		{
@@ -4393,32 +4393,32 @@ MStatus ActorXTool11::doIt( const MArgList& args )
 				OurScene.DoForceRate = true;
 				OurScene.PersistentRate = ForcedRate;
 			}
-			
-			DoDigestAnimation();			
+
+			DoDigestAnimation();
 
 			OurScene.DoForceRate = Backup_DoForceRate;
-		}		
+		}
 	}
 
 	if( DoAppendAnim )
-	{		
+	{
 		//TODO see: IDC_QUICKSAVE..  - load the specified PSA if exists in the output path, and then let regular save code do the rest....
 	}
-	
+
 
 	if( DoSaveAnim  )
 	{
 		// If name as supplied is valid, use it..
-		if( strlen( ExAnimFileName ) > 0 ) 
+		if( strlen( ExAnimFileName ) > 0 )
 		{
 			_tcscpy_s(to_animfile, ExAnimFileName );
 		}
 		else // go with skin name if no valid anim name specified;.
-		if( strlen( ExSkinFileName ) > 0 ) 
+		if( strlen( ExSkinFileName ) > 0 )
 		{
 			_tcscpy_s(to_animfile, ExSkinFileName );
 		}
-		
+
 		// Copy _all_ digested animations to output data.  Respect any existing output data....
 		for( INT i=0; i<TempActor.Animations.Num(); i++)
 		{
@@ -4426,7 +4426,7 @@ MStatus ActorXTool11::doIt( const MArgList& args )
 			TempActor.CopyToOutputAnims(i, NewOutIdx);
 		}
 
-		// Save animation - as done in Dialogs.cpp		
+		// Save animation - as done in Dialogs.cpp
 		char to_ext[32];
 		_tcscpy_s(to_ext, ("PSA"));
 		sprintf_s(DestPath,"%s\\%s.%s",(char*)to_path,(char*)to_animfile,to_ext);
@@ -4436,15 +4436,15 @@ MStatus ActorXTool11::doIt( const MArgList& args )
 		 ClearOutAnims();
 	}
 
-		
+
 	/////////////////////
 	OurScene.DoSuppressAnimPopups = SavedAnimPopupState;
 	OurScene.DoSuppressPopups = SavedPopupState;
-	
+
 	char ResultString[1024];
-	sprintf_s( ResultString,  "command AXExecute executed. ");//  [%s] [%s] [%s] [%s] [%s] \n", ExPathName,ExSkinFileName,ExSequenceName,ExRangeString, ExRateString );  
-	setResult( ResultString );	
-	
+	sprintf_s( ResultString,  "command AXExecute executed. ");//  [%s] [%s] [%s] [%s] [%s] \n", ExPathName,ExSkinFileName,ExSequenceName,ExRangeString, ExRateString );
+	setResult( ResultString );
+
 	OurScene.DoAutoTriangles = BackupDoAutoTriangles;
 	OurScene.DoUnSmooth = BackupDoUnSmooth;
 
@@ -4455,33 +4455,34 @@ MStatus ActorXTool11::doIt( const MArgList& args )
 
 //
 // "axpskfixup" command.  Undocumented function for quick fixup of PSK with body/face material assignments out of order..
-// Load arbitrary PSK; swap order of first 2 materials; ( need to swap indices on mesh faces too !) and  write 
+// Load arbitrary PSK; swap order of first 2 materials; ( need to swap indices on mesh faces too !) and  write
 // back with modified (or input..) name.
-// 
+//
 
 MStatus ActorXTool12::doIt( const MArgList& args )
 {
 
-	char PSKpath[MAX_PATH] = "";	
+	char PSKpath[MAX_PATH] = "";
 	char SAVEDpath[MAX_PATH] = "";
 
-	ClearScenePointers(); 
+	ClearScenePointers();
 	TempActor.Cleanup();
 
 	MStatus stat = MS::kSuccess;
-	HWND hWnd = GetActiveWindow();	
+	HWND hWnd = GetActiveWindow();
 
 	FastFileClass PSKInFile;
 
 	// Parse input filename & PSK loading.
-	char filterList[] = "PSK Files (*.psk)\0*.psk\0PSK Files (*.psk)\0*.psk\0";	
+	char filterList[] = "PSK Files (*.psk)\0*.psk\0PSK Files (*.psk)\0*.psk\0";
 
-	GetLoadName( hWnd, PSKpath, _countof(PSKpath), to_path, filterList);
-	//GetNameFromPath(to_pskfile,newname, MAX_PATH );	
-	
+	if (!GetLoadName( hWnd, PSKpath, _countof(PSKpath), to_path, filterList))
+		return stat;
+	//GetNameFromPath(to_pskfile,newname, MAX_PATH );
+
 	_tcscpy_s( SAVEDpath, PSKpath );
 
-	
+
 	if ( PSKInFile.OpenExistingFileForReading( PSKpath ) != 0 ) // Error!
 	{
 		ErrorBox("File [%s] does not exist yet. ", PSKpath );
@@ -4490,32 +4491,32 @@ MStatus ActorXTool12::doIt( const MArgList& args )
 	else // Load all relevant chunks into TempActor and its arrays.
 	{
 		//PopupBox(" Starting to load file : %s ",PSKpath);
-		INT DebugBytes = TempActor.LoadActor(PSKInFile);		
-		// Log input 
+		INT DebugBytes = TempActor.LoadActor(PSKInFile);
+		// Log input
 		if( !OurScene.DoSuppressAnimPopups )
 		{
 			PopupBox("Reference mesh loaded, %i faces and %i bones.",TempActor.SkinData.Faces.Num(),TempActor.RefSkeletonBones.Num());
 		}
 		PSKInFile.Close();
-	
+
 		_tcscat_s( PSKpath,("_fixed")); //#SKEL
-		
+
 		FastFileClass PSKOutFile;
-		
+
 		if( PSKOutFile.CreateNewFile( PSKpath ) == 0 )
 		{
 			// Swap indices - swap the indices on the faces, effectively swapping body/head for most player models.
 			{for( INT i=0; i< TempActor.SkinData.Faces.Num(); i++)
 			{
-				TempActor.SkinData.Faces[i].MatIndex = ((DWORD)TempActor.SkinData.Faces[i].MatIndex) ^ 1; 
+				TempActor.SkinData.Faces[i].MatIndex = ((DWORD)TempActor.SkinData.Faces[i].MatIndex) ^ 1;
 			}}
 			{for( INT i=0; i< TempActor.SkinData.Wedges.Num(); i++)
 			{
-				TempActor.SkinData.Wedges[i].MatIndex = ((DWORD)TempActor.SkinData.Wedges[i].MatIndex) ^ 1; 
+				TempActor.SkinData.Wedges[i].MatIndex = ((DWORD)TempActor.SkinData.Wedges[i].MatIndex) ^ 1;
 			}}
-	
+
 			// Write PSK back to the SAME file name; use fixed indicator
-			TempActor.SerializeActor( PSKOutFile );			
+			TempActor.SerializeActor( PSKOutFile );
 		}
 		else
 		if( !OurScene.DoSuppressAnimPopups )
@@ -4528,7 +4529,7 @@ MStatus ActorXTool12::doIt( const MArgList& args )
 	}
 
 	TempActor.Cleanup();
-	ClearScenePointers(); 	
+	ClearScenePointers();
 
 	return stat;
 }
@@ -4548,7 +4549,7 @@ MString getToolsPath()
 	char*	LastBackslash = strrchr(DirName,'\\') + 1;
 	*LastBackslash = 0;
 
-	MString Result( DirName );	
+	MString Result( DirName );
 	return Result;
 }
 
@@ -4562,8 +4563,8 @@ MStatus ActorXTool21::doIt( const MArgList& args ) // "axtest1"
 
 	//stringToC<char>( toString("MeshProcess.exe") ).Data,	//#EDN - arg0 pathname not needed (arg0 is formality - though MeshProcess.exe itself might use it )
 	// Spawning test....
-	//intptr_t spawnResult = _spawnl( _P_NOWAIT, (getToolsPath()+MString("MeshProcess")).asChar(), (getToolsPath()+MString("MeshProcess") ).asChar(), 		
-	intptr_t spawnResult = _spawnl( _P_NOWAIT, (getToolsPath()+MString("cmd")).asChar(), (getToolsPath()+MString("cmd") ).asChar(),"/c","doit.bat",		
+	//intptr_t spawnResult = _spawnl( _P_NOWAIT, (getToolsPath()+MString("MeshProcess")).asChar(), (getToolsPath()+MString("MeshProcess") ).asChar(),
+	intptr_t spawnResult = _spawnl( _P_NOWAIT, (getToolsPath()+MString("cmd")).asChar(), (getToolsPath()+MString("cmd") ).asChar(),"/c","doit.bat",
 		 (getToolsPath()+MString("ProcessTemp.dat")).asChar(),
 		NULL );
 
@@ -4575,15 +4576,15 @@ MStatus ActorXTool21::doIt( const MArgList& args ) // "axtest1"
 			MayaLog("Unknown error while spawning MeshProcess.exe. ");
 	}
 
-	/*	 
+	/*
 	selected  'errno' system error message values:
-	E2BIG Argument list too long		7 			
-	EINVAL Invalid argument		22 
-	EMFILE Too many open files	24 
+	E2BIG Argument list too long		7
+	EINVAL Invalid argument		22
+	EMFILE Too many open files	24
 	ENOENT No such file or directory		2
 	ENOMEM          12
-	ENOEXEC 8 
-	? 1024 + 8  
+	ENOEXEC 8
+	? 1024 + 8
 	*/
 
 	return stat;
@@ -4605,18 +4606,18 @@ MStatus ActorXTool22::doIt( const MArgList& args ) // "axtest2"
 //
 // Maya-specific SceneIFC implementations.
 //
-static INT_PTR CALLBACK AboutBoxDlgProc(HWND hWnd, UINT msg, 
+static INT_PTR CALLBACK AboutBoxDlgProc(HWND hWnd, UINT msg,
 	WPARAM wParam, LPARAM lParam)
 {
-	switch (msg) 
+	switch (msg)
 	{
 
 	case WM_INITDIALOG:
-		//CenterWindow(hWnd, GetParent(hWnd)); 
+		//CenterWindow(hWnd, GetParent(hWnd));
 		break;
 
 	case WM_COMMAND:
-		switch (LOWORD(wParam)) 
+		switch (LOWORD(wParam))
 		{
 		case IDOK:
 			EndDialog(hWnd, 1);
@@ -4631,8 +4632,8 @@ static INT_PTR CALLBACK AboutBoxDlgProc(HWND hWnd, UINT msg,
 		default:
 			return FALSE;
 	}
-	return TRUE;	
-}       
+	return TRUE;
+}
 
 
 
@@ -4685,7 +4686,7 @@ void DoDigestAnimation()
 		OurScene.DigestSkeleton(&TempActor);
 
 			DebugBox("Start digest Anim.");
-		OurScene.DigestAnim(&TempActor, newsequencename, framerangestring );  
+		OurScene.DigestAnim(&TempActor, newsequencename, framerangestring );
 
 		OurScene.FixRootMotion( &TempActor );
 
@@ -4694,8 +4695,8 @@ void DoDigestAnimation()
 			TempActor.FrameRate = OurScene.PersistentRate;
 
 			DebugBox("Start recording animation");
-		INT DigestedKeys = TempActor.RecordAnimation();			
-		
+		INT DigestedKeys = TempActor.RecordAnimation();
+
 		if( !OurScene.DoSuppressAnimPopups )
 		{
 			PopupBox("Animation digested: [%s] total frames: %i  total keys: %i  ", newsequencename, OurScene.FrameList.GetTotal(), DigestedKeys);
@@ -4718,7 +4719,7 @@ void SaveSceneSkin()
 {
 	// Save all logs
 	TArray<ANSICHAR*> LogList;
-	
+
 	// save current ref mesh
 	SaveCurrentSceneSkin(to_skinfile, LogList);
 
@@ -4732,7 +4733,7 @@ void SaveSceneSkin()
 
 		for (INT I=0; I<BlendShapes.length(); ++I)
 		{
-			MObject Object = BlendShapes[I]; 
+			MObject Object = BlendShapes[I];
 			// if blend shape exists
 			if ( Object.hasFn(MFn::kBlendShape) )
 			{
@@ -4744,7 +4745,7 @@ void SaveSceneSkin()
 				{
 					char AttributeName[MAX_PATH], OutputName[128];
 
-					sprintf_s(AttributeName,"%s.weight[%d]",fn.name().asChar(),J);		
+					sprintf_s(AttributeName,"%s.weight[%d]",fn.name().asChar(),J);
 
 					if (GetAliasName(AttributeName, OutputName, 128))
 					{
@@ -4786,7 +4787,7 @@ void SaveSceneSkin()
 
 			SaveCurrentSceneSkin(Current.CurveName, LogList);
 		}
-		
+
 		// now return to previous values, so that it doesn't screwn up the data
 		for (INT I=0; I<Curves.Num(); ++I)
 		{
@@ -4834,7 +4835,7 @@ void SaveCurrentSceneSkin(const char * OutputFile, TArray<char*>& LogList)
 {
 	//cerr << endl<< "	SaveCurrentSceneSkin()"  << endl;
 	// Scene stats. #debug: surveying should be done only once ?
-	OurScene.SurveyScene();					
+	OurScene.SurveyScene();
 	OurScene.GetSceneInfo();
 	OurScene.EvaluateSkeleton(1);
 
@@ -4866,7 +4867,7 @@ void SaveCurrentSceneSkin(const char * OutputFile, TArray<char*>& LogList)
 	}
 	else
 	{
-		// WarningBox(" Warning: Skin triangles found: %i ",TempActor.SkinData.Points.Num() ); 
+		// WarningBox(" Warning: Skin triangles found: %i ",TempActor.SkinData.Points.Num() );
 
 		// TCHAR MessagePopup[512];
 		TCHAR to_ext[32];
@@ -4877,10 +4878,11 @@ void SaveCurrentSceneSkin(const char * OutputFile, TArray<char*>& LogList)
 		if ( OutFile.CreateNewFile(DestPath) != 0) // Error!
 			ErrorBox( "Skin File creation error. ");
 
-		TempActor.SerializeActor(OutFile); //save skin
-	
+		bool ok = TempActor.SerializeActor(OutFile); //save skin
+
 		 // Close.
 		OutFile.CloseFlush();
+		if (!ok) return;
 		if( OutFile.GetError()) ErrorBox("Skin Save Error");
 
 		DebugBox("Logging skin info:");
@@ -4890,7 +4892,7 @@ void SaveCurrentSceneSkin(const char * OutputFile, TArray<char*>& LogList)
 			OurScene.LogSkinInfo( &TempActor, OutputFile );
 			//DebugBox("Logged skin info:");
 		}
-				
+
 		if( !OurScene.DoSuppressAnimPopups )
 		{
 			AddSkinLog(OutputFile, LogList, " Skin file %s.%s written.",OutputFile,to_ext );
@@ -4903,7 +4905,7 @@ void SaveCurrentSceneSkin(const char * OutputFile, TArray<char*>& LogList)
 
 static INT_PTR CALLBACK PanelOneDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	switch (msg) 
+	switch (msg)
 	{
 		case WM_INITDIALOG:
 			// Store the object pointer into window's user data area.
@@ -4917,18 +4919,18 @@ static INT_PTR CALLBACK PanelOneDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 			_SetCheckBox(hWnd, IDC_INCLUDEBLENDSHAPES, ExportBlendShapes);
 
 			if ( to_path[0]     ) SetWindowText(GetDlgItem(hWnd,IDC_PATH),to_path);
-				_tcscpy_s(LogPath,to_path); 		
+				_tcscpy_s(LogPath,to_path);
 
 			if ( to_skinfile[0] ) SetWindowText(GetDlgItem(hWnd,IDC_SKINFILENAME),to_skinfile);
 			if ( to_animfile[0] ) PrintWindowString(hWnd,IDC_ANIMFILENAME,to_animfile);
 			if ( newsequencename[0]    ) PrintWindowString(hWnd,IDC_ANIMNAME,newsequencename);
 			if ( framerangestring[0]  ) PrintWindowString(hWnd,IDC_ANIMRANGE,framerangestring);
 			if ( basename[0]    ) PrintWindowString(hWnd,IDC_EDITBASE,basename);
-			if ( classname[0]   ) PrintWindowString(hWnd,IDC_EDITCLASS,classname);		
+			if ( classname[0]   ) PrintWindowString(hWnd,IDC_EDITCLASS,classname);
 			break;
-	
+
 		case WM_COMMAND:
-			switch (LOWORD(wParam)) 
+			switch (LOWORD(wParam))
 			{
 				case IDOK:
 					EndDialog(hWnd, 1);
@@ -4953,7 +4955,7 @@ static INT_PTR CALLBACK PanelOneDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 			*/
 
 			// LOWORD(wParam) has commands for the controls in our rollup window.
-			switch (LOWORD(wParam)) 
+			switch (LOWORD(wParam))
 			{
 				case IDC_ANIMNAME:
 				{
@@ -4966,7 +4968,7 @@ static INT_PTR CALLBACK PanelOneDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 						break;
 					};
 				}
-				break;		
+				break;
 
 				case IDC_ANIMRANGE:
 				{
@@ -4979,7 +4981,7 @@ static INT_PTR CALLBACK PanelOneDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 						break;
 					};
 				}
-				break;				
+				break;
 
 				case IDC_PATH:
 				{
@@ -4987,7 +4989,7 @@ static INT_PTR CALLBACK PanelOneDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 					{
 						case EN_KILLFOCUS:
 						{
-							GetWindowText(GetDlgItem(hWnd,IDC_PATH),to_path,300);										
+							GetWindowText(GetDlgItem(hWnd,IDC_PATH),to_path,300);
 							_tcscpy_s(LogPath,to_path);
 							PluginReg.SetKeyString("TOPATH", to_path );
 						}
@@ -5023,7 +5025,7 @@ static INT_PTR CALLBACK PanelOneDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 					};
 				}
 				break;
-				
+
 				case IDC_INCLUDEBLENDSHAPES:
 				{
 					case EN_KILLFOCUS:
@@ -5039,25 +5041,25 @@ static INT_PTR CALLBACK PanelOneDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 					ShowActorManager(hWnd);
 				}
 				break;
-	
+
 				// Browse for a destination directory.
 				case IDC_BROWSE:
-				{					
+				{
 					char  dir[MAX_PATH];
 					if( GetFolderName(hWnd, dir, _countof(dir)) )
 					{
-						_tcscpy_s(to_path,dir); 
-						_tcscpy_s(LogPath,dir);					
+						_tcscpy_s(to_path,dir);
+						_tcscpy_s(LogPath,dir);
 						PluginReg.SetKeyString("TOPATH", to_path );
 					}
-					SetWindowText(GetDlgItem(hWnd,IDC_PATH),to_path);															
-				}	
+					SetWindowText(GetDlgItem(hWnd,IDC_PATH),to_path);
+				}
 				break;
-			
+
 
 				// Quickly save all digested anims to the animation file, overwriting whatever's there...
 				case IDC_QUICKSAVE:
-				{						
+				{
 					if( TempActor.Animations.Num() <= 0 )
 					{
 						PopupBox("Error: no digested animations present to quicksave.");
@@ -5070,8 +5072,8 @@ static INT_PTR CALLBACK PanelOneDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 					// If 'QUICKDISK' is on, load to output package, move/overwrite, and save all at once.
 					char to_ext[32];
 					_tcscpy_s(to_ext, ("PSA"));
-					sprintf_s(DestPath,"%s\\%s.%s",(char*)to_path,(char*)to_animfile,to_ext);					
- 
+					sprintf_s(DestPath,"%s\\%s.%s",(char*)to_path,(char*)to_animfile,to_ext);
+
 					// Optionally load them from the existing on disk..
 					if( OurScene.QuickSaveDisk )
 					{
@@ -5083,7 +5085,7 @@ static INT_PTR CALLBACK PanelOneDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 						TempActor.OutAnims.Empty();
 
 						// Quick load; silent if file doesn't exist yet.
-						{							
+						{
 							FastFileClass InFile;
 							if ( InFile.OpenExistingFileForReading(DestPath) != 0) // Error!
 							{
@@ -5091,13 +5093,13 @@ static INT_PTR CALLBACK PanelOneDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 							}
 							else // Load all relevant chunks into TempActor and its arrays.
 							{
-								INT DebugBytes = TempActor.LoadAnimation(InFile);								
-								// Log input 
+								INT DebugBytes = TempActor.LoadAnimation(InFile);
+								// Log input
 								// PopupBox("Total animation sequences loaded:  %i", TempActor.OutAnims.Num());
 							}
 							InFile.Close();
-						}				
-						
+						}
+
 						ExistingSequences = TempActor.OutAnims.Num();
 					}
 
@@ -5140,11 +5142,11 @@ static INT_PTR CALLBACK PanelOneDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 
 							TempActor.CopyToOutputAnims(AnimIdx, NewIdx);
 						}
-						else 
-						{							
+						else
+						{
 							PopupBox("ERROR !! Aborting the quicksave/move, inconsistent bone counts detected.");
 							break;
-						}						
+						}
 					}
 
 					// Delete 'left-box' items.
@@ -5157,8 +5159,8 @@ static INT_PTR CALLBACK PanelOneDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 						}}
 						TempActor.Animations.Empty();
 					}
-										
-										
+
+
 					// Optionally SAVE them _over_ the existing on disk (we added/overwrote stuff)
 					if( OurScene.QuickSaveDisk )
 					{
@@ -5167,7 +5169,7 @@ static INT_PTR CALLBACK PanelOneDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 							PopupBox(" No digested animations available. ");
 						}
 						else
-						{											
+						{
 							FastFileClass OutFile;
 							if ( OutFile.CreateNewFile(DestPath) != 0) // Error!
 							{
@@ -5185,39 +5187,39 @@ static INT_PTR CALLBACK PanelOneDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 
 							if( OurScene.DoLog )
 							{
-								OurScene.LogAnimInfo(&TempActor, to_animfile ); 												
+								OurScene.LogAnimInfo(&TempActor, to_animfile );
 							}
 
 							if( !OurScene.DoSuppressAnimPopups )
 							{
 								PopupBox( "OK: Animation sequence appended to [%s.%s] total: %i sequences.", to_animfile, to_ext, TempActor.OutAnims.Num() );
 							}
-						}			
+						}
 					}
 				}
 				break;
-				
+
 				// A click inside the logo.
-				case IDC_LOGOUNREAL: 
+				case IDC_LOGOUNREAL:
 				{
 					// Show our About box.
 				}
 				break;
-			
+
 				// Show the 'scene info' box.
 				case IDC_EVAL:
 				{
 					// Survey the scene, to conclude which items to export or evaluate, if any.
 					OurScene.SurveyScene();
-					// Initializes the scene tree.												
+					// Initializes the scene tree.
 					OurScene.GetSceneInfo();
-					OurScene.EvaluateSkeleton(1);					
+					OurScene.EvaluateSkeleton(1);
 					/////////////////////////////
 					HWND hWnd = GetActiveWindow();
 					ShowInfo(hWnd);
 				}
 				break;
-			
+
 				case IDC_SAVESKIN:
 				{
 					SaveSceneSkin();
@@ -5225,10 +5227,10 @@ static INT_PTR CALLBACK PanelOneDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 				break;
 
 				case IDC_DIGESTANIM:
-				{									
+				{
 					DoDigestAnimation();
 				}
-				break;			
+				break;
 			}
 			break;
 			// END command
@@ -5237,19 +5239,19 @@ static INT_PTR CALLBACK PanelOneDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 			return FALSE;
 	}
 	return TRUE;
-}       
+}
 
 
 static INT_PTR CALLBACK PanelTwoDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
-{	
-	switch (msg) 
+{
+	switch (msg)
 	{
 		case WM_INITDIALOG:
 			// Store the object pointer into window's user data area.
 			//u = (MaxPluginClass *)lParam;
 			//SetWindowLong(hWnd, GWL_USERDATA, (LONG)u);
 
-			// Optional persistence: retrieve setting from registry.						
+			// Optional persistence: retrieve setting from registry.
 			INT SwitchPersistent;
 			PluginReg.GetKeyValue("PERSISTSETTINGS", SwitchPersistent);
 			_SetCheckBox(hWnd,IDC_CHECKPERSISTSETTINGS,SwitchPersistent?1:0);
@@ -5258,13 +5260,13 @@ static INT_PTR CALLBACK PanelTwoDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 			PluginReg.GetKeyValue("PERSISTPATHS", SwitchPersistPaths);
 			_SetCheckBox(hWnd,IDC_CHECKPERSISTPATHS,SwitchPersistPaths?1:0);
 
-			//if ( OurScene.DoForceRate ) 
+			//if ( OurScene.DoForceRate )
 			{
-				char RateString[MAX_PATH];				
+				char RateString[MAX_PATH];
 				sprintf_s(RateString,"%5.3f",OurScene.PersistentRate);
-				PrintWindowString(hWnd,IDC_PERSISTRATE,RateString);		
+				PrintWindowString(hWnd,IDC_PERSISTRATE,RateString);
 			}
-					
+
 			// Make sure defaults are updated when boxes first appear.
 			_SetCheckBox( hWnd, IDC_QUICKSAVEDISK, OurScene.QuickSaveDisk );
 			_SetCheckBox( hWnd, IDC_CHECK_STRIP_REFERENCE_PREFIX, OurScene.bCheckStripRef );
@@ -5273,9 +5275,9 @@ static INT_PTR CALLBACK PanelTwoDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 			_SetCheckBox( hWnd, IDC_LOCKROOTX, OurScene.DoLockRoot);
 			_SetCheckBox( hWnd, IDC_POSEZERO, OurScene.DoPoseZero);
 
-			_SetCheckBox( hWnd, IDC_CHECKNOLOG, !OurScene.DoLog);			
+			_SetCheckBox( hWnd, IDC_CHECKNOLOG, !OurScene.DoLog);
 			_SetCheckBox( hWnd, IDC_CHECKDOUNSMOOTH, OurScene.DoUnSmooth);
-			_SetCheckBox( hWnd, IDC_CHECKDOTANGENTS, OurScene.DoTangents);			
+			_SetCheckBox( hWnd, IDC_CHECKDOTANGENTS, OurScene.DoTangents);
 			_SetCheckBox( hWnd, IDC_CHECKAUTOTRI, OurScene.DoAutoTriangles);
 
 			_SetCheckBox( hWnd, IDC_CHECKSKINALLT, OurScene.DoTexGeom );
@@ -5298,11 +5300,11 @@ static INT_PTR CALLBACK PanelTwoDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 			_SetCheckBox( hWnd, IDC_EXPLICIT,     OurScene.DoExplicitSequences );
 
 			_SetCheckBox( hWnd, IDC_DOBAKEANIMS,  OurScene.DoBakeAnims );
-			
 
-			if ( OurScene.DoScaleVertex && (OurScene.VertexExportScale != 0.f) ) 
+
+			if ( OurScene.DoScaleVertex && (OurScene.VertexExportScale != 0.f) )
 			{
-				TCHAR ScaleString[64];						
+				TCHAR ScaleString[64];
 				sprintf_s(ScaleString,"%8.5f",OurScene.VertexExportScale );
 				PrintWindowString(hWnd, IDC_EDITFIXEDSCALE, ScaleString );
 			}
@@ -5311,14 +5313,14 @@ static INT_PTR CALLBACK PanelTwoDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 				OurScene.VertexExportScale = 1.0f;
 			}
 
-			if ( vertframerangestring[0]  ) PrintWindowString(hWnd,IDC_EDITVERTEXRANGE,vertframerangestring);			
+			if ( vertframerangestring[0]  ) PrintWindowString(hWnd,IDC_EDITVERTEXRANGE,vertframerangestring);
 
 
 			//if ( batchfoldername[0] ) SetWindowText(GetDlgItem(hWnd,IDC_BATCHPATH),batchfoldername);
-		
+
 			//ToggleControlEnable(hWnd,IDC_CHECKSKIN1,true);
 			//ToggleControlEnable(hWnd,IDC_CHECKSKIN2,true);
-			
+
 			// Initialize this panel's custom controls, if any.
 			// ThisMaxPlugin.InitSpinner(hWnd,IDC_EDIT_ACOMP,IDC_SPIN_ACOMP,100,0,100);
 			break;
@@ -5331,7 +5333,7 @@ static INT_PTR CALLBACK PanelTwoDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 		//case WM_LBUTTONDOWN:
 		//case WM_LBUTTONUP:
 		//case WM_MOUSEMOVE:
-		//	ThisMaxPlugin.ip->RollupMouseMessage(hWnd,msg,wParam,lParam); 
+		//	ThisMaxPlugin.ip->RollupMouseMessage(hWnd,msg,wParam,lParam);
 		//	break;
 
 		case WM_COMMAND:
@@ -5349,7 +5351,7 @@ static INT_PTR CALLBACK PanelTwoDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 			};
 
 			// LOWORD(wParam) has commands for the controls in our rollup window.
-			switch (LOWORD(wParam)) 
+			switch (LOWORD(wParam))
 			{
 				// Window-closing
 				case IDOK:
@@ -5392,7 +5394,7 @@ static INT_PTR CALLBACK PanelTwoDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 					}
 					break;
 
-				// Switch to indicate QuickSave is to save/append/overwrite sequences immediately to disk (off by default)...			
+				// Switch to indicate QuickSave is to save/append/overwrite sequences immediately to disk (off by default)...
 				case IDC_QUICKSAVEDISK:
 				{
 					OurScene.QuickSaveDisk = _GetCheckBox( hWnd, IDC_QUICKSAVEDISK );
@@ -5403,7 +5405,7 @@ static INT_PTR CALLBACK PanelTwoDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 				case IDC_FIXROOT:
 				{
 					OurScene.DoFixRoot = _GetCheckBox(hWnd,IDC_FIXROOT);
-																		
+
 					if ( !OurScene.DoFixRoot )
 					{
 						//_SetCheckBox( hWnd,IDC_LOCKROOTX, false );
@@ -5411,13 +5413,13 @@ static INT_PTR CALLBACK PanelTwoDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 						//OurScene.DoLockRoot = false;
 						//PluginReg.SetKeyValue("DOLOCKROOT",OurScene.DoLockRoot );
 					}
-					else 
+					else
 					{
 						//_EnableCheckBox( hWnd,IDC_LOCKROOTX,1 );
 						//_SetCheckBox( hWnd,IDC_LOCKROOTX, OurScene.DoLockRoot );
-					}					
+					}
 
-					PluginReg.SetKeyValue("DOFIXROOT",OurScene.DoFixRoot );					
+					PluginReg.SetKeyValue("DOFIXROOT",OurScene.DoFixRoot );
 				}
 				break;
 
@@ -5436,14 +5438,14 @@ static INT_PTR CALLBACK PanelTwoDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 					if (!OurScene.DoPoseZero)
 					{
 						_SetCheckBox(hWnd,IDC_LOCKROOTX,false);
-						_EnableCheckBox( hWnd,IDC_LOCKROOTX, 0);			
+						_EnableCheckBox( hWnd,IDC_LOCKROOTX, 0);
 					}
-					else 
+					else
 					{
-						_EnableCheckBox( hWnd,IDC_LOCKROOTX, 1 );			
+						_EnableCheckBox( hWnd,IDC_LOCKROOTX, 1 );
 					}
 					// HWND hDlg = GetDlgItem(hWnd,control);
-					// EnableWindow(hDlg,FALSE);					
+					// EnableWindow(hDlg,FALSE);
 					// see also MSDN  SDK info, Buttons/ using buttons etc
 
 					PluginReg.SetKeyValue( "DOPOSEZERO",OurScene.DoPoseZero );
@@ -5461,21 +5463,21 @@ static INT_PTR CALLBACK PanelTwoDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 
 				case IDC_CHECKNOLOG:
 				{
-					OurScene.DoLog = !_GetCheckBox(hWnd,IDC_CHECKNOLOG);	
+					OurScene.DoLog = !_GetCheckBox(hWnd,IDC_CHECKNOLOG);
 					PluginReg.SetKeyValue("DOLOG",OurScene.DoLog);
 				}
 				break;
 
 				case IDC_CHECKDOUNSMOOTH:
 				{
-					OurScene.DoUnSmooth = _GetCheckBox(hWnd,IDC_CHECKDOUNSMOOTH);					
+					OurScene.DoUnSmooth = _GetCheckBox(hWnd,IDC_CHECKDOUNSMOOTH);
 					PluginReg.SetKeyValue("DOUNSMOOTH",OurScene.DoUnSmooth);
 				}
 				break;
 
 				case IDC_CHECKDOTANGENTS:
 				{
-					OurScene.DoTangents = _GetCheckBox(hWnd,IDC_CHECKDOTANGENTS);					
+					OurScene.DoTangents = _GetCheckBox(hWnd,IDC_CHECKDOTANGENTS);
 					PluginReg.SetKeyValue("DOTANGENTS",OurScene.DoTangents);
 				}
 				break;
@@ -5504,7 +5506,7 @@ static INT_PTR CALLBACK PanelTwoDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 					};
 				}
 				break;
-				
+
 				case IDC_CHECKSKINALLT: // all textured geometry skin checkbox
 				{
 					OurScene.DoTexGeom =_GetCheckBox(hWnd,IDC_CHECKSKINALLT);
@@ -5524,19 +5526,19 @@ static INT_PTR CALLBACK PanelTwoDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 				case IDC_CHECKTEXPCX: // all textured geometry skin checkbox
 				{
 					OurScene.DoTexPCX =_GetCheckBox(hWnd,IDC_CHECKTEXPCX);
-					PluginReg.SetKeyValue("DOPCX",OurScene.DoTexPCX); // update registry					
+					PluginReg.SetKeyValue("DOPCX",OurScene.DoTexPCX); // update registry
 				}
 				break;
 
 				case IDC_VERTEXOUT: // Classic vertex animation export
 				{
-					OurScene.DoVertexOut =_GetCheckBox(hWnd,IDC_VERTEXOUT);					
+					OurScene.DoVertexOut =_GetCheckBox(hWnd,IDC_VERTEXOUT);
 				}
 
 				case IDC_CHECKSKINALLS: // all selected meshes skin checkbox
 				{
 					OurScene.DoSelectedGeom =_GetCheckBox(hWnd,IDC_CHECKSKINALLS);
-					PluginReg.SetKeyValue("DOSELGEOM",OurScene.DoSelectedGeom);					
+					PluginReg.SetKeyValue("DOSELGEOM",OurScene.DoSelectedGeom);
 					if (!OurScene.DoSelectedGeom) _SetCheckBox(hWnd,IDC_CHECKSKINALLS,false);
 				}
 				break;
@@ -5554,14 +5556,14 @@ static INT_PTR CALLBACK PanelTwoDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 					OurScene.DoSkipSelectedGeom = _GetCheckBox(hWnd,IDC_CHECKSKINNOS);
 					if (!OurScene.DoSkipSelectedGeom) _SetCheckBox(hWnd,IDC_CHECKSKINNOS,false);
 				}
-				break;								
+				break;
 
 				case IDC_CHECKCULLDUMMIES: // all selected physique meshes checkbox
 				{
 					OurScene.DoCullDummies =_GetCheckBox(hWnd,IDC_CHECKCULLDUMMIES);
 					PluginReg.SetKeyValue("DOCULLDUMMIES",OurScene.DoCullDummies );
 					//ToggleControlEnable(hWnd,IDC_CHECKCULLDUMMIES,OurScene.DoCullDummies);
-					if (!OurScene.DoCullDummies) _SetCheckBox(hWnd,IDC_CHECKCULLDUMMIES,false);					
+					if (!OurScene.DoCullDummies) _SetCheckBox(hWnd,IDC_CHECKCULLDUMMIES,false);
 				}
 				break;
 
@@ -5569,7 +5571,7 @@ static INT_PTR CALLBACK PanelTwoDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 				{
 					OurScene.DoReplaceUnderscores =_GetCheckBox(hWnd,IDC_UNDERSCORETOSPACE);
 					PluginReg.SetKeyValue("DOREPLACEUNDERSCORES",OurScene.DoReplaceUnderscores );
-					if (!OurScene.DoReplaceUnderscores) _SetCheckBox(hWnd,IDC_UNDERSCORETOSPACE,false);					
+					if (!OurScene.DoReplaceUnderscores) _SetCheckBox(hWnd,IDC_UNDERSCORETOSPACE,false);
 				}
 				break;
 				//PCF BEGIN
@@ -5577,7 +5579,7 @@ static INT_PTR CALLBACK PanelTwoDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 					{
 						OurScene.DoSecondUVSetSkinned =_GetCheckBox(hWnd,IDC_DOSECONDUVSETSKINNED);
 						PluginReg.SetKeyValue("DOSECONDUVSETSKINNED",OurScene.DoSecondUVSetSkinned );
-						if (!OurScene.DoSecondUVSetSkinned) _SetCheckBox(hWnd,IDC_DOSECONDUVSETSKINNED,false);					
+						if (!OurScene.DoSecondUVSetSkinned) _SetCheckBox(hWnd,IDC_DOSECONDUVSETSKINNED,false);
 					}
 				break;
 				//PCF END
@@ -5591,7 +5593,7 @@ static INT_PTR CALLBACK PanelTwoDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 
 				case IDC_SAVESCRIPT: // save the script
 				{
-					if( 0 ) // TempActor.OutAnims.Num() == 0 ) 
+					if( 0 ) // TempActor.OutAnims.Num() == 0 )
 					{
 						PopupBox("Warning: no animations present in output package.\n Aborting template generation.");
 					}
@@ -5614,11 +5616,11 @@ static INT_PTR CALLBACK PanelTwoDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 						break;
 					};
 				}
-				break;		
+				break;
 
 				case IDC_CHECKNOPOPUP:
 				{
-					OurScene.DoSuppressAnimPopups = _GetCheckBox(hWnd,IDC_CHECKNOPOPUP);					
+					OurScene.DoSuppressAnimPopups = _GetCheckBox(hWnd,IDC_CHECKNOPOPUP);
 					PluginReg.SetKeyValue("DOSUPPRESSANIMPOPUPS",OurScene.DoSuppressAnimPopups);
 				}
 				break;
@@ -5629,14 +5631,14 @@ static INT_PTR CALLBACK PanelTwoDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 					// TCHAR dir[MAX_PATH];
 					// TCHAR desc[MAX_PATH];
 					//_tcscpy_s(desc, ("Batch Source Folder"));
-					// u->ip->ChooseDirectory(u->ip->GetMAXHWnd(),("Choose Folder"), dir, desc);					
-					//_tcscpy_s(batchfoldername,dir); 
-					// SetWindowText(GetDlgItem(hWnd,IDC_BATCHPATH),batchfoldername);					
+					// u->ip->ChooseDirectory(u->ip->GetMAXHWnd(),("Choose Folder"), dir, desc);
+					//_tcscpy_s(batchfoldername,dir);
+					// SetWindowText(GetDlgItem(hWnd,IDC_BATCHPATH),batchfoldername);
 				}
 				break;
 
 				case IDC_BATCHMAX: // process the batch files.
-				{	
+				{
 					// Get all max files from folder '' and digest them.
 					PopupBox(" Digested %i animation files, total of %i frames",0,0);
 				}
@@ -5654,7 +5656,7 @@ static INT_PTR CALLBACK PanelTwoDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 						break;
 					};
 				}
-				break;		
+				break;
 
 				case IDC_EDITBASE:
 				{
@@ -5668,17 +5670,17 @@ static INT_PTR CALLBACK PanelTwoDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 						break;
 					};
 				}
-				break;		
+				break;
 
 			};
 			break;
-		
+
 		default:
 		return FALSE;
 		}
 	}
 	return TRUE;
-}       
+}
 
 
 
@@ -5687,17 +5689,17 @@ static INT_PTR CALLBACK PanelTwoDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 //
 
 static INT_PTR CALLBACK VertExpDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
-{	
-	switch (msg) 
+{
+	switch (msg)
 	{
 		case WM_INITDIALOG:
 		{
 			_SetCheckBox( hWnd, IDC_CHECKAPPENDVERTEX, OurScene.DoAppendVertex );
-			_SetCheckBox( hWnd, IDC_CHECKFIXEDSCALE,   OurScene.DoScaleVertex );			
+			_SetCheckBox( hWnd, IDC_CHECKFIXEDSCALE,   OurScene.DoScaleVertex );
 
-			if ( OurScene.DoScaleVertex && (OurScene.VertexExportScale != 0.f) ) 
+			if ( OurScene.DoScaleVertex && (OurScene.VertexExportScale != 0.f) )
 			{
-				TCHAR ScaleString[64];						
+				TCHAR ScaleString[64];
 				sprintf_s(ScaleString,"%8.5f",OurScene.VertexExportScale );
 				PrintWindowString(hWnd, IDC_EDITFIXEDSCALE, ScaleString );
 			}
@@ -5706,7 +5708,7 @@ static INT_PTR CALLBACK VertExpDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 				OurScene.VertexExportScale = 1.0f;
 			}
 
-			if ( vertframerangestring[0]  ) PrintWindowString(hWnd,IDC_EDITVERTEXRANGE,vertframerangestring);			
+			if ( vertframerangestring[0]  ) PrintWindowString(hWnd,IDC_EDITVERTEXRANGE,vertframerangestring);
 		}
 		break;
 
@@ -5725,7 +5727,7 @@ static INT_PTR CALLBACK VertExpDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 			};
 
 			// LOWORD(wParam) has commands for the controls in our rollup window.
-			switch (LOWORD(wParam)) 
+			switch (LOWORD(wParam))
 			{
 				// Window-closing
 				case IDOK:
@@ -5742,19 +5744,19 @@ static INT_PTR CALLBACK VertExpDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					{
 						// Whenenver focus is lost, update the skin file name.
 						case EN_KILLFOCUS:
-						{							
+						{
 							GetWindowText(GetDlgItem(hWnd,IDC_EDITVERTEXRANGE),vertframerangestring,500);
 						}
 						break;
 					};
 				}
-				break;		
+				break;
 
 				case IDC_EXPORTVERTEX: // export vertex-animated data (raw discretized data, doesn't do auto-scaling )
 				{
 					OurScene.SurveyScene();
-					OurScene.GetSceneInfo();	
-					
+					OurScene.GetSceneInfo();
+
 					OurScene.EvaluateSkeleton(1);
 					OurScene.DigestSkeleton( &TempActor );  // Digest skeleton into tempactor
 
@@ -5778,14 +5780,14 @@ static INT_PTR CALLBACK VertExpDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 				}
 				break;
 
-				case IDC_CHECKAPPENDVERTEX: 
+				case IDC_CHECKAPPENDVERTEX:
 				{
 					OurScene.DoAppendVertex = _GetCheckBox(hWnd,IDC_CHECKAPPENDVERTEX);
 					PluginReg.SetKeyValue("DOAPPENDVERTEX", OurScene.DoAppendVertex);
 				}
 				break;
 
-				case IDC_CHECKFIXEDSCALE: 
+				case IDC_CHECKFIXEDSCALE:
 				{
 					OurScene.DoScaleVertex = _GetCheckBox(hWnd,IDC_CHECKFIXEDSCALE);
 					PluginReg.SetKeyValue("DOSCALEVERTEX", OurScene.DoScaleVertex);
@@ -5793,13 +5795,13 @@ static INT_PTR CALLBACK VertExpDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 				break;
 
 
-			}//switch (LOWORD(wParam)) 
+			}//switch (LOWORD(wParam))
 
 			default:
 			return FALSE;
 		}
 		break;
-	}; //switch (msg) 
+	}; //switch (msg)
 
 	return TRUE;
 }
@@ -5824,12 +5826,12 @@ void UpdateSlotNames(HWND hWnd)
 	for(INT m=0; m<8; m++)
 	{
 		if ( materialnames[m][0] ) PrintWindowString( hWnd, MatIDC[m], materialnames[m] );
-	}   
+	}
 }
 
 INT_PTR CALLBACK BrushPanelDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	switch (msg) 
+	switch (msg)
 	{
 		case WM_INITDIALOG:
 
@@ -5849,7 +5851,7 @@ INT_PTR CALLBACK BrushPanelDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lP
 
 			// Initialize all non-empty edit windows.
 			if ( to_brushpath[0] ) SetWindowText(GetDlgItem(hWnd,IDC_BRUSHPATH),to_brushpath);
-			if ( to_brushfile[0] ) SetWindowText(GetDlgItem(hWnd,IDC_BRUSHFILENAME),to_brushfile);			
+			if ( to_brushfile[0] ) SetWindowText(GetDlgItem(hWnd,IDC_BRUSHFILENAME),to_brushfile);
 
 			// See if there are materials from the mesh to write back to the window..
 			{for(INT m=0; m < TempActor.SkinData.Materials.Num(); m++)
@@ -5867,10 +5869,10 @@ INT_PTR CALLBACK BrushPanelDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lP
 			}}
 			break;
 
-	
+
 		case WM_COMMAND:
 
-			switch (LOWORD(wParam)) 
+			switch (LOWORD(wParam))
 			{
 				case IDOK:
 					EndDialog(hWnd, 1);
@@ -5953,7 +5955,7 @@ INT_PTR CALLBACK BrushPanelDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lP
 					}
 					//UpdateSlotNames(hWnd);
 				}
-			
+
 
 				case IDC_BRUSHPATH:
 					{
@@ -5961,7 +5963,7 @@ INT_PTR CALLBACK BrushPanelDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lP
 						{
 							case EN_KILLFOCUS:
 							{
-								GetWindowText(GetDlgItem(hWnd,IDC_BRUSHPATH),to_brushpath,300);										
+								GetWindowText(GetDlgItem(hWnd,IDC_BRUSHPATH),to_brushpath,300);
 								//_tcscpy_s(LogPath,to_brushpath);
 							}
 							break;
@@ -5985,26 +5987,26 @@ INT_PTR CALLBACK BrushPanelDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lP
 
 				// Browse for a destination directory.
 				case IDC_BRUSHBROWSE:
-					{					
+					{
 						char  dir[MAX_PATH];
 						if( GetFolderName(hWnd, dir, _countof(dir)) )
 						{
-							_tcscpy_s(to_brushpath,dir); 
-							//_tcscpy_s(LogPath,dir);					
+							_tcscpy_s(to_brushpath,dir);
+							//_tcscpy_s(LogPath,dir);
 						}
-						SetWindowText(GetDlgItem(hWnd,IDC_BRUSHPATH),to_brushpath);															
-					}	
+						SetWindowText(GetDlgItem(hWnd,IDC_BRUSHPATH),to_brushpath);
+					}
 					break;
 
-				// 
+				//
 				case IDC_EXPORTBRUSH:
 					{
 						//
-						// Special digest-brush command - 
+						// Special digest-brush command -
 						// Switches
 						// - selectedonly: only selected (textured) objects
 						// - otherwise, all geometry nodes will be exported.
-						// 
+						//
 
 						// Clear scene
 						OurScene.Cleanup();
@@ -6014,7 +6016,7 @@ INT_PTR CALLBACK BrushPanelDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lP
 						OurScene.SurveyScene();
 						OurScene.GetSceneInfo();
 
-						// Skeleton & hierarchy unneeded for brushes....				
+						// Skeleton & hierarchy unneeded for brushes....
 						OurScene.EvaluateSkeleton(0);
 						DebugBox("End EvalSK");
 					#if 1
@@ -6034,7 +6036,7 @@ INT_PTR CALLBACK BrushPanelDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lP
 						{
 							// Override:
 							if( materialnames[m][0] )
-							{								
+							{
 								TempActor.SkinData.Materials[m].SetName(materialnames[m]);
 							}
 							else // copy it back...
@@ -6042,7 +6044,7 @@ INT_PTR CALLBACK BrushPanelDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lP
 								strcpy_s( materialnames[m], TempActor.SkinData.Materials[m].MaterialName );
 							}
 						}
-						
+
 						if( TempActor.SkinData.Points.Num() == 0 )
 							WarningBox(" Warning: no valid geometry digested (missing mapping or selection?)");
 						else
@@ -6054,9 +6056,9 @@ INT_PTR CALLBACK BrushPanelDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lP
 
 							if ( OutFile.CreateNewFile(DestPath) != 0) // Error !
 								ErrorBox("ExportBrush File creation error. ");
-					
+
 							TempActor.WriteBrush( OutFile, DoSmoothBrush, OurScene.DoSingleTex ); // Save brush.
-						
+
 							 // Close.
 							OutFile.CloseFlush();
 
@@ -6064,7 +6066,7 @@ INT_PTR CALLBACK BrushPanelDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lP
 
 							if( OutFile.GetError()) ErrorBox("Brush Save Error");
 								else
-							PopupBox(" Brush  %s\\%s.%s written; %i material(s).",to_brushpath,to_brushfile,to_ext, MatCount);		
+							PopupBox(" Brush  %s\\%s.%s written; %i material(s).",to_brushpath,to_brushfile,to_ext, MatCount);
 
 							// Log materials and stats.
 							// if( OurScene.DoLog ) OurScene.LogSkinInfo( &TempActor, to_brushfile );
@@ -6080,7 +6082,7 @@ INT_PTR CALLBACK BrushPanelDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lP
 		return FALSE;
 	}
 	return TRUE;
-}       
+}
 
 void ShowPanelOne( HWND hWnd)
 {
@@ -6094,17 +6096,17 @@ void ShowPanelTwo( HWND hWnd)
 
 void ShowActorManager( HWND hWnd )
 {
-	DialogBoxParam( MhInstPlugin, MAKEINTRESOURCE(IDD_ACTORMANAGER), hWnd, ActorManagerDlgProc, 0 );	
+	DialogBoxParam( MhInstPlugin, MAKEINTRESOURCE(IDD_ACTORMANAGER), hWnd, ActorManagerDlgProc, 0 );
 }
 
 void ShowStaticMeshPanel( HWND hWnd )
 {
-	DialogBoxParam( MhInstPlugin, MAKEINTRESOURCE(IDD_STATICMESH), hWnd, StaticMeshDlgProc, 0 );	
+	DialogBoxParam( MhInstPlugin, MAKEINTRESOURCE(IDD_STATICMESH), hWnd, StaticMeshDlgProc, 0 );
 }
 
 void ShowVertExporter( HWND hWnd )
 {
-	DialogBoxParam( MhInstPlugin, MAKEINTRESOURCE(IDD_VERTMESH), hWnd, VertExpDlgProc, 0 );	
+	DialogBoxParam( MhInstPlugin, MAKEINTRESOURCE(IDD_VERTMESH), hWnd, VertExpDlgProc, 0 );
 }
 // PCF BEGIN
 // smoothing groups from traingulatedMesh
@@ -6118,7 +6120,7 @@ void MeshProcessor::createNewSmoothingGroupsFromTriangulatedMesh( triangulatedMe
 		return; //SafeGuard.
 
 	VertEdgePools.Empty();
-	VertEdgePools.AddZeroed( edgeTableSize );  
+	VertEdgePools.AddZeroed( edgeTableSize );
 
 	// Add entries, for each edge, to the lookup table
 	for (int i =0; i <  mesh.edges->_edges.size(); i++ ) // Iterate over edges.
@@ -6128,22 +6130,22 @@ void MeshProcessor::createNewSmoothingGroupsFromTriangulatedMesh( triangulatedMe
 		bool smooth =e->smooth;  // Smoothness retrieval for edge.
 		addEdgeInfo( e->v1, e->v2, smooth );  // Adds info for edge running from vertex elt.index(0) to elt.index(1) into VertEdgePools.
 		MayaEdge* elem = findEdgeInfo( e->v1, e->v2 );
-		if ( elem )  // Null if no edges found for vertices a and b. 
+		if ( elem )  // Null if no edges found for vertices a and b.
 		{
 
 				elem->polyIds[0] = e->f1; // Add poly index to poly table for this edge.
 				elem->polyIds[1] = e->f2; // If first slot already filled, fill the second face.  Assumes each edge only has 2 faces max.
-                                  
+
 		}
 	}
-	// Fill FacePools table: for each face, a pool of smoothly touching faces and a pool of nonsmoothly touching ones.	
+	// Fill FacePools table: for each face, a pool of smoothly touching faces and a pool of nonsmoothly touching ones.
 
 	FacePools.AddZeroed( numPolygons );
 	for (int p =0; p <  mesh.triangles.size(); p++ ) // Iterate over edges.
 	{
 
 		triangulatedMesh::Triangle * t =  mesh.triangles[p];
-		for ( int vid=0; vid<3;vid++ ) 
+		for ( int vid=0; vid<3;vid++ )
 		{
 			int a = t->Indices[vid].pointIndex;
 			int b = t->Indices[ vid==(2) ? 0 : vid+1 ].pointIndex;
@@ -6155,21 +6157,21 @@ void MeshProcessor::createNewSmoothingGroupsFromTriangulatedMesh( triangulatedMe
 				INT FaceB = Edge->polyIds[1];
 				INT TouchingFaceIdx = -1;
 
-				if( FaceA == p )  
+				if( FaceA == p )
 					TouchingFaceIdx = FaceB;
-				else 
-					if( FaceB == p ) 
+				else
+					if( FaceB == p )
 						TouchingFaceIdx = FaceA;
 
 				if( TouchingFaceIdx >= 0)
 				{
 					if( Edge->smooth )
 					{
-						FacePools[p].SmoothFaces.AddUniqueItem(TouchingFaceIdx);							
+						FacePools[p].SmoothFaces.AddUniqueItem(TouchingFaceIdx);
 					}
 					else
 					{
-						FacePools[p].HardFaces.AddUniqueItem(TouchingFaceIdx);					
+						FacePools[p].HardFaces.AddUniqueItem(TouchingFaceIdx);
 					}
 				}
 			}
@@ -6180,10 +6182,10 @@ void MeshProcessor::createNewSmoothingGroupsFromTriangulatedMesh( triangulatedMe
 
 	PolyProcessFlags.Empty();
 	PolyProcessFlags.AddZeroed( numPolygons );
-	{for ( INT i=0; i< numPolygons; i++ ) 
-	{ 
-		PolyProcessFlags[i] = NO_SMOOTHING_GROUP; 
-	}}    
+	{for ( INT i=0; i< numPolygons; i++ )
+	{
+		PolyProcessFlags[i] = NO_SMOOTHING_GROUP;
+	}}
 
 	//
 	// Convert all from edges into smoothing groups.  Essentially flood fill it. but als check each poly if it's been processed yet.
@@ -6191,10 +6193,10 @@ void MeshProcessor::createNewSmoothingGroupsFromTriangulatedMesh( triangulatedMe
 	FaceSmoothingGroups.AddZeroed( numPolygons );
 	INT SmoothParts = 0;
 	CurrentGroup = 0;
-	{for ( INT pid=0; pid<numPolygons; pid++ ) 
+	{for ( INT pid=0; pid<numPolygons; pid++ )
 	{
 		if( PolyProcessFlags[pid] == NO_SMOOTHING_GROUP )
-		{			
+		{
 			fillSmoothFaces( pid );
 			SmoothParts++;
 		}
@@ -6203,7 +6205,7 @@ void MeshProcessor::createNewSmoothingGroupsFromTriangulatedMesh( triangulatedMe
 	//
 	// Fill GroupTouchPools: for each group, this notes which other groups touch it or overlap it in any way.
 	//
-	GroupTouchPools.AddZeroed( CurrentGroup ); 
+	GroupTouchPools.AddZeroed( CurrentGroup );
 	for( INT f=0; f< numPolygons; f++)
 	{
 		TArray<INT> TempTouchPool;
@@ -6256,7 +6258,7 @@ void MeshProcessor::createNewSmoothingGroupsFromTriangulatedMesh( triangulatedMe
 	}
 
 	for( INT g=0; g<GroupTouchPools.Num(); g++ )
-	{		
+	{
 		INT FinalGroupCycle = 0;
 		for( INT SGTries=0; SGTries<32; SGTries++ )
 		{
@@ -6270,15 +6272,15 @@ void MeshProcessor::createNewSmoothingGroupsFromTriangulatedMesh( triangulatedMe
 			{
 				// Done for this smoothing group.
 				GroupTouchPools[g].FinalGroup = FinalGroupCycle;
-				break; 
-			}			
+				break;
+			}
 			FinalGroupCycle = (FinalGroupCycle+1)%32;
 		}
 		if( GroupTouchPools[g].FinalGroup == -1)
 		{
-			HardClashes++;			
+			HardClashes++;
 			GroupTouchPools[g].FinalGroup = 0; // Go to default group.
-		}		
+		}
 		MaxGroup = max( MaxGroup, GroupTouchPools[g].FinalGroup );
 		if( (g!=0) && (( g & 65535 )==0) )
 		{
@@ -6286,7 +6288,7 @@ void MeshProcessor::createNewSmoothingGroupsFromTriangulatedMesh( triangulatedMe
 		}
 	}
 
-	if( HardClashes > 0) 
+	if( HardClashes > 0)
 	{
 		MayaLog(" Warning: [%i] smoothing group reassignment errors.",HardClashes );
 	}
@@ -6297,7 +6299,7 @@ void MeshProcessor::createNewSmoothingGroupsFromTriangulatedMesh( triangulatedMe
 	{
 		// This face's own groups..
 		for( INT i=0; i< FaceSmoothingGroups[p].Groups.Num(); i++)
-		{			
+		{
 			//FaceSmoothingGroups[p].Groups[i] = RemapperArray[ FaceSmoothingGroups[p].Groups[i]  ];
 			FaceSmoothingGroups[p].Groups[i] = GroupTouchPools[ FaceSmoothingGroups[p].Groups[i] ].FinalGroup;
 		}
@@ -6310,7 +6312,7 @@ void MeshProcessor::createNewSmoothingGroupsFromTriangulatedMesh( triangulatedMe
 	{
 		// OR-in all the smoothing bits.
 		for( INT s=0; s< FaceSmoothingGroups[i].Groups.Num(); s++)
-		{ 
+		{
 			PolySmoothingGroups[i]  |=  ( 1 << (  FaceSmoothingGroups[i].Groups[s]  ) );
 		}
 	}}
@@ -6328,14 +6330,14 @@ void MeshProcessor::createNewSmoothingGroups( MDagPath& mesh )
 {
 	// Create our edge lookup table and initialize all entries to NULL.
     MFnMesh fnMesh( mesh );
-    INT edgeTableSize = fnMesh.numVertices(); 
+    INT edgeTableSize = fnMesh.numVertices();
 	INT numPolygons = fnMesh.numPolygons();
 	if( edgeTableSize < 1)
 		return; //SafeGuard.
 
 	VertEdgePools.Empty();
-	VertEdgePools.AddZeroed( edgeTableSize );  
-    
+	VertEdgePools.AddZeroed( edgeTableSize );
+
 	// Add entries, for each edge, to the lookup table
     MItMeshEdge eIt( mesh );
     for ( ; !eIt.isDone(); eIt.next() ) // Iterate over edges.
@@ -6350,37 +6352,37 @@ void MeshProcessor::createNewSmoothingGroups( MDagPath& mesh )
         INT pvc = pIt.polygonVertexCount();
         for ( INT v=0; v<pvc; v++ )
         {
-			// Circle around polygons assigning the edge IDs  to edgeinfo's 			
+			// Circle around polygons assigning the edge IDs  to edgeinfo's
             INT a = pIt.vertexIndex( v );
             INT b = pIt.vertexIndex( v==(pvc-1) ? 0 : v+1 ); // wrap
 
             MayaEdge* elem = findEdgeInfo( a, b );
-            if ( elem )  // Null if no edges found for vertices a and b. 
+            if ( elem )  // Null if no edges found for vertices a and b.
 			{
                 INT edgeId = pIt.index();
-                
-                if ( INVALID_ID == elem->polyIds[0] ) 
+
+                if ( INVALID_ID == elem->polyIds[0] )
 				{
                     elem->polyIds[0] = edgeId; // Add poly index to poly table for this edge.
                 }
-                else 
+                else
 				{
                     elem->polyIds[1] = edgeId; // If first slot already filled, fill the second face.  Assumes each edge only has 2 faces max.
-                }                                    
+                }
             }
         }
     }
 
-	// Fill FacePools table: for each face, a pool of smoothly touching faces and a pool of nonsmoothly touching ones.	
+	// Fill FacePools table: for each face, a pool of smoothly touching faces and a pool of nonsmoothly touching ones.
 	FacePools.AddZeroed( numPolygons );
-	{for ( INT p=0; p< numPolygons; p++ ) 
-	{		
-		MIntArray vertexList; 
+	{for ( INT p=0; p< numPolygons; p++ )
+	{
+		MIntArray vertexList;
 		fnMesh.getPolygonVertices( p, vertexList );
-		int vcount = vertexList.length();		
+		int vcount = vertexList.length();
 
 		// Walk around this polygon. accumulate all smooth and sharp bounding faces..
-		for ( int vid=0; vid<vcount;vid++ ) 
+		for ( int vid=0; vid<vcount;vid++ )
 		{
 			int a = vertexList[ vid ];
 			int b = vertexList[ vid==(vcount-1) ? 0 : vid+1 ];
@@ -6391,33 +6393,33 @@ void MeshProcessor::createNewSmoothingGroups( MDagPath& mesh )
 				INT FaceB = Edge->polyIds[1];
 				INT TouchingFaceIdx = -1;
 
-				if( FaceA == p )  
+				if( FaceA == p )
 					TouchingFaceIdx = FaceB;
-				else 
-				if( FaceB == p ) 
+				else
+				if( FaceB == p )
 					TouchingFaceIdx = FaceA;
 
 				if( TouchingFaceIdx >= 0)
 				{
 					if( Edge->smooth )
 					{
-						FacePools[p].SmoothFaces.AddUniqueItem(TouchingFaceIdx);							
+						FacePools[p].SmoothFaces.AddUniqueItem(TouchingFaceIdx);
 					}
 					else
 					{
-						FacePools[p].HardFaces.AddUniqueItem(TouchingFaceIdx);					
+						FacePools[p].HardFaces.AddUniqueItem(TouchingFaceIdx);
 					}
-				}								
+				}
 			}
 		}
 	}}
-	
+
 	PolyProcessFlags.Empty();
 	PolyProcessFlags.AddZeroed( numPolygons );
-	{for ( INT i=0; i< numPolygons; i++ ) 
-	{ 
-		PolyProcessFlags[i] = NO_SMOOTHING_GROUP; 
-	}}    
+	{for ( INT i=0; i< numPolygons; i++ )
+	{
+		PolyProcessFlags[i] = NO_SMOOTHING_GROUP;
+	}}
 
 	//
 	// Convert all from edges into smoothing groups.  Essentially flood fill it. but als check each poly if it's been processed yet.
@@ -6425,10 +6427,10 @@ void MeshProcessor::createNewSmoothingGroups( MDagPath& mesh )
 	FaceSmoothingGroups.AddZeroed( numPolygons );
 	INT SmoothParts = 0;
 	CurrentGroup = 0;
-	{for ( INT pid=0; pid<numPolygons; pid++ ) 
+	{for ( INT pid=0; pid<numPolygons; pid++ )
 	{
 		if( PolyProcessFlags[pid] == NO_SMOOTHING_GROUP )
-		{			
+		{
 			fillSmoothFaces( pid );
 			SmoothParts++;
 		}
@@ -6437,7 +6439,7 @@ void MeshProcessor::createNewSmoothingGroups( MDagPath& mesh )
 	//
 	// Fill GroupTouchPools: for each group, this notes which other groups touch it or overlap it in any way.
 	//
-	GroupTouchPools.AddZeroed( CurrentGroup ); 
+	GroupTouchPools.AddZeroed( CurrentGroup );
 	for( INT f=0; f< numPolygons; f++)
 	{
 		TArray<INT> TempTouchPool;
@@ -6475,7 +6477,7 @@ void MeshProcessor::createNewSmoothingGroups( MDagPath& mesh )
 			}
 		}
 	}
-	
+
 
 	// Distribute final smoothing groups by carefully checking against already assigned groups in
 	// each group's touchpools. Note faces can have many multiple touching groups so the
@@ -6490,7 +6492,7 @@ void MeshProcessor::createNewSmoothingGroups( MDagPath& mesh )
 	}
 
 	for( INT g=0; g<GroupTouchPools.Num(); g++ )
-	{		
+	{
 		INT FinalGroupCycle = 0;
 		for( INT SGTries=0; SGTries<32; SGTries++ )
 		{
@@ -6504,15 +6506,15 @@ void MeshProcessor::createNewSmoothingGroups( MDagPath& mesh )
 			{
 				// Done for this smoothing group.
 				GroupTouchPools[g].FinalGroup = FinalGroupCycle;
-				break; 
-			}			
+				break;
+			}
 			FinalGroupCycle = (FinalGroupCycle+1)%32;
 		}
 		if( GroupTouchPools[g].FinalGroup == -1)
 		{
-			HardClashes++;			
+			HardClashes++;
 			GroupTouchPools[g].FinalGroup = 0; // Go to default group.
-		}		
+		}
 		MaxGroup = max( MaxGroup, GroupTouchPools[g].FinalGroup );
 		if( (g!=0) && (( g & 65535 )==0) )
 		{
@@ -6520,7 +6522,7 @@ void MeshProcessor::createNewSmoothingGroups( MDagPath& mesh )
 		}
 	}
 
-	if( HardClashes > 0) 
+	if( HardClashes > 0)
 	{
 		MayaLog(" Warning: [%i] smoothing group reassignment errors.",HardClashes );
 	}
@@ -6531,7 +6533,7 @@ void MeshProcessor::createNewSmoothingGroups( MDagPath& mesh )
 	{
 		// This face's own groups..
 		for( INT i=0; i< FaceSmoothingGroups[p].Groups.Num(); i++)
-		{			
+		{
 			//FaceSmoothingGroups[p].Groups[i] = RemapperArray[ FaceSmoothingGroups[p].Groups[i]  ];
 			FaceSmoothingGroups[p].Groups[i] = GroupTouchPools[ FaceSmoothingGroups[p].Groups[i] ].FinalGroup;
 		}
@@ -6544,13 +6546,13 @@ void MeshProcessor::createNewSmoothingGroups( MDagPath& mesh )
 	{
 		// OR-in all the smoothing bits.
 		for( INT s=0; s< FaceSmoothingGroups[i].Groups.Num(); s++)
-		{ 
+		{
 			PolySmoothingGroups[i]  |=  ( 1 << (  FaceSmoothingGroups[i].Groups[s]  ) );
 		}
 	}}
 
 	//MayaLog(" Faces %i  - Smoothing groups before reduction:  %i   after reduction: %i  ",numPolygons,  numRawSmoothingGroups, MaxGroup );
-	
+
 }
 
 
@@ -6559,10 +6561,10 @@ void MeshProcessor::createNewSmoothingGroups( MDagPath& mesh )
 // Flood-fills mesh with placeholder smoothing group numbers.
 //  - Start from a face and reach all faces smoothly connected with "CurrentGroup"
 //
-//  
-//   ==> General rule: new triangle: get set of all groups bounding it across a sharp boundary; 
-//             if CurrentGroup is not in the sharpboundgroups,  just assign CurrentGroup; store surrounding unprocessed faces on stack; pick top of stack to process. 
-//             if CurrentGroup is in there -> see if our pre-filled Groups  have none in common with SharpBoundGroups;  
+//
+//   ==> General rule: new triangle: get set of all groups bounding it across a sharp boundary;
+//             if CurrentGroup is not in the sharpboundgroups,  just assign CurrentGroup; store surrounding unprocessed faces on stack; pick top of stack to process.
+//             if CurrentGroup is in there -> see if our pre-filled Groups  have none in common with SharpBoundGroups;
 //             if none in common, we can just use the Groups
 //             if any in common, we assign a NEW ++LatestGroup, discard Groups, and put the LatestGroup into all our surrounding tris' Groups.
 //
@@ -6595,7 +6597,7 @@ INT AnyCommonElements( TArray<INT>& ArrayOne, TArray<INT>& ArrayTwo )
 				return 1;
 			}
 			LastTested = ArrayOne[i];
-		}		
+		}
 	}
 	return 0;
 }
@@ -6604,30 +6606,30 @@ INT AnyCommonElements( TArray<INT>& ArrayOne, TArray<INT>& ArrayTwo )
 // PCF BEGIN - not using MFnMesh& fnMesh
 void MeshProcessor::fillSmoothFaces( INT polyid  )
 //PCF END
-{		
+{
 	TArray<INT> TodoFaceStack;
 	TodoFaceStack.AddItem( polyid ); // Guaranteed to have been a NO_SMOOTHING_GROUP marked face.
 
 	INT LatestGroup = CurrentGroup;
-	
+
 	while( TodoFaceStack.Num() )
 	{
 		// Get top of stack.
 		INT StackTopIdx = TodoFaceStack.Num() -1;
-		INT ThisFaceIdx = TodoFaceStack[ StackTopIdx ];		
+		INT ThisFaceIdx = TodoFaceStack[ StackTopIdx ];
 		TodoFaceStack.DelIndex( StackTopIdx );
-		
+
 		PolyProcessFlags[ThisFaceIdx] = 1; // Mark as processed.
-		
+
 		// CurrentGroup, our first choice, is not in any of the groups assigned to any of the faces of the 'sharp' connecting face set ? Then we'll try to use it.
 		INT SharpSetCurrMatches = 0;
 		{for( INT t=0; t< FacePools[ ThisFaceIdx].HardFaces.Num(); t++ )
 		{
 			INT HardFaceAcross = FacePools[ ThisFaceIdx].HardFaces[t] ;
-			SharpSetCurrMatches += FaceSmoothingGroups[ HardFaceAcross  ].Groups.Contains( CurrentGroup );				
+			SharpSetCurrMatches += FaceSmoothingGroups[ HardFaceAcross  ].Groups.Contains( CurrentGroup );
 		}}
 
-		// Do our "pre-filled" groups match any sharply connected groups ? 
+		// Do our "pre-filled" groups match any sharply connected groups ?
 		INT SharpSetGroupMatches = 0;
 		{for( INT t=0; t< FacePools[ ThisFaceIdx].HardFaces.Num(); t++ )
 		{
@@ -6635,27 +6637,27 @@ void MeshProcessor::fillSmoothFaces( INT polyid  )
 			//SharpSetGroupMatches += CountCommonElements(  FaceSmoothingGroups[ThisFaceIdx].Groups, FaceSmoothingGroups[HardFaceAcross].Groups );
 			SharpSetGroupMatches += AnyCommonElements(  FaceSmoothingGroups[ThisFaceIdx].Groups, FaceSmoothingGroups[HardFaceAcross].Groups );
 		}}
-		
+
 		UBOOL NewGroup = true;
-		INT SplashGroup = CurrentGroup;		
-						
-		// No conflicts, then we can assign the default 'currentgroup' and move on. 
+		INT SplashGroup = CurrentGroup;
+
+		// No conflicts, then we can assign the default 'currentgroup' and move on.
 		if( SharpSetCurrMatches == 0  && SharpSetGroupMatches == 0 )
-		{			
+		{
 			FaceSmoothingGroups[ ThisFaceIdx ].Groups.AddItem( CurrentGroup );
-			NewGroup = false;			
+			NewGroup = false;
 		}
 		else
-		{				
-			// If CurrentGroup _does_ match across sharp, but none of our pre-setgroups match AND there are more than 0 - we have a definite candidate already.			
-			if( ( SharpSetCurrMatches > 0 )  && (SharpSetGroupMatches == 0) &&  (FaceSmoothingGroups[ThisFaceIdx].Groups.Num() > 0 ) ) 
+		{
+			// If CurrentGroup _does_ match across sharp, but none of our pre-setgroups match AND there are more than 0 - we have a definite candidate already.
+			if( ( SharpSetCurrMatches > 0 )  && (SharpSetGroupMatches == 0) &&  (FaceSmoothingGroups[ThisFaceIdx].Groups.Num() > 0 ) )
 			{
 				NewGroup=false;
 				// Plucked  our existing, first pre-set group as a candidate to splash over our environment as we progress - always ensures smoothess with our smooth neighbors.
 				SplashGroup = FaceSmoothingGroups[ThisFaceIdx].Groups[0];
 			}
 		}
-		
+
 		if( NewGroup )
 		{
 			LatestGroup++;
@@ -6664,15 +6666,15 @@ void MeshProcessor::fillSmoothFaces( INT polyid  )
 			FaceSmoothingGroups[ThisFaceIdx].Groups.AddItem( SplashGroup ); // Set group in this face.
 		}
 
-		// If we added ANY single new group that's not our default group, we splash it all over our _non-processed_ environment, because we need to 
-		// smoothly mesh with our default environment,  always.  This way, 'odd' groups progress themselves as necessary. 
+		// If we added ANY single new group that's not our default group, we splash it all over our _non-processed_ environment, because we need to
+		// smoothly mesh with our default environment,  always.  This way, 'odd' groups progress themselves as necessary.
 		if( SplashGroup != CurrentGroup )
 		{
 			for( INT t=0; t< FacePools[ ThisFaceIdx ].SmoothFaces.Num(); t++ )
 			{
-				INT SmoothFaceAcross = FacePools[ ThisFaceIdx ].SmoothFaces[t];			
+				INT SmoothFaceAcross = FacePools[ ThisFaceIdx ].SmoothFaces[t];
 				// Only do it in case of == LatestGroup - ensures no corruption with anything else around.. - or when come from pre-loaded Groups; only forward to un-processed faces.
-				if(  (SplashGroup == LatestGroup) || ( PolyProcessFlags[ SmoothFaceAcross ] < 0 ) ) 
+				if(  (SplashGroup == LatestGroup) || ( PolyProcessFlags[ SmoothFaceAcross ] < 0 ) )
 				{
 					FaceSmoothingGroups[ SmoothFaceAcross ].Groups.AddUniqueItem( SplashGroup );
 				}
@@ -6686,7 +6688,7 @@ void MeshProcessor::fillSmoothFaces( INT polyid  )
 			if( PolyProcessFlags[ SmoothFaceAcross ]  == NO_SMOOTHING_GROUP ) // ONLY unprocessed ones are added, and setting QUEUED  will ensure they're uniquely added.
 			{
 				TodoFaceStack.AddItem( SmoothFaceAcross );
-				PolyProcessFlags[ SmoothFaceAcross ]  = QUEUED_FOR_SMOOTHING; 
+				PolyProcessFlags[ SmoothFaceAcross ]  = QUEUED_FOR_SMOOTHING;
 			}
 		}
 	} // While still faces to process..
@@ -6724,7 +6726,7 @@ MayaEdge* MeshProcessor::findEdgeInfo( int v1, int v2 )
 	INT EdgeIndex;
 
 	EdgeIndex = 0;
-    while( EdgeIndex < VertEdgePools[v1].Edges.Num() ) 
+    while( EdgeIndex < VertEdgePools[v1].Edges.Num() )
 	{
         if( VertEdgePools[v1].Edges[EdgeIndex].vertId == v2 )
 		{
@@ -6734,7 +6736,7 @@ MayaEdge* MeshProcessor::findEdgeInfo( int v1, int v2 )
     }
 
     EdgeIndex = 0;
-	while( EdgeIndex < VertEdgePools[v2].Edges.Num() ) 
+	while( EdgeIndex < VertEdgePools[v2].Edges.Num() )
 	{
         if( VertEdgePools[v2].Edges[EdgeIndex].vertId == v1 )
 		{
@@ -6756,8 +6758,8 @@ MObject findShader(const MObject& setNode )
 {
 	MFnDependencyNode fnNode(setNode);
 	MPlug shaderPlug = fnNode.findPlug("surfaceShader");
-			
-	if (!shaderPlug.isNull()) {			
+
+	if (!shaderPlug.isNull()) {
 		MPlugArray connectedPlugs;
 		bool asSrc = false;
 		bool asDst = true;
@@ -6767,10 +6769,10 @@ MObject findShader(const MObject& setNode )
 		{
 			//cerr << "Error getting shader\n";
 		}
-		else 
+		else
 			return connectedPlugs[0].node();
-	}			
-	
+	}
+
 	return MObject::kNullObj;
 }
 
@@ -6781,8 +6783,8 @@ MObject findShader(const MObject& setNode )
 const char* GetNodeName( const MObject& node )
 {
 	MStatus status;
-	
-	
+
+
 	// Retrieve dagnode and dagpath from object..
 	//MFnDagNode fnDagNode( node, &status );
 
@@ -6794,7 +6796,7 @@ const char* GetNodeName( const MObject& node )
 	if( status == MS::kFailure )
 	{
 			return( OutName );
-	}	
+	}
 
 	return( shaderInfo.name(&status).asChar() );
 }
@@ -6818,9 +6820,9 @@ INT GetTextureNameFromShader( const MObject& shaderNode, char* BitmapFileName, i
 	}
 
 	MItDependencyGraph dgIt(colorPlug, MFn::kFileTexture,
-					   MItDependencyGraph::kUpstream, 
+					   MItDependencyGraph::kUpstream,
 					   MItDependencyGraph::kBreadthFirst,
-					   MItDependencyGraph::kNodeLevel, 
+					   MItDependencyGraph::kNodeLevel,
 					   &status);
 
 	if (status == MS::kFailure)
@@ -6828,33 +6830,33 @@ INT GetTextureNameFromShader( const MObject& shaderNode, char* BitmapFileName, i
 		//DLog.LogfLn("Failed constructing dependency graph iterator for shadernode [%s]",GetNodeName(  FoundShader ));
 		return 0;
 	}
-		
+
 	dgIt.disablePruningOnFilter();
 
     // Found any ?
 	if (dgIt.isDone())
 	{
-		//DLog.LogfLn("Failed to find a texture attached to shadernode [%s]",GetNodeName(  FoundShader ));			
+		//DLog.LogfLn("Failed to find a texture attached to shadernode [%s]",GetNodeName(  FoundShader ));
 		return 0;
-	}	  
+	}
 
 	MObject textureNode = dgIt.thisNode();
     MPlug filenamePlug = MFnDependencyNode(textureNode).findPlug("fileTextureName");
     MString textureName;
     filenamePlug.getValue(textureName);
 
-	
-	// 
+
+	//
 	//	pcf:
-	//  renaming texture name with suffix "_Mat" to auto load materials in 
-	//	this should do code in unrealed - look for materials with texture name + "_Mat" - as is renamed when textures are imported 
+	//  renaming texture name with suffix "_Mat" to auto load materials in
+	//	this should do code in unrealed - look for materials with texture name + "_Mat" - as is renamed when textures are imported
 	//	with create material flag
 	//
 	if (OurScene.DoExportTextureSuffix)
 	{
-	
+
 		int extensionDot = textureName.rindex('.');
-		int pathDot= textureName.rindex('/'); 	
+		int pathDot= textureName.rindex('/');
 
 
 		textureName=  textureName.substring(0,extensionDot-1 ) + MString("_Mat") +  textureName.substring(extensionDot ,textureName.length() );
@@ -6891,52 +6893,52 @@ INT ConformAnimDataForOutput()
 
 
 
-MStatus initializePlugin( MObject _obj )						 
+MStatus initializePlugin( MObject _obj )
 {
 
-	MFnPlugin	plugin( _obj, "Epic Games, Inc.", "2.49", "Any"  ); // VERSION
+	MFnPlugin	plugin( _obj, "Epic Games, Inc.", "2.50", "Any"  ); // VERSION
 	MStatus		stat;
 
 	// Register all commands
-	stat = plugin.registerCommand( "axabout", ActorXTool0::creator ); 
-	if (stat != MS::kSuccess)												 
+	stat = plugin.registerCommand( "axabout", ActorXTool0::creator );
+	if (stat != MS::kSuccess)
 		stat.perror("registerCommand error: ActorXAbout");
 
-	stat = plugin.registerCommand( "axmain", ActorXTool1::creator ); 
-	if (stat != MS::kSuccess)												 
+	stat = plugin.registerCommand( "axmain", ActorXTool1::creator );
+	if (stat != MS::kSuccess)
 		stat.perror("registerCommand error: ActorXMain");
 
 	stat = plugin.registerCommand( "axoptions", ActorXTool2::creator );
-	if (stat != MS::kSuccess)												 
+	if (stat != MS::kSuccess)
 		stat.perror("registerCommand error: ActorXOptions");
 
 	stat = plugin.registerCommand( "utexportmesh", ActorXTool3::creator );
-	if (stat != MS::kSuccess)												 
+	if (stat != MS::kSuccess)
 		stat.perror("registerCommand error: ActorXDigestAnim");
 
 	stat = plugin.registerCommand( "axanim", ActorXTool4::creator );
-	if (stat != MS::kSuccess)												 
+	if (stat != MS::kSuccess)
 		stat.perror("registerCommand error: ActorXAnimations");
 
 	stat = plugin.registerCommand( "axmesh", ActorXTool5::creator );
-	if (stat != MS::kSuccess)												 
-		stat.perror("registerCommand error: ActorXMeshExport");	
+	if (stat != MS::kSuccess)
+		stat.perror("registerCommand error: ActorXMeshExport");
 
 	stat = plugin.registerCommand( "axprocesssequence", ActorXTool6::creator );
-	if (stat != MS::kSuccess)												 
-		stat.perror("registerCommand error: AXProcessSequence");		
+	if (stat != MS::kSuccess)
+		stat.perror("registerCommand error: AXProcessSequence");
 
 	stat = plugin.registerCommand( "axwriteposes", ActorXTool7::creator );
-	if (stat != MS::kSuccess)												 
-		stat.perror("registerCommand error: AXWritePoses");	
+	if (stat != MS::kSuccess)
+		stat.perror("registerCommand error: AXWritePoses");
 
 	stat = plugin.registerCommand( "axwritesequence", ActorXTool8::creator );
-	if (stat != MS::kSuccess)												 
-		stat.perror("registerCommand error: AXWriteSequence");	
+	if (stat != MS::kSuccess)
+		stat.perror("registerCommand error: AXWriteSequence");
 
 	stat = plugin.registerCommand( "axvertex", ActorXTool10::creator );
-	if (stat != MS::kSuccess)												 
-		stat.perror("registerCommand error: axvertex");	
+	if (stat != MS::kSuccess)
+		stat.perror("registerCommand error: axvertex");
 
 	// AX-Execute for MEL command-line usage.
 	stat = plugin.registerCommand( "axexecute", ActorXTool11::creator,ActorXTool11::newSyntax  );
@@ -6949,7 +6951,7 @@ MStatus initializePlugin( MObject _obj )
 
 	stat = plugin.registerCommand( "actory", ActorY::creator, ActorY::newSyntax );
 	if (stat != MS::kSuccess)
-		stat.perror("registerCommand error: ActorY");	
+		stat.perror("registerCommand error: ActorY");
 
 	//#EDN
 #if TESTCOMMANDS
@@ -6967,83 +6969,83 @@ MStatus initializePlugin( MObject _obj )
 
 	// Todo - combine all the errors.
 	stat = MS::kSuccess;
-	return stat;												 
-}												
+	return stat;
+}
 
 
-//	 
+//
 // Deregister the commands.
 //
-MStatus uninitializePlugin( MObject _obj )				 
-{							
+MStatus uninitializePlugin( MObject _obj )
+{
 
-	MFnPlugin	plugin( _obj );									 
-	MStatus		stat;					
+	MFnPlugin	plugin( _obj );
+	MStatus		stat;
 
-	stat = plugin.deregisterCommand( "axabout" ); 	 			 
-	if (stat != MS::kSuccess)												 
-		stat.perror("deregisterCommand");		
+	stat = plugin.deregisterCommand( "axabout" );
+	if (stat != MS::kSuccess)
+		stat.perror("deregisterCommand");
 
-	stat = plugin.deregisterCommand( "axmain" ); 	 			 
-	if (stat != MS::kSuccess)												 
-		stat.perror("deregisterCommand");		
+	stat = plugin.deregisterCommand( "axmain" );
+	if (stat != MS::kSuccess)
+		stat.perror("deregisterCommand");
 
-	stat = plugin.deregisterCommand( "axoptions" );	
-	if (stat != MS::kSuccess)												 
-		stat.perror("deregisterCommand");		
+	stat = plugin.deregisterCommand( "axoptions" );
+	if (stat != MS::kSuccess)
+		stat.perror("deregisterCommand");
 
 	stat = plugin.deregisterCommand( "utexportmesh" );
 	if (stat != MS::kSuccess)
 		stat.perror("deregisterCommand");
 
-	stat = plugin.deregisterCommand( "axanim" );	
+	stat = plugin.deregisterCommand( "axanim" );
 	if (stat != MS::kSuccess)
 		stat.perror("deregisterCommand");
 
 	stat = plugin.deregisterCommand( "axmesh" );
-	if (stat != MS::kSuccess)									 
-		stat.perror("deregisterCommand");	
+	if (stat != MS::kSuccess)
+		stat.perror("deregisterCommand");
 
 	stat = plugin.deregisterCommand( "axprocesssequence" );
-	if (stat != MS::kSuccess)									 
+	if (stat != MS::kSuccess)
 		stat.perror("deregisterCommand");
 
 	stat = plugin.deregisterCommand( "axwriteposes" );
-	if (stat != MS::kSuccess)									 
+	if (stat != MS::kSuccess)
 		stat.perror("deregisterCommand");
 
 	stat = plugin.deregisterCommand( "axwritesequence" );
 	if (stat != MS::kSuccess)
-		stat.perror("deregisterCommand");		
+		stat.perror("deregisterCommand");
 
 	stat = plugin.deregisterCommand( "axbrush" );
-	if (stat != MS::kSuccess)									 
+	if (stat != MS::kSuccess)
 		stat.perror("deregisterCommand");
 
 	stat = plugin.deregisterCommand( "axvertex" );
-	if (stat != MS::kSuccess)									 
+	if (stat != MS::kSuccess)
 		stat.perror("deregisterCommand");
 
 	stat = plugin.deregisterCommand( "axexecute" );
-	if (stat != MS::kSuccess)									 
+	if (stat != MS::kSuccess)
 		stat.perror("deregisterCommand");
 
 	stat = plugin.deregisterCommand( "axpskfixup" );
-	if (stat != MS::kSuccess)									 
+	if (stat != MS::kSuccess)
 		stat.perror("deregisterCommand");
 
 	stat = plugin.deregisterCommand( "actory" );
-	if (stat != MS::kSuccess)									 
+	if (stat != MS::kSuccess)
 		stat.perror("deregisterCommand");
 
 #if TESTCOMMANDS //#EDN
 
 	stat = plugin.deregisterCommand( "axtest1" );
-	if (stat != MS::kSuccess)									 
+	if (stat != MS::kSuccess)
 		stat.perror("deregisterCommand axtest1 error");
 
 	stat = plugin.deregisterCommand( "axtest2" );
-	if (stat != MS::kSuccess)									 
+	if (stat != MS::kSuccess)
 		stat.perror("deregisterCommand axtest2 error");
 
 #endif
@@ -7051,6 +7053,6 @@ MStatus uninitializePlugin( MObject _obj )
 
 	// Todo - combine all the errors.
 	stat = MS::kSuccess;
-	return stat;												 
+	return stat;
 
 }

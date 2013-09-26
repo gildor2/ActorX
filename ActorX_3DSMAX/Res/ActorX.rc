@@ -40,7 +40,7 @@ BEGIN
     EDITTEXT        IDC_ANIMNAME,9,319,87,12,ES_AUTOHSCROLL
     EDITTEXT        IDC_ANIMRANGE,9,347,87,12,ES_AUTOHSCROLL
     CONTROL         130,IDC_LOGOUNREAL,"Static",SS_BITMAP | SS_NOTIFY | SS_SUNKEN,5,13,95,39
-    CTEXT           "Version Max 2.49 \n © 1998-2013  Epic Games",IDC_STATIC,5,62,95,19
+    CTEXT           "Version Max 2.50 \n © 1998-2013  Epic Games",IDC_STATIC,5,62,95,19
     LTEXT           "Output folder",IDC_STATIC,9,143,42,8
     LTEXT           "Animation sequence name",IDC_STATIC,9,305,84,8
     LTEXT           "Mesh file name",IDC_STATIC,9,174,48,8
@@ -87,7 +87,7 @@ CAPTION "About ActorX"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,48,179,50,14
-    CTEXT           "Unreal Actor Exporter\n\n Version: Max 2.49 \n\n (c) 1998-2013  Epic Games, Inc.\n\n All Rights Reserved.",IDC_STATIC,20,95,108,62
+    CTEXT           "Unreal Actor Exporter\n\n Version: Max 2.50 \n\n (c) 1998-2013  Epic Games, Inc.\n\n All Rights Reserved.",IDC_STATIC,20,95,108,62
     CONTROL         130,IDC_STATIC,"Static",SS_BITMAP | SS_SUNKEN,29,20,95,39
 END
 
@@ -129,8 +129,8 @@ BEGIN
     EDITTEXT        IDC_EDITSTARTBONE,17,344,39,12,ES_AUTOHSCROLL
     LTEXT           "startbone",IDC_STATIC,65,348,30,8
     GROUPBOX        "file name",IDC_STATIC,304,267,247,25
-    CONTROL         "Spin1",IDC_INSHUF,"msctls_updown32",UDS_WRAP | UDS_ARROWKEYS | WS_DISABLED,237,244,11,16
-    CONTROL         "Spin2",IDC_OUTSHUF,"msctls_updown32",UDS_ARROWKEYS | WS_DISABLED,535,245,11,16
+//    CONTROL         "Spin1",IDC_INSHUF,"msctls_updown32",UDS_WRAP | UDS_ARROWKEYS | WS_DISABLED,237,244,11,16
+//    CONTROL         "Spin2",IDC_OUTSHUF,"msctls_updown32",UDS_ARROWKEYS | WS_DISABLED,535,245,11,16
     CTEXT           "Static",IDC_PACKAGENAME,305,278,241,8
     PUSHBUTTON      "sort",IDC_ANIMSORT,167,245,31,14
     CONTROL         130,IDC_LOGOUNREAL,"Static",SS_BITMAP | SS_NOTIFY | SS_SUNKEN,306,302,95,39

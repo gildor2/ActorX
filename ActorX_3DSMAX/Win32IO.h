@@ -1,5 +1,5 @@
 /**********************************************************************
- 	
+
 	Win32IO.h   Misc file, logging & dialog functions.
 
 	Copyright 1998-2011 Epic Games, Inc. All Rights Reserved.
@@ -53,9 +53,9 @@ int _SetCheckBox( HWND hWnd, int CheckID, int Switch );
 int _EnableCheckBox( HWND hWnd, int CheckID, int Switch );
 
 int  GetFolderName(HWND hWnd, TCHAR* PathResult);
-void GetLoadName(HWND hWnd, TCHAR* filename, TCHAR* workpath, const TCHAR* filterlist );
-void GetSaveName(HWND hWnd, TCHAR* filename, TCHAR* workpath, const TCHAR* filterList, TCHAR* defaultextension );
-void GetBatchFileName(HWND hWnd, TCHAR* filename, TCHAR* workpath ); 
+bool GetLoadName(HWND hWnd, TCHAR* filename, TCHAR* workpath, const TCHAR* filterlist );
+bool GetSaveName(HWND hWnd, TCHAR* filename, TCHAR* workpath, const TCHAR* filterList, TCHAR* defaultextension );
+void GetBatchFileName(HWND hWnd, TCHAR* filename, TCHAR* workpath );
 
 
 inline void Memzero( void* Dest, INT Count )
@@ -72,18 +72,18 @@ class TextFile
 	FILE* LStream;
 	INT LastError;
 	UBOOL ObeyTabs;
-	
+
 	int Open(const TCHAR* LogToPath, const TCHAR* LogName, int Enabled)
-	{	
+	{
 		if( Enabled && (LogName[0] != 0) )
 		{
 			TCHAR LogFileName[MAX_PATH];
 			LogFileName[0] = 0;
 			Tabs = 0;
-			if( LogToPath ) _tcscat( LogFileName, LogToPath ); 
+			if( LogToPath ) _tcscat( LogFileName, LogToPath );
 			if( LogName )   _tcscat( LogFileName, LogName ); // May contain path.
 			LStream = _tfopen(LogFileName,_T("wt")); // Open for writing.
-			if (!LStream) 
+			if (!LStream)
 			{
 				return 0;
 			}
@@ -174,7 +174,7 @@ class TextFile
 		{
 			fclose(LStream);
 			LStream = NULL;
-			return 1;			
+			return 1;
 		}
 		return 0;
 	}
@@ -203,14 +203,14 @@ class FastFileClass
 {
 private:
 
-	HANDLE  FileHandle;    
+	HANDLE  FileHandle;
 	BYTE*	Buffer;
 	int		BufCount;
 	int     Error;
 	int     ReadPos;
 	unsigned long BytesWritten;
 	#define	BufSize (8192)
-	
+
 public:
 	// Ctor
 	FastFileClass()
@@ -246,7 +246,7 @@ public:
 			memmove(&Buffer[BufCount],Source,ByteCount);
 			BufCount += ByteCount;
 		}
-		else  
+		else
 		if (ByteCount <= BufSize)
 		{
 			if (BufCount !=0)
@@ -259,7 +259,7 @@ public:
 		}
 		else // Too big a chunk to be buffered.
 		{
-			if( BufCount ) 
+			if( BufCount )
 			{
 				WriteFile(FileHandle,Buffer,BufCount,&BytesWritten,NULL);
 				BufCount = 0;
@@ -290,7 +290,7 @@ public:
 	//}
 	//
 
-	// Fast string writing. 
+	// Fast string writing.
 	inline void Print(char* OutString, ... )
 	{
 		char TempStr[4096];
@@ -313,7 +313,7 @@ public:
 	{
 		return Error;
 	}
-	
+
 	// Close for reading.
 	int Close()
 	{
@@ -325,12 +325,12 @@ public:
 	int Flush()
 	{
 		Error = 0;
-		// flush 
+		// flush
 		if( BufCount )
 		{
-			WriteFile(FileHandle, Buffer, BufCount, &BytesWritten, NULL); 
+			WriteFile(FileHandle, Buffer, BufCount, &BytesWritten, NULL);
 			BufCount = 0;
-		}	
+		}
 		return Error;
 	}
 
@@ -338,13 +338,13 @@ public:
 	int CloseFlush()
 	{
 		ReadPos = 0;
-		// flush 
+		// flush
 		if( BufCount )
 		{
-			WriteFile(FileHandle, Buffer, BufCount, &BytesWritten, NULL); 
+			WriteFile(FileHandle, Buffer, BufCount, &BytesWritten, NULL);
 			BufCount = 0;
-			CloseHandle(FileHandle);
-		}	
+		}
+		CloseHandle(FileHandle);
 		return Error;
 	}
 
@@ -366,7 +366,7 @@ public:
 	{
 		ReadPos = 0;
 		Error = 0;
-		
+
 		if ((FileHandle = CreateFile(FileName, GENERIC_READ , FILE_SHARE_WRITE,NULL, OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,NULL))
 		    == INVALID_HANDLE_VALUE)
 		{
@@ -422,16 +422,16 @@ public:
 
 //
 // Simple registry interface for strings and ints.
-// a clone of the registry code in the 3ds2unr 
+// a clone of the registry code in the 3ds2unr
 // exporter by Mike Fox/Legend Entertainment.
-// 
+//
 
 class WinRegistry
 {
-	
+
 public:
-	
-    HKEY    hKey;     
+
+    HKEY    hKey;
 	TCHAR   RegPath[400];
 
 	WinRegistry()
@@ -452,7 +452,7 @@ public:
 		DWORD Res;
 		LONG KeyError;
 		KeyError = ::RegCreateKeyEx( HKEY_CURRENT_USER, RegPath, 0L, REG_NONE, REG_OPTION_NON_VOLATILE, KEY_WRITE, 0, &hKey, &Res );
-		if( KeyError == ERROR_SUCCESS ) 
+		if( KeyError == ERROR_SUCCESS )
 		{
 			::RegSetValueEx( hKey, KeyName, 0L, REG_SZ, (CONST BYTE*)ValString, ValSize ); //#DEBUG size
 			::RegCloseKey( hKey );
@@ -468,16 +468,16 @@ public:
 	{
 		*(char*)ValString = '\0';
 
-		LONG  KeyError;		    
+		LONG  KeyError;
 		KeyError = ::RegOpenKeyEx( HKEY_CURRENT_USER, RegPath, 0L, KEY_READ, &hKey );
-		if( KeyError == ERROR_SUCCESS ) 
+		if( KeyError == ERROR_SUCCESS )
 		{
 			DWORD Type;
 			DWORD DataLen = 300; //strlen( (char*)ValString )+1;
-			::RegQueryValueEx( hKey, 
-				               KeyName, 
-				               0, 
-				               &Type, 
+			::RegQueryValueEx( hKey,
+				               KeyName,
+				               0,
+				               &Type,
 							   (byte*) ValString, //reinterpret_cast<unsigned char*>( ValString ),
 							   &DataLen );
 			::RegCloseKey( hKey );
@@ -497,7 +497,7 @@ public:
 		LONG KeyError;
 		DWORD Val = Value;
 		KeyError = ::RegCreateKeyEx( HKEY_CURRENT_USER, RegPath, 0L, REG_NONE, REG_OPTION_NON_VOLATILE, KEY_WRITE, 0, &hKey, &Res );
-		if( KeyError == ERROR_SUCCESS ) 
+		if( KeyError == ERROR_SUCCESS )
 		{
 			::RegSetValueEx( hKey, KeyName, 0L, REG_DWORD, (CONST BYTE*)&Val, sizeof(DWORD) ); //#DEBUG size
 			::RegCloseKey( hKey );
@@ -523,23 +523,23 @@ public:
 	{
 
 		Value = 0;
-		LONG  KeyError;		    
+		LONG  KeyError;
 		KeyError = ::RegOpenKeyEx( HKEY_CURRENT_USER, RegPath, 0L, KEY_READ, &hKey );
-		if( KeyError == ERROR_SUCCESS ) 
+		if( KeyError == ERROR_SUCCESS )
 		{
 			DWORD Type;
 			DWORD DataLen = sizeof(DWORD);
-			::RegQueryValueEx( hKey, 
-				               KeyName, 
-				               0, 
-				               &Type, 
+			::RegQueryValueEx( hKey,
+				               KeyName,
+				               0,
+				               &Type,
 							   (byte*) &Value,
 							   &DataLen );
 			::RegCloseKey( hKey );
 			hKey = 0;
 		}
 		else
-		{			
+		{
 			//PopupBox("GetKeyError: %i",KeyError);
 		}
 	}
@@ -555,13 +555,13 @@ public:
 	}
 
 
-	// Remove settings 
+	// Remove settings
 	void DeleteRegistryKey( const TCHAR* KeyName )
 	{
 		::RegDeleteKey( hKey, KeyName );
 		::RegCloseKey( hKey );
 	}
-	
+
 };
 
 
