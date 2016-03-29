@@ -4,7 +4,7 @@
 mkdir -p obj
 
 # function for building single target
-# usage: build <target-name> [error-display]
+# usage: build <target-name> [verbose]
 function build()
 {
 	local cfg sdk host year amd64 libdir vctool_opts
@@ -39,7 +39,7 @@ function build()
 	# check SDK for selected platform
 #	echo "... testing config: $cfg host=$host year=$year amd64=$amd64 -> $sdk"
 	if ! [ -d $libdir ]; then
-#		echo "... NOTFOUND $sdk ($libdir)"	#!!!
+#		echo "... NOT FOUND $sdk ($libdir)"	#!!!
 		if [ "$2" ]; then
 			echo ERROR: SDK for $cfg was not found!
 		fi
@@ -76,7 +76,7 @@ fi
 
 # build all known targets
 for host in "Max" "Maya"; do
-	for ver in {2012..2016}; do
+	for ver in {2012..2018}; do
 		for amd64 in "" "_x64"; do
 			cfg=${host}${ver}${amd64}
 			build $cfg
