@@ -1,8 +1,10 @@
-/************************************************************************** 
+// Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
+// Licensed under the BSD license. See LICENSE.txt file in the project root for full license information.
+
+/**************************************************************************
 
     SceneIFC.cpp	- Scene Interface Class for the ActorX exporter.
 
-	Copyright 1998-2011 Epic Games, Inc. All Rights Reserved.
 	Created by Erik de Neve
 
     Note:this file ONLY contains those parts of SceneIFC that are parent-application independent.
@@ -26,15 +28,15 @@
 
 
 int	SceneIFC::LogAnimInfo(VActor *Thing, char* AnimName)
-{	
+{
 	char LogFileName[MAX_PATH]; // = _T("\\X_AnimInfo_")+ _T(AnimName) +_T(".LOG");
-	sprintf_s(LogFileName,("\\X_AnimInfo_%s%s"),AnimName,".LOG");	
+	sprintf_s(LogFileName,("\\X_AnimInfo_%s%s"),AnimName,".LOG");
 	DLog.Open( LogPath, LogFileName, DOLOGFILE );
-	
-   	DLog.Logf("\n\n Unreal skeletal exporter for Maya - Animation information for [%s.psa] \n\n",AnimName );	
+
+   	DLog.Logf("\n\n Unreal skeletal exporter for Maya - Animation information for [%s.psa] \n\n",AnimName );
 	// DLog.Logf(" Frames: %i\n", Thing->RawNumFrames);
 	// DLog.Logf(" Time Total: %f\n seconds", Thing->FrameTimeInfo * 0.001 );
-	DLog.Logf(" Bones: %i\n", Thing->RefSkeletonBones.Num() );	
+	DLog.Logf(" Bones: %i\n", Thing->RefSkeletonBones.Num() );
 	DLog.Logf(" \n\n");
 
 	for( INT i=0; i< Thing->OutAnims.Num(); i++)
@@ -49,7 +51,7 @@ int	SceneIFC::LogAnimInfo(VActor *Thing, char* AnimName)
 
 
 // Log skin data including materials to file.
-int	SceneIFC::LogSkinInfo( VActor *Thing, const char* SkinName ) 
+int	SceneIFC::LogSkinInfo( VActor *Thing, const char* SkinName )
 {
 	if( !LogPath[0] )
 	{
@@ -58,12 +60,12 @@ int	SceneIFC::LogSkinInfo( VActor *Thing, const char* SkinName )
 
 	char LogFileName[MAX_PATH];
 	sprintf_s(LogFileName,"\\X_ModelInfo_%s%s",SkinName,(".LOG"));
-	
+
 	DLog.Open( LogPath, LogFileName, DOLOGFILE );
 
 	if( DLog.Error() ) return 0;
 
-   	DLog.Logf("\n\n Unreal skeletal exporter for Maya - Model information for [%s.psk] \n\n",SkinName );	   	
+   	DLog.Logf("\n\n Unreal skeletal exporter for Maya - Model information for [%s.psk] \n\n",SkinName );
 
 	DLog.Logf(" Skin faces: %6i\n",Thing->SkinData.Faces.Num());
 	DLog.Logf(" Skin vertices: %6i\n",Thing->SkinData.Points.Num());
@@ -71,7 +73,7 @@ int	SceneIFC::LogSkinInfo( VActor *Thing, const char* SkinName )
 	DLog.Logf(" Total bone-to-vertex linkups: %6i\n",Thing->SkinData.RawWeights.Num());
 	DLog.Logf(" Reference bones: %6i\n",Thing->RefSkeletonBones.Num());
 	DLog.Logf(" Unique materials: %6i\n",Thing->SkinData.Materials.Num());
-	DLog.Logf("\n = materials =\n");	
+	DLog.Logf("\n = materials =\n");
 
 	// Print out smoothing groups ?
 	if(0)
@@ -81,7 +83,7 @@ int	SceneIFC::LogSkinInfo( VActor *Thing, const char* SkinName )
 	}
 
 	DebugBox("Start printing skins");
-	
+
 	for( INT i=0; i < Thing->SkinData.Materials.Num(); i++)
 	{
 		DebugBox("Start printing skin [%i]",i);
@@ -91,14 +93,14 @@ int	SceneIFC::LogSkinInfo( VActor *Thing, const char* SkinName )
 
 		DebugBox("Start printing bitmap");
 
-		// Find bitmap:		
+		// Find bitmap:
 		char BitmapName[MAX_PATH];
 		char BitmapPath[MAX_PATH];
 
 		if( Thing->SkinData.RawBMPaths.Num()>i )
 		{
-			_tcscpy_s( BitmapName,Thing->SkinData.RawBMPaths[i].RawBitmapName );  
-			_tcscpy_s( BitmapPath,Thing->SkinData.RawBMPaths[i].RawBitmapPath );  
+			_tcscpy_s( BitmapName,Thing->SkinData.RawBMPaths[i].RawBitmapName );
+			_tcscpy_s( BitmapPath,Thing->SkinData.RawBMPaths[i].RawBitmapPath );
 		}
 		else
 		{
@@ -112,7 +114,7 @@ int	SceneIFC::LogSkinInfo( VActor *Thing, const char* SkinName )
 									 if( BitmapName[0] ) DLog.Logf("   Original bitmap: %s  Path: %s\n ",BitmapName,BitmapPath);
 		DLog.Logf("   - Skin Index: %2i\n",Thing->SkinData.Materials[i].TextureIndex );
 
-		
+
 		DebugBox("End printing bitmap");
 
 		DWORD Flags = Thing->SkinData.Materials[i].PolyFlags;
@@ -120,7 +122,7 @@ int	SceneIFC::LogSkinInfo( VActor *Thing, const char* SkinName )
 		if( Flags & MTT_NormalTwoSided ) DLog.Logf("		- Twosided\n");
 		if( Flags & MTT_Unlit          ) DLog.Logf("		- Unlit\n");
 		if( Flags & MTT_Translucent    ) DLog.Logf("		- Translucent\n");
-		if( (Flags & MTT_Masked) == MTT_Masked ) 
+		if( (Flags & MTT_Masked) == MTT_Masked )
 										 DLog.Logf("		- Masked\n");
 		if( Flags & MTT_Modulate       ) DLog.Logf("		- Modulated\n");
 		if( Flags & MTT_Placeholder    ) DLog.Logf("		- Invisible\n");
@@ -151,7 +153,7 @@ int	SceneIFC::LogSkinInfo( VActor *Thing, const char* SkinName )
 		_tcscpy_s( BoneName, Thing->RefSkeletonBones[b].Name );
 		DLog.Logf("  [%3i ]    [%s]      (%3i ) \n",b,BoneName, Thing->RefSkeletonBones[b].ParentIndex );
 	}
-	
+
 	DLog.Logf(" \n\n");
 	DLog.Close();
 	return 1;
@@ -162,14 +164,14 @@ int	SceneIFC::LogSkinInfo( VActor *Thing, const char* SkinName )
 //
 // Output a template .uc file.....
 //
-//int	SceneIFC::WriteScriptFile( VActor *Thing, char* ScriptName, char* BaseName, char* SkinFileName, char* AnimFileName ) 
-int	SceneIFC::WriteScriptFile( VActor *Thing, char* ScriptName, char* BaseName, char* SkinFileName, char* AnimFileName ) 
-{		
+//int	SceneIFC::WriteScriptFile( VActor *Thing, char* ScriptName, char* BaseName, char* SkinFileName, char* AnimFileName )
+int	SceneIFC::WriteScriptFile( VActor *Thing, char* ScriptName, char* BaseName, char* SkinFileName, char* AnimFileName )
+{
 	if( !LogPath[0] )
 	{
-		return 1; // Prevent logs getting lost in root. 
+		return 1; // Prevent logs getting lost in root.
 	}
-	
+
 	char LogFileName[MAX_PATH];
 	sprintf_s(LogFileName,"\\%s%s",ScriptName,".uc");
 
@@ -185,7 +187,7 @@ int	SceneIFC::WriteScriptFile( VActor *Thing, char* ScriptName, char* BaseName, 
 	//PopupBox(" Writing header lines.");
 
 	DLog.Logf("//===============================================================================\n");
-   	DLog.Logf("//  [%s] \n",ScriptName );	   	
+   	DLog.Logf("//  [%s] \n",ScriptName );
 	DLog.Logf("//===============================================================================\n\n");
 
 	//PopupBox(" Writing import #execs.");
@@ -199,7 +201,7 @@ int	SceneIFC::WriteScriptFile( VActor *Thing, char* ScriptName, char* BaseName, 
 	DLog.Logf("\n");
 	DLog.Logf("#exec MESHMAP   SCALE MESHMAP=%s X=1.0 Y=1.0 Z=1.0\n", MeshName );
 	DLog.Logf("#exec MESH  DEFAULTANIM MESH=%s ANIM=%s\n",MeshName,AnimName );
-	
+
 	// Explicit sequences?
 	if( DoExplicitSequences )
 	{
@@ -209,9 +211,9 @@ int	SceneIFC::WriteScriptFile( VActor *Thing, char* ScriptName, char* BaseName, 
 		{
 			// Prepare strings from implicit sequence info; default strings when none present.
 			DLog.Logf("#EXEC ANIM  SEQUENCE ANIM=%s SEQ=%s STARTFRAME=%i NUMFRAMES=%i RATE=%.4f COMPRESS=%.2f GROUP=%s \n",
-				AnimName, 
-				Thing->OutAnims[i].AnimInfo.Name, 
-				Thing->OutAnims[i].AnimInfo.FirstRawFrame, 
+				AnimName,
+				Thing->OutAnims[i].AnimInfo.Name,
+				Thing->OutAnims[i].AnimInfo.FirstRawFrame,
 				Thing->OutAnims[i].AnimInfo.NumRawFrames,
 				(FLOAT)Thing->OutAnims[i].AnimInfo.AnimRate,
 				(FLOAT)Thing->OutAnims[i].AnimInfo.KeyReduction,
@@ -228,11 +230,11 @@ int	SceneIFC::WriteScriptFile( VActor *Thing, char* ScriptName, char* BaseName, 
 	DLog.Logf("\n\n");
 
 	//
-	// TEXTURES/SETTEXTURES. 
+	// TEXTURES/SETTEXTURES.
 	//
 
 	//
-	// - Determine unique textures - these are linked up with a number of (max) materials which may be larger.	
+	// - Determine unique textures - these are linked up with a number of (max) materials which may be larger.
 	// - extract the main names from textures and append PCX names
 	//
 	// - SkinIndex: what's it do exactly: force right index into the textures, for a certain material.
@@ -242,9 +244,9 @@ int	SceneIFC::WriteScriptFile( VActor *Thing, char* ScriptName, char* BaseName, 
 	// Determine unique textures, update pointers to them.
 	// Order determined by skin indices; let these rearrange the textures if at all possible.
 	TArray<VMaterial> UniqueMaterials;
-	
+
 	{for( INT i=0; i < Thing->SkinData.Materials.Num(); i++)
-	{				
+	{
 		char BitmapName[MAX_PATH];
 		char BitmapPath[MAX_PATH];
 		_tcscpy_s(BitmapName,Thing->SkinData.RawBMPaths[i].RawBitmapName);
@@ -255,18 +257,18 @@ int	SceneIFC::WriteScriptFile( VActor *Thing, char* ScriptName, char* BaseName, 
 			// Not elegant...
 			int j = ( int )strlen(BitmapName);
 			if( (j>4) ) //&& (BitmapName[j-4] == char(".")))
-			{								
+			{
 				BitmapName[j-3] = 112;//char("p"); // 112
 				BitmapName[j-2] =  99;//char("c"); //  99
 				BitmapName[j-1] = 120;//char("x"); // 120
-			}			
+			}
 		}
 
 		char NumStr[10];
 		char TexName[MAX_PATH];
 		_itoa_s(i,NumStr,10);
 		sprintf_s(TexName,"%s%s%s",ScriptName,"Tex",NumStr);
-			
+
 		DLog.Logf("#EXEC TEXTURE IMPORT NAME=%s  FILE=TEXTURES\\%s  GROUP=Skins\n",TexName,BitmapName);
 	}}
 	DLog.Logf("\n");
@@ -288,9 +290,9 @@ int	SceneIFC::WriteScriptFile( VActor *Thing, char* ScriptName, char* BaseName, 
 		char BitmapName[MAX_PATH];
 		char BitmapPath[MAX_PATH];
 		_tcscpy_s(BitmapName,Thing->SkinData.RawBMPaths[i].RawBitmapName);
-		_tcscpy_s(BitmapPath,Thing->SkinData.RawBMPaths[i].RawBitmapPath);		
+		_tcscpy_s(BitmapPath,Thing->SkinData.RawBMPaths[i].RawBitmapPath);
 		DLog.Logf("// Original material [%i] is [%s] SkinIndex: %i Bitmap: %s  Path: %s \n",i,Thing->SkinData.Materials[i].MaterialName,Thing->SkinData.Materials[i].TextureIndex,BitmapName,BitmapPath );
-		
+
 	}}
 	DLog.Logf("\n\n");
 
@@ -319,9 +321,9 @@ int	SceneIFC::WriteScriptFile( VActor *Thing, char* ScriptName, char* BaseName, 
 void SceneIFC::FixRootMotion(VActor *Thing) //, BOOL Fix, BOOL Lock )
 {
 
-	if( ! DoFixRoot ) 
+	if( ! DoFixRoot )
 		return;
-	
+
 	// Regular linear motion fixup
 	if( ! DoLockRoot )
 	{
@@ -373,7 +375,7 @@ void SceneIFC::ParseFrameRange(char *pString,INT startFrame,INT endFrame )
 	FrameList.Empty();
 
 	pPos = pSeek = LocalString;
-	
+
 	if (!LocalString || LocalString[0]==0) // export it all if nothing was specified.
 	{
 		for(INT i=startFrame; i<=endFrame; i++)
@@ -395,17 +397,17 @@ void SceneIFC::ParseFrameRange(char *pString,INT startFrame,INT endFrame )
 				*pSeek=0;
 				pSeek++;
 			}
-			start = atoi( pPos );							
-			pPos = pSeek;			
+			start = atoi( pPos );
+			pPos = pSeek;
 			rangeStart=true;
 		}
-		
+
 		if (*pSeek==',')
 		{
 			*pSeek=0; // terminate this position for atoi
-			pSeek++;			
-			val = atoi( pPos );			
-			pPos = pSeek;			
+			pSeek++;
+			val = atoi( pPos );
+			pPos = pSeek;
 			// Single frame or end of range?
 			if( rangeStart )
 			{
@@ -413,44 +415,44 @@ void SceneIFC::ParseFrameRange(char *pString,INT startFrame,INT endFrame )
 				if( val<start)
 					for( INT i=start; i>=val; i--)
 					{
-						FrameList.AddFrame(i);								
+						FrameList.AddFrame(i);
 					}
 				else
 					for( INT i=start; i<=val; i++)
 					{
-						FrameList.AddFrame(i);												
+						FrameList.AddFrame(i);
 					}
 			}
 			else
 			{
-				FrameList.AddFrame(val); 
+				FrameList.AddFrame(val);
 			}
 
 			rangeStart=false;
 		}
-		
+
 		if (*pSeek==0) // Real end of string.
 		{
 			if (pSeek!=pPos)
 			{
 				val = atoi ( pPos );
 				if( rangeStart )
-				{	
+				{
 					// Allow reversed ranges.
 					if( val<start)
 						for( INT i=start; i>=val; i--)
 						{
-							FrameList.AddFrame(i);								
+							FrameList.AddFrame(i);
 						}
 					else
 						for( INT i=start; i<=val; i++)
 						{
-							FrameList.AddFrame(i);												
+							FrameList.AddFrame(i);
 						}
 				}
 				else
 				{
-					FrameList.AddFrame(val); 
+					FrameList.AddFrame(val);
 				}
 			}
 			break;
@@ -479,7 +481,7 @@ struct tFaceRecord
 };
 
 struct VertsFans
-{	
+{
 	TArray<tFaceRecord> FaceRecord;
 	INT FanGroupCount;
 };
@@ -506,21 +508,21 @@ TArray <FLOAT> FaceDeterminants;
 // Check whether faces have at least two vertices in common. These must be POINTS - don't care about wedges.
 UBOOL FacesAreSmoothlyConnected( VActor *Thing, INT Face1, INT Face2 )
 {
-	
+
 	//if( ( Face1 >= Thing->SkinData.Faces.Num()) || ( Face2 >= Thing->SkinData.Faces.Num()) ) return false;
 
 	if( Face1 == Face2 )
 		return true;
 
 	// Smoothing groups match at least one bit in binary AND ?
-	if( ( Thing->SkinData.Faces[Face1].SmoothingGroups & Thing->SkinData.Faces[Face2].SmoothingGroups ) == 0  ) 
+	if( ( Thing->SkinData.Faces[Face1].SmoothingGroups & Thing->SkinData.Faces[Face2].SmoothingGroups ) == 0  )
 	{
 		return false;
 	}
 
 	if( FaceDeterminants.Num() )  // Ignore if not prepared ( i.e. smoothing groop splitting only. )
 	{
-		// Are the determinants of different sign ? 
+		// Are the determinants of different sign ?
 		// Then there is 'handedness' flip in the UV mapping spatial vector, and we have to maintain a seam.
 		if( FaceDeterminants[Face1] * FaceDeterminants[Face2] < 0.f )
 			return false;
@@ -552,10 +554,10 @@ int	SceneIFC::DoUnSmoothVerts(VActor *Thing, INT DoTangentVectorSeams  )
 {
 	//
 	// Special Spherical-harmonics Tangent-space criterium -> unsmooth boundaries where there is
-	// 
+	//
 
 	FaceDeterminants.Empty();
-		
+
 	// Compute face tangents. Face tangent determinants whose signs don't match should not have smoothing between them (i.e. require
 	// duplicated vertices.
 
@@ -587,7 +589,7 @@ int	SceneIFC::DoUnSmoothVerts(VActor *Thing, INT DoTangentVectorSeams  )
 
 			FLOAT T3U= Thing->SkinData.Wedges[ Thing->SkinData.Faces[FaceIndex].WedgeIndex[2] ].UV.U;
 			FLOAT T3V= Thing->SkinData.Wedges[ Thing->SkinData.Faces[FaceIndex].WedgeIndex[2] ].UV.V;
-					
+
 
 			FMatrix	ParameterToTexture(
 				FPlane(	T2U - T1U,	T2V - T1V,	0,	0	),
@@ -616,7 +618,7 @@ int	SceneIFC::DoUnSmoothVerts(VActor *Thing, INT DoTangentVectorSeams  )
 			FaceDeterminants[FaceIndex] = TangentBasis.Determinant3x3();
 		}
 	}
-		
+
 
 	//
 	// Connectivity: triangles with non-matching smoothing groups will be physically split.
@@ -625,10 +627,10 @@ int	SceneIFC::DoUnSmoothVerts(VActor *Thing, INT DoTangentVectorSeams  )
 	//
 	// -> Tally smoothing groups for each and every (textured) vertex.
 	//
-	// -> Collapse: 
+	// -> Collapse:
 	// -> start from a vertex and all its adjacent triangles - go over
 	// each triangle - if any connecting one (sharing more than one vertex) gives a smoothing match,
-	// accumulate it. Then IF more than one resulting section, 
+	// accumulate it. Then IF more than one resulting section,
 	// ensure each boundary 'vert' is split _if not already_ to give each smoothing group
 	// independence from all others.
 	//
@@ -639,9 +641,9 @@ int	SceneIFC::DoUnSmoothVerts(VActor *Thing, INT DoTangentVectorSeams  )
 	int TotalSmoothMatches = 0;
 	int TotalConnexChex = 0;
 
-	// Link _all_ faces to vertices.	
+	// Link _all_ faces to vertices.
 	TArray<VertsFans>  Fans;
-	TArray<tInfluences> PointInfluences;	
+	TArray<tInfluences> PointInfluences;
 	TArray<tWedgeList>  PointWedges;
 
 	Fans.AddExactZeroed(            Thing->SkinData.Points.Num() );
@@ -663,30 +665,30 @@ int	SceneIFC::DoUnSmoothVerts(VActor *Thing, INT DoTangentVectorSeams  )
 		// For each face, add a pointer to that face into the Fans[vertex].
 		for( INT i=0; i<3; i++)
 		{
-			INT WedgeIndex = Thing->SkinData.Faces[f].WedgeIndex[i];			
+			INT WedgeIndex = Thing->SkinData.Faces[f].WedgeIndex[i];
 			INT PointIndex = Thing->SkinData.Wedges[ WedgeIndex ].PointIndex;
 		    tFaceRecord NewFR;
-			
+
 			NewFR.FaceIndex = f;
-			NewFR.HoekIndex = i;			
+			NewFR.HoekIndex = i;
 			NewFR.WedgeIndex = WedgeIndex; // This face touches the point courtesy of Wedges[Wedgeindex].
 			NewFR.SmoothFlags = Thing->SkinData.Faces[f].SmoothingGroups;
 			NewFR.FanFlags = 0;
 			Fans[ PointIndex ].FaceRecord.AddItem( NewFR );
 			Fans[ PointIndex ].FanGroupCount = 0;
-		}		
+		}
 	}
 
 	// Investigate connectivity and assign common group numbers (1..+) to the fans' individual FanFlags.
 	for( INT p=0; p< Fans.Num(); p++) // The fan of faces for each 3d point 'p'.
 	{
 		// All faces connecting.
-		if( Fans[p].FaceRecord.Num() > 0 ) 
-		{		
+		if( Fans[p].FaceRecord.Num() > 0 )
+		{
 			INT FacesProcessed = 0;
-			TArray<tFaceSet> FaceSets; // Sets with indices INTO FANS, not into face array.			
+			TArray<tFaceSet> FaceSets; // Sets with indices INTO FANS, not into face array.
 
-			// Digest all faces connected to this vertex (p) into one or more smooth sets. only need to check 
+			// Digest all faces connected to this vertex (p) into one or more smooth sets. only need to check
 			// all faces MINUS one..
 			while( FacesProcessed < Fans[p].FaceRecord.Num()  )
 			{
@@ -700,21 +702,21 @@ int	SceneIFC::DoUnSmoothVerts(VActor *Thing, INT DoTangentVectorSeams  )
 				INT ThisFaceFanIndex = 0;
 				{
 					INT SearchIndex = 0;
-					while( Fans[p].FaceRecord[SearchIndex].FanFlags == -1 ) // -1 indicates already  processed. 
+					while( Fans[p].FaceRecord[SearchIndex].FanFlags == -1 ) // -1 indicates already  processed.
 					{
 						SearchIndex++;
 					}
-					ThisFaceFanIndex = SearchIndex; //Fans[p].FaceRecord[SearchIndex].FaceIndex; 
+					ThisFaceFanIndex = SearchIndex; //Fans[p].FaceRecord[SearchIndex].FaceIndex;
 				}
 
 				// Inital face.
 				FaceSets[ NewSetIndex ].Faces.AddItem( ThisFaceFanIndex );   // Add the unprocessed Face index to the "local smoothing group" [NewSetIndex].
 				Fans[p].FaceRecord[ThisFaceFanIndex].FanFlags = -1;              // Mark as processed.
-				FacesProcessed++; 
+				FacesProcessed++;
 
 				// Find all faces connected to this face, and if there's any
 				// smoothing group matches, put it in current face set and mark it as processed;
-				// until no more match. 
+				// until no more match.
 				INT NewMatches = 0;
 				do
 				{
@@ -722,7 +724,7 @@ int	SceneIFC::DoUnSmoothVerts(VActor *Thing, INT DoTangentVectorSeams  )
 					// Go over all current faces in this faceset and set if the FaceRecord (local smoothing groups) has any matches.
 					// there will be at least one face already in this faceset - the first face in the fan.
 					for( INT n=0; n< FaceSets[NewSetIndex].Faces.Num(); n++)
-					{				
+					{
 						INT HookFaceIdx = Fans[p].FaceRecord[ FaceSets[NewSetIndex].Faces[n] ].FaceIndex;
 
 						//Go over the fan looking for matches.
@@ -734,35 +736,35 @@ int	SceneIFC::DoUnSmoothVerts(VActor *Thing, INT DoTangentVectorSeams  )
 								TotalConnexChex++;
 								// Process if connected with more than one vertex, AND smooth..
 								if( FacesAreSmoothlyConnected( Thing, HookFaceIdx, Fans[p].FaceRecord[s].FaceIndex ) )
-								{									
+								{
 									TotalSmoothMatches++;
 									Fans[p].FaceRecord[s].FanFlags = -1; // Mark as processed.
 									FacesProcessed++;
-									// Add 
-									FaceSets[NewSetIndex].Faces.AddItem( s ); // Store FAN index of this face index into smoothing group's faces. 
+									// Add
+									FaceSets[NewSetIndex].Faces.AddItem( s ); // Store FAN index of this face index into smoothing group's faces.
 									// Tally
 									NewMatches++;
 								}
 							} // not the same...
 						}// all faces in fan
 					} // all faces in FaceSet
-				}while( NewMatches );	
-								
+				}while( NewMatches );
+
 			}// Repeat until all faces processed.
 
-			// For the new non-initialized  face sets, 
+			// For the new non-initialized  face sets,
 			// Create a new point, influences, and uv-vertex(-ices) for all individual FanFlag groups with an index of 2+ and also remap
 			// the face's vertex into those new ones.
 			if( FaceSets.Num() > 1 )
 			{
 				for( INT f=1; f<FaceSets.Num(); f++ )
-				{				
+				{
 					// We duplicate the current vertex. (3d point)
 					INT NewPointIndex = Thing->SkinData.Points.Num();
 					Thing->SkinData.Points.AddItem( Thing->SkinData.Points[p] );
-	
+
 					DuplicatedVertCount++;
-					
+
 					// Duplicate all related weights.
 					for( INT t=0; t< PointInfluences[p].RawInfIndices.Num(); t++ )
 					{
@@ -771,14 +773,14 @@ int	SceneIFC::DoUnSmoothVerts(VActor *Thing, INT DoTangentVectorSeams  )
 						Thing->SkinData.RawWeights.AddItem( Thing->SkinData.RawWeights[ PointInfluences[p].RawInfIndices[t] ] );
 						Thing->SkinData.RawWeights[NewWeightIndex].PointIndex = NewPointIndex;
 					}
-					
-					// Duplicate any and all Wedges associated with it; and all Faces' wedges involved.					
+
+					// Duplicate any and all Wedges associated with it; and all Faces' wedges involved.
 					for( INT w=0; w< PointWedges[p].WedgeList.Num(); w++)
-					{						
+					{
 						INT OldWedgeIndex = PointWedges[p].WedgeList[w];
 						INT NewWedgeIndex = Thing->SkinData.Wedges.Num();
 						Thing->SkinData.Wedges.AddItem( Thing->SkinData.Wedges[ OldWedgeIndex ] );
-						Thing->SkinData.Wedges[ NewWedgeIndex ].PointIndex = NewPointIndex; 
+						Thing->SkinData.Wedges[ NewWedgeIndex ].PointIndex = NewPointIndex;
 
 						//  Update relevant face's Wedges. Inelegant: just check all associated faces for every new wedge.
 						for( INT s=0; s< FaceSets[f].Faces.Num(); s++)
@@ -786,7 +788,7 @@ int	SceneIFC::DoUnSmoothVerts(VActor *Thing, INT DoTangentVectorSeams  )
 							INT FanIndex = FaceSets[f].Faces[s];
 							if( Fans[p].FaceRecord[ FanIndex ].WedgeIndex == OldWedgeIndex )
 							{
-								// Update just the right one for this face (HoekIndex!) 
+								// Update just the right one for this face (HoekIndex!)
 								Thing->SkinData.Faces[ Fans[p].FaceRecord[ FanIndex].FaceIndex ].WedgeIndex[ Fans[p].FaceRecord[ FanIndex ].HoekIndex ] = NewWedgeIndex;
 								RemappedHoeks++;
 							}
@@ -797,10 +799,5 @@ int	SceneIFC::DoUnSmoothVerts(VActor *Thing, INT DoTangentVectorSeams  )
 		}//	while( FacesProcessed < Fans[p].FaceRecord.Num() )
 	} // Fans for each 3d point
 
-	return DuplicatedVertCount; 
+	return DuplicatedVertCount;
 }
-
-
-
-
-

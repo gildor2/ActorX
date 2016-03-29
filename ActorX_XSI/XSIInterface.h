@@ -1,7 +1,10 @@
+// Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
+// Licensed under the BSD license. See LICENSE.txt file in the project root for full license information.
+
 #ifndef _XSIINTERFACE_H_
 #define _XSIINTERFACE_H_
 #define _CRT_SECURE_NO_DEPRECATE
-#define _CRT_NONSTDC_NO_DEPRECATE 
+#define _CRT_NONSTDC_NO_DEPRECATE
 // Misc includes
 #include <windows.h>
 #include <assert.h>
@@ -94,7 +97,7 @@ public:
 
 	CSIBCArray<x3dpointer*>	m_pCachedScene;
 	CSIBCArray<x3dpointer*>	m_pCachedMaterials;
-	CSIBCArray<HierarchicalLevel*> m_pHRLevels;	
+	CSIBCArray<HierarchicalLevel*> m_pHRLevels;
 
 	bool	IsBone ( XSI::SceneItem obj );
 	bool	IsChildOf ( XSI::SceneItem children, XSI::SceneItem obj );
@@ -111,13 +114,13 @@ public:
 private:
 
 	void	AddParameter ( int ID, HWND parent, XSI::CValue value, XSI::CString );
-	
+
 
 	void	HideAll();
 
 	HWND	m_hXSI;
 
-	
+
 
 	HWND	m_hActorX;
 	HWND	m_hActorXSetup;

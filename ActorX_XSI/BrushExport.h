@@ -1,5 +1,8 @@
+// Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
+// Licensed under the BSD license. See LICENSE.txt file in the project root for full license information.
+
 /**************************************************************************
- 
+
 	BrushExport.h - XSI specific, helper functions for static mesh digestion
 
 ***************************************************************************/
@@ -41,7 +44,7 @@ struct VertEdges
 
 struct GroupList
 {
-	TArray<INT> Groups;	
+	TArray<INT> Groups;
 	INT FinalGroup;
 };
 
@@ -60,7 +63,7 @@ public:
 
     // Edge lookup methods
     void            buildEdgeTable( XSI::X3DObject in_obj );
-	void            createNewSmoothingGroups( XSI::X3DObject in_obj );	
+	void            createNewSmoothingGroups( XSI::X3DObject in_obj );
     void            addEdgeInfo( INT v1, INT v2, bool smooth );
 	XSIEdge*       findEdgeInfo( INT v1, INT v2);
 	void            fillSmoothFaces( INT polyid,XSI::X3DObject in_obj );
@@ -78,7 +81,7 @@ public:
 		{
 			VertEdgePools[v].Edges.Empty();
 		}
-		VertEdgePools.Empty();	
+		VertEdgePools.Empty();
 
 		for( int g=0; g<GroupTouchPools.Num(); g++)
 		{
@@ -129,7 +132,7 @@ public:
 				{
 					GroupTouchPools[i].Groups.AddItem( NewGroups[n] );
 				}
-			}			
+			}
 		}
 
 		// Merge source Pool elements into dest pool.
@@ -140,7 +143,7 @@ public:
 		}
 
 		// Delete 'dest' element lager..
-		GroupTouchPools[source].Groups.Empty();		
+		GroupTouchPools[source].Groups.Empty();
 	}
 
 
@@ -153,15 +156,15 @@ public:
 
 	TArray< INT >					PolyProcessFlags;
 	TArray<FaceEnviron>       FacePools;
-	TArray< VertEdges >			VertEdgePools;	    
+	TArray< VertEdges >			VertEdgePools;
 
-	TArray< GroupList >			GroupTouchPools;	
+	TArray< GroupList >			GroupTouchPools;
 	TArray< INT >					FacesTodo;	 // Bookmarks for flood filling group assignment.
 	TArray< INT >					SmoothEnvironmentFaces; // Smoothly joined neighbor faces for current face.
 	TArray< INT >					HardEnvironmentFaces; // Non-smoothly joined neighbor faces for current face.
 
 	INT					CurrentGroup;
-   
+
     DWORD           nextSmoothingGroup;
     DWORD           currSmoothingGroup;
     bool				 newSmoothingGroup;

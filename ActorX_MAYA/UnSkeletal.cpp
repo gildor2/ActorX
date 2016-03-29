@@ -1,12 +1,13 @@
+// Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
+// Licensed under the BSD license. See LICENSE.txt file in the project root for full license information.
+
 /*=============================================================================
 
   UnSkeletal.cpp: General ActorXporter support functions, misc math classes ripped-out from Unreal.
 
-  Copyright 1998-2011 Epic Games, Inc. All Rights Reserved.
-  
-  Notes: 
+  Notes:
 		- Most math code mirrored from Unreal Tournament's UnMath.cpp/.h
-    
+
 =============================================================================*/
 
 #include "UnSkeletal.h"
@@ -58,7 +59,7 @@ UBOOL CheckStringsEqual( const char* FirstString, const char* SecondString )
 	if( strlen(FirstString) != strlen(SecondString) )
 		return false;
 	INT DummyPos;
-	return FindSubString( FirstString, SecondString, DummyPos );	
+	return FindSubString( FirstString, SecondString, DummyPos );
 }
 
 
@@ -95,10 +96,10 @@ char* CleanString(char* name)
 {
 	static char buffer[256];
 	TCHAR* cPtr;
-	
+
     _tcscpy_s(buffer, name);
     cPtr = buffer;
-	
+
     while(*cPtr) {
 		if (*cPtr == '"')
 			*cPtr = SINGLE_QUOTE;
@@ -108,7 +109,7 @@ char* CleanString(char* name)
     }
 
 	// clean out tail
-	while( cPtr <= &buffer[255] ) 
+	while( cPtr <= &buffer[255] )
 	{
 		*cPtr = 0;
 		cPtr++;
@@ -176,16 +177,16 @@ FAngAxis FQuatToFAngAxis(const FQuat& Q)
 		N.Z = Q.Z / scale;
 
 		// TODO: can change to factor facilitating fixed-point representation.
-		N.A = (2.0f * acos (Q.W)); 
+		N.A = (2.0f * acos (Q.W));
 
-		// Degrees: N.A = ((FLOAT)acos(Q.W) * 360.0f) * INV_PI;  
+		// Degrees: N.A = ((FLOAT)acos(Q.W) * 360.0f) * INV_PI;
 	}
-	else 
+	else
 	{
 		N.X = 0.0f;
 		N.Y = 0.0f;
 		N.Z = 1.0f;
-		N.A = 0.0f; 
+		N.A = 0.0f;
 	}
 
 	return N;
@@ -214,7 +215,7 @@ FQuat FAngAxisToFQuat(const FAngAxis& N)
 		Q.X = 0.0f;
 		Q.Y = 0.0f;
 		Q.Z = 1.0f;
-		Q.W = 0.0f; 
+		Q.W = 0.0f;
 	}
 
 	return Q;
@@ -227,13 +228,13 @@ FVector FVector::SafeNormal() const
 	if( SquareSum < SMALL_NUMBER )
 		return FVector( 0.f, 0.f, 0.f );
 
-	FLOAT Size = sqrt(SquareSum);  
+	FLOAT Size = sqrt(SquareSum);
 	FLOAT Scale = 1.f/Size;
 	return FVector( X*Scale, Y*Scale, Z*Scale );
 }
 
 //
-// Matrix-to-Quaternion code. From Bobick. 
+// Matrix-to-Quaternion code. From Bobick.
 //
 FQuat FMatrixToFQuat(const FMatrix& M)
 {
@@ -245,7 +246,7 @@ FQuat FMatrixToFQuat(const FMatrix& M)
 
 	// Check the diagonal
 
-	if (tr > 0.0) 
+	if (tr > 0.0)
 	{
 		FLOAT s = sqrt (tr + 1.0f);
 		Q.W = s / 2.0f;
@@ -254,22 +255,22 @@ FQuat FMatrixToFQuat(const FMatrix& M)
 	    Q.X = (M.M[1][2] - M.M[2][1]) * s;
 	    Q.Y = (M.M[2][0] - M.M[0][2]) * s;
 	    Q.Z = (M.M[0][1] - M.M[1][0]) * s;
-	} 
-	else 
-	{				  
+	}
+	else
+	{
 		// diagonal is negative
 		FLOAT  q[4];
-  
+
 		INT i = 0;
 
 		if (M.M[1][1] > M.M[0][0]) i = 1;
 		if (M.M[2][2] > M.M[i][i]) i = 2;
-  
+
 		INT j = nxt[i];
 		INT k = nxt[j];
 
 		FLOAT s = sqrt ((M.M[i][i] - (M.M[j][j] + M.M[k][k])) + 1.0f);
-    
+
 		q[i] = s * 0.5f;
 
 		//if (s != 0.0f) s = 0.5f / s;
@@ -294,7 +295,7 @@ FQuat FMatrixToFQuat(const FMatrix& M)
 //
 
 FQuat EulerToFQuat( const FVector Angle)
-{	
+{
 	FLOAT ar = Angle.X * 0.5f;  // roll ?
 	FLOAT ap = Angle.Y * 0.5f;  // pitch ?
 	FLOAT ay = Angle.Z * 0.5f;  // yaw ?
@@ -334,9 +335,9 @@ void SlerpQuat(const FQuat& Q1, const FQuat& Q2, FLOAT slerp, FQuat& Result)
 {
 	FLOAT scale0,scale1;
 
-	/* !!!!! Lander uses W in this ! 
-	
-	FLOAT cosom = Q1.X * Q2.X + 
+	/* !!!!! Lander uses W in this !
+
+	FLOAT cosom = Q1.X * Q2.X +
 				  Q1.Y * Q2.Y +
 				  Q1.Z * Q2.Z +
 				  Q1.W * Q2.W;

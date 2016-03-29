@@ -1,8 +1,10 @@
+// Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
+// Licensed under the BSD license. See LICENSE.txt file in the project root for full license information.
+
 /**********************************************************************
 
  	Win32IO.cpp misc IO & dialog functions
 
-	Copyright 1998-2011 Epic Games, Inc. All Rights Reserved.
 	Created by Erik de Neve
 
 **********************************************************************/

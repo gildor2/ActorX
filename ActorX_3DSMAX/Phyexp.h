@@ -446,5 +446,3 @@ class IPhysiqueImport
 
 
 #endif
-
-

@@ -1,17 +1,18 @@
+// Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
+// Licensed under the BSD license. See LICENSE.txt file in the project root for full license information.
+
 /**************************************************************************
- 
-   Copyright 1998-2011 Epic Games, Inc. All Rights Reserved.
 
    XSIInterface.cpp - XSI-specific exporter scene interface code.
 
    Dominic Laflamme - SOFTIMAGE
 
   Changelist:
-          - Nov 2004 - Initial check-in 
+          - Nov 2004 - Initial check-in
 
 ***************************************************************************/
 #define _CRT_SECURE_NO_DEPRECATE
-#define _CRT_NONSTDC_NO_DEPRECATE 
+#define _CRT_NONSTDC_NO_DEPRECATE
 #include "SceneIFC.h"
 #include "XSIInterface.h"
 #include "ActorX.h"
@@ -65,7 +66,7 @@ extern SceneIFC	OurScene;
 //UBOOL BatchAnimationProcess( char* batchfoldername, INT &NumDigested, INT &NumFound, MaxPluginClass *u );
 
 //////////////////////////////////////////////////////////////////////////////////
-// 
+//
 // dialog procs
 //
 //////////////////////////////////////////////////////////////////////////////////
@@ -82,7 +83,7 @@ void DoGlobalDataExchance ();
 //
 // fwd decl
 //
-// TODO XSI: Move this into .h 
+// TODO XSI: Move this into .h
 //
 //////////////////////////////////////////////////////////////////////////////////
 void ToggleControlEnable( HWND hWnd, int control, BOOL state ) ;
@@ -139,7 +140,7 @@ void WeightsSortAndNormalize( TArray<SmoothVertInfluence>& RawInfluences )
 		for( int t=0; t<RawInfluences.Num()-1; t++ )
 		{
 			if ( RawInfluences[t].Weight < RawInfluences[t+1].Weight )
-			{	
+			{
 				// Swap.
 				SmoothVertInfluence TempInfluence = RawInfluences[t];
 				RawInfluences[t] = RawInfluences[t+1];
@@ -156,12 +157,12 @@ void WeightsSortAndNormalize( TArray<SmoothVertInfluence>& RawInfluences )
 	}}
 	{for( int t=0; t<RawInfluences.Num(); t++ )
 	{
-		RawInfluences[t].Weight *= 1.0f/WNorm; 
+		RawInfluences[t].Weight *= 1.0f/WNorm;
 	}}
 }
 
 
-// This function is called by Windows when the DLL is loaded.  This 
+// This function is called by Windows when the DLL is loaded.  This
 // function may also be called many times during time critical operations
 // like rendering.  Therefore developers need to be careful what they
 // do inside this function.  In the code below, note how after the DLL is
@@ -212,7 +213,7 @@ XSI::CStatus XSILoadPlugin( XSI::PluginRegistrar& in_reg )
 	in_reg.RegisterMenu(XSI::siMenuMainFileExportID, L"ActorXStaticMesh", false, false);
 	in_reg.RegisterMenu(XSI::siMenuMainFileExportID, L"ActorXMenu", false, false);
 
-	return XSI::CStatus::OK;	
+	return XSI::CStatus::OK;
 }
 
 //********************************************************************
@@ -228,7 +229,7 @@ XSI::CStatus XSIUnloadPlugin( const XSI::PluginRegistrar& in_reg )
 	if( g_XSIInterface != NULL )
 	{
 		//PopupBox("Deleting g_XSIInterface !");
-		delete g_XSIInterface; 
+		delete g_XSIInterface;
 	}
 	else
 	{
@@ -240,15 +241,15 @@ XSI::CStatus XSIUnloadPlugin( const XSI::PluginRegistrar& in_reg )
 
 //********************************************************************
 //
-// 
-// 
+//
+//
 // XSI Command Entry Points
 //
 //
 //
 //********************************************************************
-XSI::CStatus ActorX_Init( const XSI::CRef& in_context ) 
-{ 
+XSI::CStatus ActorX_Init( const XSI::CRef& in_context )
+{
 
 	//#EDN - is this the right place ?
 	// Reset: mainly to initialize the persistent settings through registry paths.
@@ -266,7 +267,7 @@ XSI::CStatus ActorX_Execute( XSI::CRef& in_context )
 	}
 
 	g_XSIInterface->ShowActorX ();
-	
+
 	return XSI::CStatus::OK;
 }
 
@@ -347,7 +348,7 @@ XSI::CStatus ActorXStaticMesh_Init( XSI::CRef& in_ref )
 	menu.AddCallbackItem(L"Export ASE...", L"OnExportASE", item);
 
 
-	return CStatus::OK;	
+	return CStatus::OK;
 }
 
 XSI::CStatus ActorXMenu_Init( XSI::CRef& in_ref )
@@ -361,7 +362,7 @@ XSI::CStatus ActorXMenu_Init( XSI::CRef& in_ref )
 	menu.AddCallbackItem(L"ActorX...", L"OnActorX", item);
 
 
-	return CStatus::OK;	
+	return CStatus::OK;
 }
 
 XSI::CStatus OnActorX( XSI::CRef& in_ref )
@@ -370,10 +371,10 @@ XSI::CStatus OnActorX( XSI::CRef& in_ref )
 	{
 		g_XSIInterface = new XSIInterface();
 	}
-	
+
 	g_XSIInterface->ShowActorX ();
-	
-		
+
+
 	return XSI::CStatus::OK;
 }
 
@@ -386,21 +387,21 @@ XSI::CStatus OnExportASE( XSI::CRef& in_ref )
 	}
 
 	g_XSIInterface->ExportStaticMesh ();
-	
+
 	return XSI::CStatus::OK;
 }
 
 XSI::CStatus ActorXSetValue_Init( const XSI::CRef& in_context )
-{ 
+{
 	XSI::Context ctx(in_context);
 	XSI::Command cmd(ctx.GetSource());
 
-	cmd.EnableReturnValue( true ) ; 
+	cmd.EnableReturnValue( true ) ;
 
 	XSI::ArgumentArray args = cmd.GetArguments();
 	args.Add( L"arg0", L"\0" );	// parameter name
 	args.Add( L"arg1", XSI::CValue() );
-	
+
 	return XSI::CStatus::OK;
 }
 
@@ -456,7 +457,7 @@ XSI::CStatus ActorXSetValue_Execute( const XSI::CRef& in_context )
 		g_XSIInterface->SaveParameters ();
 		g_XSIInterface->DoGlobalDataExchange ();
 	}
-	
+
 	return XSI::CStatus::OK;
 }
 
@@ -466,39 +467,39 @@ XSI::CStatus ActorXDigestAnimation_Execute( const XSI::CRef& in_context )
 	// Scene stats
 	DebugBox("Start serializing scene tree");
 	OurScene.SurveyScene();
-	
+
 	if( OurScene.SerialTree.Num() > 1 ) // Anything detected ?
 	{
 		// TODO XSI
 		// u->ip->ProgressStart(_T(" Digesting Animation... "), true, fn, NULL );
-		
+
 		DebugBox("Start getting scene info; Scene tree size: %i",OurScene.SerialTree.Num() );
 		OurScene.GetSceneInfo();
-		
+
 		DebugBox("Start evaluating Skeleton");
 		OurScene.EvaluateSkeleton(1);
-		
+
 		DebugBox("Start digest Skeleton");
 		OurScene.DigestSkeleton(&TempActor);
 
 		g_XSIInterface->SaveParameters ();
 		g_XSIInterface->DoGlobalDataExchange ();
-		
-		DebugBox("Start digest Anim");
-		OurScene.DigestAnim(&TempActor, animname, framerangestring );  
-		
-		OurScene.FixRootMotion( &TempActor );
-		
-		// PopupBox("Digested animation:%s RawAnimKeys: %i Current animation # %i", animname, TempActor.RawAnimKeys.Num(), TempActor.Animations.Num() );
-		INT DigestedKeys = TempActor.RecordAnimation(); 
 
-		
-		
+		DebugBox("Start digest Anim");
+		OurScene.DigestAnim(&TempActor, animname, framerangestring );
+
+		OurScene.FixRootMotion( &TempActor );
+
+		// PopupBox("Digested animation:%s RawAnimKeys: %i Current animation # %i", animname, TempActor.RawAnimKeys.Num(), TempActor.Animations.Num() );
+		INT DigestedKeys = TempActor.RecordAnimation();
+
+
+
 		//PopupBox( " Animation sequence %s digested. Total anims: %i ",animname, TempActor.Animations.Num() );
 	}
 	// TODO XSI
 	// u->ip->ProgressEnd();
-	
+
 	return XSI::CStatus::OK;
 }
 
@@ -508,26 +509,26 @@ XSI::CStatus ActorXSaveMesh_Execute( const XSI::CRef& in_context )
 	// Scene stats. #debug: surveying should be done only once ?
 	DebugBox("Start serializing scene tree");
 	OurScene.SurveyScene();
-	
+
 	DebugBox("Start getting scene info");
-	OurScene.GetSceneInfo(); 
-	
+	OurScene.GetSceneInfo();
+
 	DebugBox("Start evaluating Skeleton");
 	OurScene.EvaluateSkeleton(1);
-	
+
 	// Skeleton+skin gathering
 	DebugBox("Start digest Skeleton");
 	OurScene.DigestSkeleton( &TempActor );  // Digest skeleton into tempactor
-	
+
 	DebugBox("Start digest Skin");
-	OurScene.DigestSkin(&TempActor );  
-	
+	OurScene.DigestSkin(&TempActor );
+
 	if( OurScene.DoUnSmooth || OurScene.DoTangents )
 	{
 		INT VertsDuplicated = OurScene.DoUnSmoothVerts( &TempActor, OurScene.DoTangents ); // Optionally splits on UV tangent space handedness, too.
 		PopupBox("Unsmooth groups processing: [%i] vertices added.", VertsDuplicated );
 	}
-	
+
 	if( OurScene.DuplicateBones > 0 )
 	{
 		WarningBox(" Non-unique bone names detected - model not saved. Please check your skeletal setup.");
@@ -539,7 +540,7 @@ XSI::CStatus ActorXSaveMesh_Execute( const XSI::CRef& in_context )
 	else
 	{
 		// Save.
-		
+
 		// TCHAR MessagePopup[512];
 		TCHAR to_ext[32];
 		_tcscpy(to_ext, _T("PSK"));
@@ -548,19 +549,19 @@ XSI::CStatus ActorXSaveMesh_Execute( const XSI::CRef& in_context )
 		DebugBox("DestPath: %s",DestPath);
 		if ( OutFile.CreateNewFile(DestPath) != 0) // Error!
 			ErrorBox( "File creation error. ");
-		
-		
+
+
 		DebugBox("Start serializing...");
-						  TempActor.SerializeActor(OutFile); 
+						  TempActor.SerializeActor(OutFile);
 						  DebugBox("End serializing...");
-						  
+
 						  DebugBox("Closing....");
 						  // Close.
 						  OutFile.CloseFlush();
 						  if( OutFile.GetError()) ErrorBox("Skin Save Error");
-						  
-						  
-						  
+
+
+
 						  DebugBox("Logging skin info:");
 						  // Log materials and skin stats.
 						  if( OurScene.DoLog )
@@ -568,12 +569,12 @@ XSI::CStatus ActorXSaveMesh_Execute( const XSI::CRef& in_context )
 							  OurScene.LogSkinInfo( &TempActor, to_skinfile );
 							  DebugBox("Logged skin info:");
 						  }
-						  
+
 						  // sprintf(MessagePopup, "Skin file %s.%s written.",to_skinfile,to_ext);
-						  // MessageBox(GetActiveWindow(),MessagePopup, "Saved OK", MB_OK);				
-						  PopupBox(" Skin file %s.%s written.",to_skinfile,to_ext );		
+						  // MessageBox(GetActiveWindow(),MessagePopup, "Saved OK", MB_OK);
+						  PopupBox(" Skin file %s.%s written.",to_skinfile,to_ext );
 	}
-	
+
 	return XSI::CStatus::OK;
 }
 
@@ -593,7 +594,7 @@ XSI::CStatus ActorXExportStaticMesh_Execute( XSI::CRef& in_context )
 //********************************************************************
 //
 // @mclass	XSIInterface | XSI interface to ActorX functions
-//							
+//
 //
 //
 //********************************************************************
@@ -620,7 +621,7 @@ XSIInterface::~XSIInterface()
 		delete m_pCachedScene[n];
 	}
 	m_pCachedScene.DisposeData();
-	
+
 	for (n=0;n<m_pCachedMaterials.GetUsed();n++)
 	{
 		delete m_pCachedMaterials[n];
@@ -634,13 +635,13 @@ XSIInterface::~XSIInterface()
 	m_pHRLevels.DisposeData();
 
 
-	
+
 }
 
 //********************************************************************
 //
 // @mfunc	ShowActorX | Calls up the ActorX dialog
-//							
+//
 //********************************************************************
 void XSIInterface::ShowActorX()
 {
@@ -653,9 +654,9 @@ void XSIInterface::ShowActorX()
 
 //********************************************************************
 //
-// @mfunc	ShowActorManager | Calls up the ActorX Actor Manager 
+// @mfunc	ShowActorManager | Calls up the ActorX Actor Manager
 //								dialog
-//							
+//
 //********************************************************************
 void XSIInterface::ShowActorManager()
 {
@@ -666,25 +667,25 @@ void XSIInterface::ShowActorManager()
 
 	ShowWindow ( m_hActorManager, SW_SHOWNORMAL );
 	UpdateWindow ( m_hActorManager );
-	
+
 }
 
 //********************************************************************
 //
 // @mfunc	ShowSceneInfo | Calls up the ActorX Scene Info dialog
-//							
+//
 //********************************************************************
 void	XSIInterface::ShowSceneInfo()
 {
 	DialogBox(  ParentApp_hInstance ,  MAKEINTRESOURCE(IDD_SCENEINFO), GetXSIWindow(), (DLGPROC)SceneInfoDlgProc);
-	
+
 
 }
 
 //********************************************************************
 //
 // @mfunc	ShowActorXSetup | Calls up the ActorX Setup dialog
-//							
+//
 //********************************************************************
 void	XSIInterface::ShowActorXSetup( )
 {
@@ -696,7 +697,7 @@ void	XSIInterface::ShowActorXSetup( )
 //********************************************************************
 //
 // @mfunc	ShowActorXSetup | Calls up the ActorX Setup dialog
-//							
+//
 //********************************************************************
 void	XSIInterface::ShowActorXStaticMesh( )
 {
@@ -710,7 +711,7 @@ void	XSIInterface::ShowActorXStaticMesh( )
 //********************************************************************
 //
 // @mfunc	ShowVertex | Calls up the ActorX Vertex dialog
-//							
+//
 //********************************************************************
 void	XSIInterface::ShowVertex( )
 {
@@ -725,7 +726,7 @@ void	XSIInterface::ShowVertex( )
 //********************************************************************
 //
 // @mfunc	ShowAbout | Calls up the ActorX about dialog
-//							
+//
 //********************************************************************
 void	XSIInterface::ShowAbout( )
 {
@@ -740,8 +741,8 @@ void	XSIInterface::ShowAbout( )
 
 //********************************************************************
 //
-// @mfunc	ExportStaticMesh | Calls up the Static Mesh Export dlg 
-//							
+// @mfunc	ExportStaticMesh | Calls up the Static Mesh Export dlg
+//
 //********************************************************************
 void	XSIInterface::ExportStaticMesh()
 {
@@ -756,7 +757,7 @@ void	XSIInterface::ExportStaticMesh()
 //							creates the ActorX dialogs. It modifies
 //							the styles of these dialogs so it looks
 //							better integrated into XSI's layout.
-//							
+//
 //********************************************************************
 void	XSIInterface::ActivatePanel()
 {
@@ -781,7 +782,7 @@ void	XSIInterface::ActivatePanel()
 		RemoveBorder ( m_hActorX );
 		RemoveBorder ( m_hActorXSetup );
 		RemoveBorder ( m_hActorXStaticMesh );
-		
+
 		SetWindowPos ( m_hActorX,		HWND_TOP, 5,25,0,0,SWP_NOSIZE | SWP_NOZORDER);
 		SetWindowPos ( m_hActorXSetup,	HWND_TOP, 5,25,0,0,SWP_NOSIZE | SWP_NOZORDER);
 		SetWindowPos ( m_hActorXStaticMesh, HWND_TOP, 5,25,0,0,SWP_NOSIZE | SWP_NOZORDER);
@@ -800,7 +801,7 @@ void	XSIInterface::ActivatePanel()
 		AddParameter ( IDC_ANIMNAME, m_hActorX, L"", L"animationsequencename" );
 		AddParameter ( IDC_ANIMRANGE, m_hActorX, L"", L"animationrange" );
 
-		
+
 		AddParameter ( IDC_CHECKPERSISTSETTINGS, m_hActorXSetup, false, L"persistentsettings" );
 		AddParameter ( IDC_CHECKPERSISTPATHS, m_hActorXSetup, false, L"persistentpaths" );
 		AddParameter ( IDC_CHECKSKINALLP, m_hActorXSetup, false, L"allskintype" );
@@ -835,13 +836,13 @@ void	XSIInterface::ActivatePanel()
 		AddParameter ( IDC_CHECKSUPPRESS, m_hActorXStaticMesh, false, L"nopopups" );
 		AddParameter ( IDC_CHECKUNDERSCORE, m_hActorXStaticMesh, false, L"convertunderscores" );
 		AddParameter ( IDC_CHECKUNDERSCORE, m_hActorXStaticMesh, false, L"selectedonly" );
-		AddParameter ( IDC_CHECKGEOMNAME, m_hActorXStaticMesh, false, L"geometrynameasfilename" );		
+		AddParameter ( IDC_CHECKGEOMNAME, m_hActorXStaticMesh, false, L"geometrynameasfilename" );
 		AddParameter ( IDC_CHECKSMOOTH, m_hActorXStaticMesh, false, L"obeyhardedges" );
 		AddParameter ( IDC_CHECKCONSOLIDATE, m_hActorXStaticMesh, false, L"consolidateoutputgeometry" );
-		AddParameter ( IDC_EDITOUTPATH, m_hActorXStaticMesh, L"", L"defaultpath" );		
+		AddParameter ( IDC_EDITOUTPATH, m_hActorXStaticMesh, L"", L"defaultpath" );
 
 		UpdateParameters();
-		
+
 	}
 
 	ShowWindow ( m_hXSIPanel, SW_SHOWNORMAL );
@@ -860,7 +861,7 @@ void	XSIInterface::UpdateParameters()
 	if(!FindCustomPSet(app.GetActiveSceneRoot(), L"ActorXSettings", prop))
 	{
 		app.GetActiveSceneRoot().AddProperty(L"Custom_parameter_list", false, L"ActorXSettings", prop);
-	
+
 		for (int p=0;p<m_vParameters.GetUsed();p++)
 		{
 			ActorXParam* l_pParam = &m_vParameters[p];
@@ -869,10 +870,10 @@ void	XSIInterface::UpdateParameters()
 			{
 			case XSI::siFloat:
 			case XSI::siDouble:
-				prop.AddParameter( l_pParam->m_cName,l_pParam->m_cValue.m_t,XSI::siPersistable, L"", L"", (float)0,(float)-FLT_MAX,(float)FLT_MAX,(float)-200,(float)200,param);		
+				prop.AddParameter( l_pParam->m_cName,l_pParam->m_cValue.m_t,XSI::siPersistable, L"", L"", (float)0,(float)-FLT_MAX,(float)FLT_MAX,(float)-200,(float)200,param);
 				break;
 			case XSI::siBool:
-				prop.AddParameter( l_pParam->m_cName,l_pParam->m_cValue.m_t,XSI::siPersistable, L"", L"", (bool)0,(bool)0,(bool)1,(bool)0,(bool)1,param);		
+				prop.AddParameter( l_pParam->m_cName,l_pParam->m_cValue.m_t,XSI::siPersistable, L"", L"", (bool)0,(bool)0,(bool)1,(bool)0,(bool)1,param);
 				break;
 			case XSI::siString:
 			case XSI::siWStr:
@@ -928,7 +929,7 @@ void XSIInterface::DoGlobalDataExchange ()
 {
 	GetWindowText(GetDlgItem(m_hActorX,IDC_ANIMNAME),animname,100);
 	GetWindowText(GetDlgItem(m_hActorX,IDC_ANIMRANGE),framerangestring,500);
-	GetWindowText(GetDlgItem(m_hActorX,IDC_DEFOUTPATH),to_path,300);	
+	GetWindowText(GetDlgItem(m_hActorX,IDC_DEFOUTPATH),to_path,300);
 	GetWindowText(GetDlgItem(m_hActorX,IDC_SKINFILENAME),to_skinfile,300);
 	GetWindowText(GetDlgItem(m_hActorX,IDC_ANIMFILENAME),to_animfile,300);
 
@@ -937,14 +938,14 @@ void XSIInterface::DoGlobalDataExchange ()
 	OurScene.DoFixRoot = GetCheckBox(m_hActorXSetup,IDC_FIXROOT);
 	OurScene.DoPoseZero = GetCheckBox(m_hActorXSetup,IDC_POSEZERO);
 	OurScene.DoLockRoot = GetCheckBox(m_hActorXSetup,IDC_LOCKROOTX);
-	OurScene.DoLog = ! GetCheckBox(m_hActorXSetup,IDC_CHECKNOLOG);					
-		
-	OurScene.DoExportScale = GetCheckBox(m_hActorXSetup,IDC_CHECKDOEXPORTSCALE);					
-	OurScene.DoTangents = GetCheckBox(m_hActorXSetup,IDC_CHECKDOTANGENTS);					
-	OurScene.DoUnSmooth = GetCheckBox(m_hActorXSetup,IDC_CHECKDOUNSMOOTH);				
+	OurScene.DoLog = ! GetCheckBox(m_hActorXSetup,IDC_CHECKNOLOG);
+
+	OurScene.DoExportScale = GetCheckBox(m_hActorXSetup,IDC_CHECKDOEXPORTSCALE);
+	OurScene.DoTangents = GetCheckBox(m_hActorXSetup,IDC_CHECKDOTANGENTS);
+	OurScene.DoUnSmooth = GetCheckBox(m_hActorXSetup,IDC_CHECKDOUNSMOOTH);
 
 	OurScene.DoTexGeom = GetCheckBox(m_hActorXSetup,IDC_CHECKSKINALLT);
-	OurScene.DoTexPCX = GetCheckBox(m_hActorXSetup,IDC_CHECKTEXPCX);					
+	OurScene.DoTexPCX = GetCheckBox(m_hActorXSetup,IDC_CHECKTEXPCX);
 	OurScene.DoSelectedGeom = GetCheckBox(m_hActorXSetup,IDC_CHECKSKINALLS);
 	OurScene.DoSkinGeom = GetCheckBox(m_hActorXSetup,IDC_CHECKSKINALLP);
 	OurScene.DoSkipSelectedGeom = GetCheckBox(m_hActorXSetup,IDC_CHECKSKINNOS);
@@ -952,7 +953,7 @@ void XSIInterface::DoGlobalDataExchange ()
 	OurScene.DoExplicitSequences = GetCheckBox(m_hActorXSetup,IDC_EXPLICIT);
 	GetWindowText( GetDlgItem(m_hActorXSetup,IDC_EDITCLASS),classname,100 );
 	GetWindowText(GetDlgItem(m_hActorXSetup,IDC_EDITBASE),basename,100);
-	
+
 }
 
 void	XSIInterface::SaveParameters()
@@ -960,7 +961,7 @@ void	XSIInterface::SaveParameters()
 	XSI::CustomProperty prop;
 	XSI::Parameter param ;
 	XSI::Application app;
-	
+
 	if(!FindCustomPSet(app.GetActiveSceneRoot(), L"ActorXSettings", prop))
 	{
 		return;
@@ -1012,7 +1013,7 @@ ActorXParam*	XSIInterface::GetParameter ( XSI::CString name )
 			return &m_vParameters[c];
 		}
 	}
-	
+
 	return NULL;
 }
 
@@ -1026,7 +1027,7 @@ bool FindCustomPSet(XSI::X3DObject &node, const XSI::CString& name, XSI::CustomP
 		for(j = 0; j < properties.GetCount(); j++)
 		{
 			prop = properties[j];
-			
+
 			if(prop.GetName() == name)
 				return true;
 		}
@@ -1037,27 +1038,27 @@ bool FindCustomPSet(XSI::X3DObject &node, const XSI::CString& name, XSI::CustomP
 
 //********************************************************************
 //
-// @mfunc	HideAll | Hides all ActorX window 
-//							
+// @mfunc	HideAll | Hides all ActorX window
+//
 //********************************************************************
 void	XSIInterface::HideAll()
 {
 	ShowWindow ( m_hActorX, SW_HIDE );
 	ShowWindow ( m_hActorXSetup, SW_HIDE );
-	
+
 	ShowWindow ( m_hActorXStaticMesh, SW_HIDE );
 
 #ifdef VERTEX_ANIMATION_SUPPORT
 	ShowWindow ( m_hActorXVertex, SW_HIDE );
 #endif
-	
+
 }
 
 
 //********************************************************************
 //
 // @mfunc	GetTabHWND | Returns the HWND for one of the ActorX dlg
-//							
+//
 //********************************************************************
 HWND	XSIInterface::GetTabHWND ( int in_iNum )
 {
@@ -1078,7 +1079,7 @@ HWND	XSIInterface::GetTabHWND ( int in_iNum )
 //
 // @mfunc	IsDeformer | This functions returns true if the x3dobject
 //							passed in is an envelope deformer (bone)
-//							
+//
 //********************************************************************
 bool	XSIInterface::IsDeformer ( XSI::CRef in_obj )
 {
@@ -1087,11 +1088,11 @@ bool	XSIInterface::IsDeformer ( XSI::CRef in_obj )
 
 	for( int i=0; i<m_pCachedScene.GetUsed(); i++)
 	{
-	
+
 		XSI::X3DObject node = m_pCachedScene[i]->m_ptr;
 		XSI::SceneItem item ( node );
-		
-		if ( item.IsValid())  
+
+		if ( item.IsValid())
 		{
 			XSI::CRefArray l_pEnvelopes = item.GetEnvelopes();
 			if(l_pEnvelopes.GetCount())
@@ -1106,7 +1107,7 @@ bool	XSIInterface::IsDeformer ( XSI::CRef in_obj )
 					continue;
 				}
 			}
-			
+
 			for (int e=0;e<l_pEnvelopes.GetCount();e++)
 			{
 				XSI::Envelope env ( l_pEnvelopes[e] );
@@ -1115,17 +1116,17 @@ bool	XSIInterface::IsDeformer ( XSI::CRef in_obj )
 
 				for (int d=0;d<l_deformers.GetCount();d++)
 				{
-				
+
 					if ( l_deformers[d] == potentialbone )
 					{
 						return true;
 					}
 
 				}
-				
+
 			}
-			
-			
+
+
 		}
 
 	}
@@ -1142,18 +1143,18 @@ bool	XSIInterface::IsDeformer ( XSI::CRef in_obj )
 //								considered the root bone.
 //								When found, everything under this node
 //								will be considered a "potential" bone.
-//								
+//
 //								Some potential bones may be optimized
 //								out later if they do not act as a
-//								deformer. But to the artist, these 
+//								deformer. But to the artist, these
 //								bones remain totally normal and can
 //								be animated, constrained, etc.
-//							
+//
 //********************************************************************
 void	XSIInterface::AnalyzeSkeleton()
 {
 	//
-	// first start building a list of all deformers and 
+	// first start building a list of all deformers and
 	// find a common root for all these bones.
 	// Everything lower in the hierarchy than that bone
 	// will be considered a bone.
@@ -1172,15 +1173,15 @@ void	XSIInterface::AnalyzeSkeleton()
 
 		if ( IsDeformer ( item ) )
 		{
-			
+
 			int levels = 0;
-			
+
 			while ( item.GetParent() != root )
 			{
 				item = item.GetParent();
 				levels++;
 			}
-			
+
 			if ( levels < highest )
 			{
 				highest = levels;
@@ -1269,8 +1270,8 @@ void	XSIInterface::AnalyzeSkeleton()
 
 			firstparent = firstparent.GetParent();
 		}
-		
-		
+
+
 
 		m_cSkeletonRoot = firstparent;
 	}
@@ -1288,7 +1289,7 @@ void	XSIInterface::AnalyzeSkeleton()
 //
 // @mfunc	IsChildOf | This function returns true if children is
 //						part of obj's hierarchy
-//							
+//
 //********************************************************************
 bool	XSIInterface::IsChildOf ( XSI::SceneItem children, XSI::SceneItem obj )
 {
@@ -1312,7 +1313,7 @@ bool	XSIInterface::IsChildOf ( XSI::SceneItem children, XSI::SceneItem obj )
 //********************************************************************
 //
 // @mfunc	GetRootPointer | Get the node pointer of the skeleton root
-//							
+//
 //********************************************************************
 x3dpointer* XSIInterface::GetRootPointer()
 {
@@ -1327,7 +1328,7 @@ x3dpointer* XSIInterface::GetRootPointer()
 	}
 
 	return p;
-	
+
 }
 
 bool	XSIInterface::IsBone ( XSI::SceneItem obj )
@@ -1352,28 +1353,28 @@ void	XSIInterface::AddParameter ( int ID, HWND parent, XSI::CValue value, XSI::C
 // @mfunc	GetFolder | Uses ShellFolder to popup a folder browser
 //						dialog.
 //						returns 1 on success, 0 otherwise.
-//							
+//
 //********************************************************************
 int GetFolder ( char *out_szPath )
 {
 	BROWSEINFO      bi;
-    LPMALLOC        pMalloc =   NULL;    
+    LPMALLOC        pMalloc =   NULL;
     LPITEMIDLIST    pidl;
     char        acSrc   [MAX_PATH];
 	int retval = 0;
-	
+
     if  (SHGetMalloc (&pMalloc)!=  NOERROR)
 	{
 		return 0;
 	}
 
     ZeroMemory  (&bi,sizeof(BROWSEINFO));
-	
+
     bi.hwndOwner        =   GetActiveWindow();
     bi.pszDisplayName   =   acSrc;
     bi.ulFlags          =   BIF_RETURNONLYFSDIRS;
     bi.lpszTitle        =   "Please select a folder";
-	
+
     if  (pidl=SHBrowseForFolder(&bi))
 	{
 		if  ( !SHGetPathFromIDList(pidl, acSrc))
@@ -1386,7 +1387,7 @@ int GetFolder ( char *out_szPath )
 		retval = 0;
 	}
 
-    if  (   pMalloc)    
+    if  (   pMalloc)
 		pMalloc->Release();
 
 	strcpy ( out_szPath, acSrc );
@@ -1399,7 +1400,7 @@ int GetFolder ( char *out_szPath )
 //********************************************************************
 //
 // @mfunc	GetXSIWindow | Hack to get XSI's main window handle.
-//							
+//
 //********************************************************************
 HWND	XSIInterface::GetXSIWindow()
 {
@@ -1407,7 +1408,7 @@ HWND	XSIInterface::GetXSIWindow()
 	{
 		m_hXSI = GetActiveWindow();
 	}
-	
+
 	return m_hXSI;
 }
 
@@ -1415,20 +1416,20 @@ HWND	XSIInterface::GetXSIWindow()
 //
 // @mfunc	RemoveBorder | Edit's a window's style by removing it's
 //							border
-//							
+//
 //********************************************************************
 void RemoveBorder ( HWND in_hWnd )
 {
 	long l_Style;
 	l_Style = GetWindowLong ( in_hWnd, GWL_STYLE );
-	l_Style &= ~WS_BORDER; 
+	l_Style &= ~WS_BORDER;
 	SetWindowLong ( in_hWnd, GWL_STYLE, l_Style);
 }
 
 static BOOL CALLBACK ActorXDlgProc(	HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam )
 {
 
-	switch (msg) 
+	switch (msg)
 	{
 		case WM_INITDIALOG:
 			{
@@ -1437,9 +1438,9 @@ static BOOL CALLBACK ActorXDlgProc(	HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
 			// u = (MaxPluginClass *)lParam;
 			//SetWindowLong(hWnd, GWL_USERDATA, (LONG)u);
 
-			PrintWindowString(hWnd,IDC_STATIC2,"Version XSI beta \n © 2007  Epic Games"); 
+			PrintWindowString(hWnd,IDC_STATIC2,"Version XSI beta \n © 2007  Epic Games");
 
-						
+
 			// Initialize all non-empty edit windows.
 			if ( to_path[0]   != 0  )
 			{
@@ -1463,7 +1464,7 @@ static BOOL CALLBACK ActorXDlgProc(	HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
 			break;
 
 		//case WM_MOUSEMOVE:
-		//	ThisMaxPlugin.ip->RollupMouseMessage(hWnd,msg,wParam,lParam); 
+		//	ThisMaxPlugin.ip->RollupMouseMessage(hWnd,msg,wParam,lParam);
 		//	break;
 
 		case WM_COMMAND:
@@ -1482,7 +1483,7 @@ static BOOL CALLBACK ActorXDlgProc(	HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
 			}
 
 			// LOWORD(wParam) has commands for the controls in our rollup window.
-			switch (LOWORD(wParam)) 
+			switch (LOWORD(wParam))
 			{
 
 			case IDC_ANIMNAME:
@@ -1498,7 +1499,7 @@ static BOOL CALLBACK ActorXDlgProc(	HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
 						break;
 					};
 				}
-				break;		
+				break;
 
 			case IDC_ANIMRANGE:
 				{
@@ -1513,7 +1514,7 @@ static BOOL CALLBACK ActorXDlgProc(	HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
 						break;
 					};
 				}
-				break;				
+				break;
 
 			case IDC_DEFOUTPATH:
 				{
@@ -1522,7 +1523,7 @@ static BOOL CALLBACK ActorXDlgProc(	HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
 						// Whenenver focus is lost, update path.
 						case EN_KILLFOCUS:
 						{
-							GetWindowText(GetDlgItem(hWnd,IDC_DEFOUTPATH),to_path,300);	
+							GetWindowText(GetDlgItem(hWnd,IDC_DEFOUTPATH),to_path,300);
 							_tcscpy(LogPath,to_path);
 							PluginReg.SetKeyString("TOPATH", to_path );
 							//g_XSIInterface->DoGlobalDataExchange();
@@ -1563,7 +1564,7 @@ static BOOL CALLBACK ActorXDlgProc(	HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
 					};
 				}
 				break;
-				
+
 
 			case IDC_ANIMMANAGER: // Animation manager activated.
 				{
@@ -1572,31 +1573,31 @@ static BOOL CALLBACK ActorXDlgProc(	HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
 					arg = 0L;
 					XSI::CValue retVal;
 					app.ExecuteCommand ( L"ActorManager", arg, retVal);
-					
+
 				}
 				break;
-	
+
 			// Browse for a destination directory.
 			case IDC_BROWSE:
 				{
 					char  dir[MAX_PATH];
 					TCHAR desc[MAX_PATH];
 					_tcscpy(desc, _T("Target Directory"));
-					
+
 					if ( GetFolder ( dir ) )
 					{
 						SetWindowText(GetDlgItem(hWnd,IDC_DEFOUTPATH),dir);
-						_tcscpy(to_path,dir); 
+						_tcscpy(to_path,dir);
 						_tcscpy(LogPath,dir);
 						PluginReg.SetKeyString("TOPATH", to_path );
 					}
-				}	
+				}
 				break;
 
-				
+
 			// A click inside the logo.
-			
-			case IDC_LOGOUNREAL: 
+
+			case IDC_LOGOUNREAL:
 				{
 					XSI::Application app;
 					XSI::CValue arg;
@@ -1606,7 +1607,7 @@ static BOOL CALLBACK ActorXDlgProc(	HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
 
 				}
 			break;
-			
+
 
 			// DO it.
 			case IDC_EVAL:
@@ -1614,17 +1615,17 @@ static BOOL CALLBACK ActorXDlgProc(	HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
 					// Survey the scene, to conclude which items to export or evaluate, if any.
 					// Logic: go for the deepest hierarchy; if it has a physique skin, we have
 					// a full skeleton+skin, otherwise we assume a hierarchical object - which
-					// can have max bones, though.					
+					// can have max bones, though.
 #if 1
 					//DebugBox("Start surveying the scene.");
 					OurScene.SurveyScene();
 
-					// Initializes the scene tree.						
+					// Initializes the scene tree.
 						DebugBox("Start getting scene info");
 					OurScene.GetSceneInfo();
 
 						DebugBox("Start evaluating Skeleton");
-					OurScene.EvaluateSkeleton(1);					
+					OurScene.EvaluateSkeleton(1);
 
 					XSI::Application app;
 					XSI::CValue arg;
@@ -1636,29 +1637,29 @@ static BOOL CALLBACK ActorXDlgProc(	HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
 				}
 				break;
 
-				
+
 			case IDC_SAVESKIN:
 				{
-					
+
 					XSI::Application app;
 					XSI::CValue arg;
 					arg = 0L;
 					XSI::CValue retVal;
 					app.ExecuteCommand ( L"ActorXSaveMesh", arg, retVal);
-					
+
 				}
 				break;
-				
+
 			case IDC_DIGESTANIM:
-				{	
+				{
 					XSI::Application app;
 					XSI::CValue arg;
 					arg = 0L;
 					XSI::CValue retVal;
 					app.ExecuteCommand ( L"ActorXDigestAnimation", arg, retVal);
-					
+
 				}
-				break;			
+				break;
 			}
 			if ( g_XSIInterface )
 				g_XSIInterface->SaveParameters ();
@@ -1679,7 +1680,7 @@ static BOOL CALLBACK AuxDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 	//MaxPluginClass *u = (MaxPluginClass *)GetWindowLong(hWnd, GWL_USERDATA);
 	//if (!u && msg != WM_INITDIALOG ) return FALSE;
 
-	switch (msg) 
+	switch (msg)
 	{
 		case WM_INITDIALOG:
 		{
@@ -1688,8 +1689,8 @@ static BOOL CALLBACK AuxDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 			//u = (MaxPluginClass *)lParam;
 			//SetWindowLong(hWnd, GWL_USERDATA, (LONG)u);
 			//SetInterface(u->ip);
-			
-	
+
+
 			// Update boxes with the internal settings.
 			_SetCheckBox(hWnd,IDC_CHECKPERSISTSETTINGS,OurScene.CheckPersistSettings);
 			_SetCheckBox(hWnd,IDC_CHECKPERSISTPATHS,OurScene.CheckPersistPaths);
@@ -1709,11 +1710,11 @@ static BOOL CALLBACK AuxDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 			_SetCheckBox( hWnd, IDC_CHECKSKINNOS,  OurScene.DoSkipSelectedGeom );
 			_SetCheckBox( hWnd, IDC_CHECKTEXPCX,   OurScene.DoTexPCX );
 			_SetCheckBox( hWnd, IDC_CHECKCULLDUMMIES, OurScene.DoCullDummies );
-			_SetCheckBox( hWnd, IDC_EXPLICIT, OurScene.DoExplicitSequences );			
+			_SetCheckBox( hWnd, IDC_EXPLICIT, OurScene.DoExplicitSequences );
 
 			if ( basename[0]  ) PrintWindowString(hWnd,IDC_EDITBASE,basename);
 			if ( classname[0] ) PrintWindowString(hWnd,IDC_EDITCLASS,classname);
-			
+
 			ToggleControlEnable(hWnd,IDC_CHECKSKIN1,true);
 			ToggleControlEnable(hWnd,IDC_CHECKSKIN2,true);
 
@@ -1731,7 +1732,7 @@ static BOOL CALLBACK AuxDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 		//case WM_LBUTTONDOWN:
 		//case WM_LBUTTONUP:
 		//case WM_MOUSEMOVE:
-		//	ThisMaxPlugin.ip->RollupMouseMessage(hWnd,msg,wParam,lParam); 
+		//	ThisMaxPlugin.ip->RollupMouseMessage(hWnd,msg,wParam,lParam);
 		//	break;
 
 		case WM_COMMAND:
@@ -1752,7 +1753,7 @@ static BOOL CALLBACK AuxDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 
 
 			// LOWORD(wParam) has commands for the controls in our rollup window.
-			switch (LOWORD(wParam)) 
+			switch (LOWORD(wParam))
 			{
 				// get the values of the toggles
 				case IDC_CHECKPERSISTSETTINGS:
@@ -1780,12 +1781,12 @@ static BOOL CALLBACK AuxDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 					if (!OurScene.DoFixRoot)
 					{
 						_SetCheckBox(hWnd,IDC_LOCKROOTX,false);
-						ToggleControlEnable(hWnd,IDC_LOCKROOTX,false);			
+						ToggleControlEnable(hWnd,IDC_LOCKROOTX,false);
 					}
-					else 
-						ToggleControlEnable(hWnd,IDC_LOCKROOTX,true);			
+					else
+						ToggleControlEnable(hWnd,IDC_LOCKROOTX,true);
 					// HWND hDlg = GetDlgItem(hWnd,control);
-					// EnableWindow(hDlg,FALSE);					
+					// EnableWindow(hDlg,FALSE);
 					// see also MSDN  SDK info, Buttons/ using buttons etc
 				}
 				break;
@@ -1798,12 +1799,12 @@ static BOOL CALLBACK AuxDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 					if (!OurScene.DoPoseZero)
 					{
 						_SetCheckBox(hWnd,IDC_LOCKROOTX,false);
-						ToggleControlEnable(hWnd,IDC_LOCKROOTX,false);			
+						ToggleControlEnable(hWnd,IDC_LOCKROOTX,false);
 					}
-					else 
-						ToggleControlEnable(hWnd,IDC_LOCKROOTX,true);			
+					else
+						ToggleControlEnable(hWnd,IDC_LOCKROOTX,true);
 					// HWND hDlg = GetDlgItem(hWnd,control);
-					// EnableWindow(hDlg,FALSE);					
+					// EnableWindow(hDlg,FALSE);
 					// see also MSDN  SDK info, Buttons/ using buttons etc
 				}
 				break;
@@ -1817,21 +1818,21 @@ static BOOL CALLBACK AuxDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 
 				case IDC_CHECKNOLOG:
 				{
-					OurScene.DoLog = ! GetCheckBox(hWnd,IDC_CHECKNOLOG);					
+					OurScene.DoLog = ! GetCheckBox(hWnd,IDC_CHECKNOLOG);
 					PluginReg.SetKeyValue("DOLOG",OurScene.DoLog);
 				}
 				break;
 
 				case IDC_CHECKDOUNSMOOTH:
 				{
-					OurScene.DoUnSmooth = GetCheckBox(hWnd,IDC_CHECKDOUNSMOOTH);					
+					OurScene.DoUnSmooth = GetCheckBox(hWnd,IDC_CHECKDOUNSMOOTH);
 					PluginReg.SetKeyValue("DOUNSMOOTH",OurScene.DoUnSmooth);
 				}
 				break;
 
 				case IDC_CHECKDOEXPORTSCALE:
 				{
-					OurScene.DoExportScale = GetCheckBox(hWnd,IDC_CHECKDOEXPORTSCALE);					
+					OurScene.DoExportScale = GetCheckBox(hWnd,IDC_CHECKDOEXPORTSCALE);
 					PluginReg.SetKeyValue("DOEXPORTSCALE",OurScene.DoExportScale);
 				}
 				break;
@@ -1839,12 +1840,12 @@ static BOOL CALLBACK AuxDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 
 				case IDC_CHECKDOTANGENTS:
 				{
-					OurScene.DoTangents = GetCheckBox(hWnd,IDC_CHECKDOTANGENTS);					
+					OurScene.DoTangents = GetCheckBox(hWnd,IDC_CHECKDOTANGENTS);
 					PluginReg.SetKeyValue("DOTANGENTS",OurScene.DoTangents);
 				}
 				break;
 
-				
+
 				case IDC_CHECKSKINALLT: // all textured geometry skin checkbox
 				{
 					OurScene.DoTexGeom = GetCheckBox(hWnd,IDC_CHECKSKINALLT);
@@ -1855,7 +1856,7 @@ static BOOL CALLBACK AuxDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 
 				case IDC_CHECKTEXPCX: // all textured geometry skin checkbox
 				{
-					OurScene.DoTexPCX = GetCheckBox(hWnd,IDC_CHECKTEXPCX);					
+					OurScene.DoTexPCX = GetCheckBox(hWnd,IDC_CHECKTEXPCX);
 					PluginReg.SetKeyValue("DOPCX",OurScene.DoTexPCX); // update registry
 				}
 				break;
@@ -1875,21 +1876,21 @@ static BOOL CALLBACK AuxDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 					//if (!OurScene.DoSkinGeom) _SetCheckBox(hWnd,IDC_CHECKSKINALLP,false);
 				}
 				break;
-				
+
 				case IDC_CHECKSKINNOS: // all none-selected meshes skin checkbox..
 				{
 					OurScene.DoSkipSelectedGeom = GetCheckBox(hWnd,IDC_CHECKSKINNOS);
 					PluginReg.SetKeyValue("DOSKIPSEL",OurScene.DoSkipSelectedGeom );
 					//if (!OurScene.DoSkipSelectedGeom) _SetCheckBox(hWnd,IDC_CHECKSKINNOS,false);
 				}
-				break;				
+				break;
 
 				case IDC_CHECKCULLDUMMIES: // all selected physique meshes checkbox
 				{
 					OurScene.DoCullDummies = GetCheckBox(hWnd,IDC_CHECKCULLDUMMIES);
 					PluginReg.SetKeyValue("DOCULLDUMMIES",OurScene.DoCullDummies );
 					//ToggleControlEnable(hWnd,IDC_CHECKCULLDUMMIES,OurScene.DoCullDummies);
-					//if (!OurScene.DoCullDummies) _SetCheckBox(hWnd,IDC_CHECKCULLDUMMIES,false);					
+					//if (!OurScene.DoCullDummies) _SetCheckBox(hWnd,IDC_CHECKCULLDUMMIES,false);
 				}
 				break;
 
@@ -1902,7 +1903,7 @@ static BOOL CALLBACK AuxDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 
 				case IDC_SAVESCRIPT: // save the script
 				{
-					if( TempActor.OutAnims.Num() == 0 ) 
+					if( TempActor.OutAnims.Num() == 0 )
 					{
 						PopupBox("Warning: no animations present in output package.\n Aborting template generation.");
 					}
@@ -1913,15 +1914,15 @@ static BOOL CALLBACK AuxDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 							PopupBox(" Script template file written: %s ",classname);
 						}
 						else
-							PopupBox(" Error trying to write script template file [%s] to path [%s]",classname,to_path) ; 
+							PopupBox(" Error trying to write script template file [%s] to path [%s]",classname,to_path) ;
 					}
 				}
 				break;
 
 				// Load, parse and execute a batch-export list.
 				case IDC_BATCHLIST:
-				{					
-					// Load  
+				{
+					// Load
 					char batchfilename[300];
 					_tcscpy(batchfilename,("XX"));
 				    GetBatchFileName( hWnd, batchfilename, to_path);
@@ -1930,20 +1931,20 @@ static BOOL CALLBACK AuxDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 						// Parse and execute..
 						// ExecuteBatchFile( batchfilename, OurScene );
 						PopupBox(" Batch file [%s] processed.",batchfilename );
-					}					
+					}
 				}
-				break;		
-					
+				break;
+
 				// Get all XSI files from selectable folder and digest them all into the animation manager.
-				case IDC_BATCHMAX: 
-				{						
+				case IDC_BATCHMAX:
+				{
 					TCHAR dir[300];
 					TCHAR desc[300];
 					_tcscpy(desc, _T("Maxfiles source folder"));
-					
+
 					if ( GetFolder ( dir ) )
 					{
-						_tcscpy(batchfoldername,dir); 
+						_tcscpy(batchfoldername,dir);
 					}
 
 					INT NumDigested = 0;
@@ -1970,7 +1971,7 @@ static BOOL CALLBACK AuxDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 						break;
 					};
 				}
-				break;		
+				break;
 
 				case IDC_EDITBASE:
 				{
@@ -1986,11 +1987,11 @@ static BOOL CALLBACK AuxDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 						break;
 					};
 				}
-				break;						
+				break;
 
 			};
 
-			
+
 			if ( g_XSIInterface )
 				g_XSIInterface->SaveParameters ();
 
@@ -2009,7 +2010,7 @@ static BOOL CALLBACK VertexDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lP
 {
 
 
-	switch (msg) 
+	switch (msg)
 	{
 		case WM_INITDIALOG:
 		{
@@ -2017,9 +2018,9 @@ static BOOL CALLBACK VertexDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lP
 			_SetCheckBox( hWnd, IDC_CHECKAPPENDVERTEX, OurScene.DoAppendVertex );
 			_SetCheckBox( hWnd, IDC_CHECKFIXEDSCALE,   OurScene.DoScaleVertex );
 
-			if ( OurScene.DoScaleVertex && (OurScene.VertexExportScale != 0.f) ) 
+			if ( OurScene.DoScaleVertex && (OurScene.VertexExportScale != 0.f) )
 			{
-				TCHAR ScaleString[64];						
+				TCHAR ScaleString[64];
 				sprintf(ScaleString,"%8.5f",OurScene.VertexExportScale );
 				PrintWindowString(hWnd, IDC_EDITFIXEDSCALE, ScaleString );
 			}
@@ -2029,8 +2030,8 @@ static BOOL CALLBACK VertexDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lP
 			}
 
 
-			if ( vertframerangestring[0]  ) PrintWindowString(hWnd,IDC_EDITVERTEXRANGE,vertframerangestring);			
-			
+			if ( vertframerangestring[0]  ) PrintWindowString(hWnd,IDC_EDITVERTEXRANGE,vertframerangestring);
+
 			// Initialize this panel's custom controls, if any.
 			// ThisMaxPlugin.InitSpinner(hWnd,IDC_EDIT_ACOMP,IDC_SPIN_ACOMP,100,0,100);
 		}
@@ -2041,7 +2042,7 @@ static BOOL CALLBACK VertexDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lP
 			EndDialog( hWnd, 0 );
 			break;
 
-			
+
 		case WM_COMMAND:
 			// Needed to have keyboard focus on this window!
 			// HIWORD(wParam) : focus switches
@@ -2058,7 +2059,7 @@ static BOOL CALLBACK VertexDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lP
 			};
 
 			// LOWORD(wParam) has commands for the controls in our rollup window.
-			switch (LOWORD(wParam)) 
+			switch (LOWORD(wParam))
 			{
 
 				// Browse for a destination directory.
@@ -2071,11 +2072,11 @@ static BOOL CALLBACK VertexDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lP
 					if ( GetFolder ( dir ) )
 					{
 						SetWindowText(GetDlgItem(hWnd,IDC_PATHVTX),dir);
-						_tcscpy(to_pathvtx,dir); 
+						_tcscpy(to_pathvtx,dir);
 						_tcscpy(LogPath,dir);
 						PluginReg.SetKeyString("TOPATHVTX", to_pathvtx );
 					}
-				}	
+				}
 				break;
 
 
@@ -2086,7 +2087,7 @@ static BOOL CALLBACK VertexDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lP
 						// Whenenver focus is lost, update path.
 						case EN_KILLFOCUS:
 						{
-							GetWindowText(GetDlgItem(hWnd,IDC_PATHVTX),to_pathvtx,300);	
+							GetWindowText(GetDlgItem(hWnd,IDC_PATHVTX),to_pathvtx,300);
 							_tcscpy(LogPath,to_pathvtx);
 							PluginReg.SetKeyString("TOPATHVTX", to_pathvtx );
 						}
@@ -2101,7 +2102,7 @@ static BOOL CALLBACK VertexDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lP
 					{
 						// Whenenver focus is lost, update the skin file name.
 						case EN_KILLFOCUS:
-						{							
+						{
 							GetWindowText(GetDlgItem(hWnd,IDC_FILENAMEVTX),to_skinfilevtx,300);
 							PluginReg.SetKeyString("TOSKINFILEVTX", to_skinfilevtx );
 						}
@@ -2109,26 +2110,26 @@ static BOOL CALLBACK VertexDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lP
 					};
 				}
 				break;
-				
+
 				case IDC_EDITVERTEXRANGE:
 				{
 					switch( HIWORD(wParam) )
 					{
 						// Whenenver focus is lost, update the skin file name.
 						case EN_KILLFOCUS:
-						{							
+						{
 							GetWindowText(GetDlgItem(hWnd,IDC_EDITVERTEXRANGE),vertframerangestring,500);
 						}
 						break;
 					};
 				}
-				break;		
+				break;
 
 				case IDC_EXPORTVERTEX: // export vertex-animated data (raw discretized data, doesn't do auto-scaling )
 				{
 					OurScene.SurveyScene();
-					OurScene.GetSceneInfo();	
-					
+					OurScene.GetSceneInfo();
+
 					OurScene.EvaluateSkeleton(1);
 					OurScene.DigestSkeleton( &TempActor );  // Digest skeleton into tempactor
 
@@ -2136,33 +2137,33 @@ static BOOL CALLBACK VertexDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lP
 
 					if( WrittenFrameCount = OurScene.WriteVertexAnims( &TempActor, to_skinfilevtx, vertframerangestring ) ) // Calls DigestSkin
 					{
-						
+
 						if( ! OurScene.DoAppendVertex )
-								PopupBox(" Vertex animation export successful. \n Written %i frames to file [%s]. ",WrittenFrameCount,to_skinfilevtx);								
+								PopupBox(" Vertex animation export successful. \n Written %i frames to file [%s]. ",WrittenFrameCount,to_skinfilevtx);
 							else
-								PopupBox(" Vertex animation export successful. \n Appended %i frames to file [%s]. ",WrittenFrameCount,to_skinfilevtx);																
+								PopupBox(" Vertex animation export successful. \n Appended %i frames to file [%s]. ",WrittenFrameCount,to_skinfilevtx);
 					}
 					else
 					{
 						PopupBox(" Error encountered writing vertex animation data. ");
 					}
 				}
-				break;			
+				break;
 
-				case IDC_CHECKAPPENDVERTEX: 
+				case IDC_CHECKAPPENDVERTEX:
 				{
 					OurScene.DoAppendVertex = _GetCheckBox(hWnd,IDC_CHECKAPPENDVERTEX);
 					PluginReg.SetKeyValue("DOAPPENDVERTEX", OurScene.DoAppendVertex);
 				}
 				break;
 
-				case IDC_CHECKFIXEDSCALE: 
+				case IDC_CHECKFIXEDSCALE:
 				{
 					OurScene.DoScaleVertex = _GetCheckBox(hWnd,IDC_CHECKFIXEDSCALE);
 					PluginReg.SetKeyValue("DOSCALEVERTEX", OurScene.DoScaleVertex);
 				}
 				break;
-				
+
 
 			};
 
@@ -2180,7 +2181,7 @@ static BOOL CALLBACK VertexDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lP
 
 
 
-static BOOL CALLBACK AboutBoxDlgProc(HWND hWnd, UINT msg, 
+static BOOL CALLBACK AboutBoxDlgProc(HWND hWnd, UINT msg,
 	WPARAM wParam, LPARAM lParam)
 {
 	switch (msg) {
@@ -2206,8 +2207,8 @@ static BOOL CALLBACK AboutBoxDlgProc(HWND hWnd, UINT msg,
 		default:
 			return FALSE;
 	}
-	return TRUE;	
-}       
+	return TRUE;
+}
 
 static BOOL CALLBACK XSIPanelDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -2222,7 +2223,7 @@ static BOOL CALLBACK XSIPanelDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
 		{
 			//
 			// Pre-initialize persistent settings
-			//			
+			//
 			INT SwitchPersistent;
 			PluginReg.GetKeyValue("PERSISTSETTINGS", SwitchPersistent);
 			// Get all relevant settings from the registry.
@@ -2231,7 +2232,7 @@ static BOOL CALLBACK XSIPanelDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
 				OurScene.GetAuxSwitchesFromRegistry( PluginReg );
 				OurScene.GetStaticMeshSwitchesFromRegistry( PluginReg );
 			}
-			
+
 			//
 			// build the tab control
 			//
@@ -2241,9 +2242,9 @@ static BOOL CALLBACK XSIPanelDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
 			item.mask = TCIF_TEXT ;
 			item.pszText = "ActorX";
 			item.iImage = -1;
-			
+
 			int a = TabCtrl_InsertItem( GetDlgItem (hWnd, IDC_TAB1),0,&item);
-			
+
 			item.pszText = "Setup";
 			a = TabCtrl_InsertItem( GetDlgItem ( hWnd, IDC_TAB1),1,&item);
 			item.pszText = "StaticMesh";
@@ -2253,14 +2254,14 @@ static BOOL CALLBACK XSIPanelDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
 			a = TabCtrl_InsertItem( GetDlgItem ( hWnd, IDC_TAB1),1,&item);
 #endif
 
-			
+
 		}
 		break;
 
 		case WM_NOTIFY:
 			{
 				NMHDR FAR *tem=(NMHDR FAR *)lParam;
-				
+
 				if (tem->code== TCN_SELCHANGE)
 				{
 					int num=TabCtrl_GetCurSel(tem->hwndFrom);
@@ -2279,11 +2280,11 @@ static BOOL CALLBACK XSIPanelDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
 					{
 						l_pInterface->UpdateParameters ();
 					}
-					
+
 				}
 				break;
 			}
-	
+
 	case WM_DESTROY:
 	case WM_CLOSE:
 
@@ -2304,7 +2305,7 @@ static BOOL CALLBACK XSIPanelDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
 		default:
 			return FALSE;
 	}
-	return TRUE;	
+	return TRUE;
 
 }
 
@@ -2322,11 +2323,11 @@ int SceneIFC::DigestAnim(VActor *Thing, char* AnimName, char* RangeString )
 
 	ParseFrameRange( RangeString, FirstFrame, LastFrame );
 
-	OurTotalFrames = FrameList.GetTotal();	
-	Thing->RawNumFrames = OurTotalFrames; 
+	OurTotalFrames = FrameList.GetTotal();
+	Thing->RawNumFrames = OurTotalFrames;
 	Thing->RawAnimKeys.SetSize( OurTotalFrames * OurBoneTotal );
 	Thing->RawNumBones  = OurBoneTotal;
-	Thing->FrameTotalTicks = OurTotalFrames * FrameTicks; 
+	Thing->FrameTotalTicks = OurTotalFrames * FrameTicks;
 
 	XSI::Application app;
 	XSI::Property playControl = app.GetActiveProject().GetProperties().GetItem(L"Play Control");
@@ -2349,13 +2350,13 @@ int SceneIFC::DigestAnim(VActor *Thing, char* AnimName, char* RangeString )
 	int BoneIndex  = 0;
 	int AnimIndex  = 0;
 	int FrameCount = 0;
-	int TotalAnimNodes = SerialTree.Num()-RootBoneIndex; 
+	int TotalAnimNodes = SerialTree.Num()-RootBoneIndex;
 
 	//for ( TimeValue TimeNow = FrameStart; TimeNow <= FrameEnd; TimeNow += FrameTicks )
 
 	XSI::UIToolkit kit = app.GetUIToolkit();
 	XSI::ProgressBar	l_pBar = kit.GetProgressBar();
-	
+
 	l_pBar.PutMaximum( 100 );
 	l_pBar.PutMinimum( 1 );
 	l_pBar.PutStep( 1 );
@@ -2369,28 +2370,28 @@ int SceneIFC::DigestAnim(VActor *Thing, char* AnimName, char* RangeString )
 	l_pBar.PutCaption( l_szCaption );
 	l_pBar.PutStatusText( L"" );
 	l_pBar.PutVisible( true );
-				
-	for( INT t=0; t<FrameList.GetTotal(); t++)		
+
+	for( INT t=0; t<FrameList.GetTotal(); t++)
 	{
 		double TimeNow = FrameList.GetFrame(t) * FrameTicks;
 
 		// Advance progress bar; obey bailout.
 		INT Progress = (INT) 100.0f * ( t/(FrameList.GetTotal()+0.01f) );
-		
+
 		l_pBar.PutValue ( Progress );
-		
+
 		if ( l_pBar.IsCancelPressed() )
 		{
 			if ( MessageBox ( NULL, "Really cancel?", "Cancel Export", MB_YESNO|MB_ICONWARNING ) == IDYES )
 			{
 				break;
 			} else {
-				
+
 				l_pBar.PutVisible( true );
 			}
-			
+
 		}
-	
+
 		if (DEBUGFILE && to_path[0])
 		{
 			DLog.Logf(" Frame time: %f   frameticks %f  \n", (FLOAT)TimeNow, (FLOAT)FrameTicks);
@@ -2398,18 +2399,18 @@ int SceneIFC::DigestAnim(VActor *Thing, char* AnimName, char* RangeString )
 
 		for (int i = RootBoneIndex; i<SerialTree.Num(); i++)
 		{
-			if ( SerialTree[i].InSkeleton ) 
+			if ( SerialTree[i].InSkeleton )
 			{
 				XSI::X3DObject ThisNode = ((x3dpointer*)SerialTree[i].node)->m_ptr;
 
 				Thing->RawAnimKeys[AnimIndex].Time = 1.0f;
-		
+
 				XSI::MATH::CTransformation xfo;
-				
+
 				if (  i == RootBoneIndex )
 				{
 					xfo = ThisNode.GetKinematics().GetGlobal().GetTransform(TimeNow);
-										
+
 					// convert coordinate systems
 					//
 					XSI::MATH::CTransformation flip;
@@ -2421,63 +2422,63 @@ int SceneIFC::DigestAnim(VActor *Thing, char* AnimName, char* RangeString )
 					//
 					// do hierarchical compensation
 					//
-					
+
 					xfo = ThisNode.GetKinematics().GetLocal().GetTransform(TimeNow);
-					
+
 					NodeInfo* ParentInfo = &SerialTree[ SerialTree[i].ParentIndex ];
-					
+
 					//
 					// special case for effectors in XSI chains ( effector parented to the chain root)
 					//
-					
+
 					if ( ThisNode.GetType().IsEqualNoCase(XSI::siChainEffPrimType) )
 					{
 						//
 						// export it's global xfo
 						//
 						xfo = ThisNode.GetKinematics().GetGlobal().GetTransform(TimeNow);
-						
+
 					}
-					
+
 					//
 					// If this bone's parent was optimized out, do
 					// hierarchical compensation. (fancy term for
 					// saying that we concatenate the transform for
 					// each node upwards in the hierarchy that were
 					// optimized out.)
-					// 
-					
+					//
+
 					while ( !ParentInfo->InSkeleton )
 					{
 						XSI::X3DObject l_pParent = ((x3dpointer*)ParentInfo->node)->m_ptr;
 						XSI::MATH::CTransformation parent_xfo;
-						
+
 						parent_xfo = l_pParent.GetKinematics().GetLocal().GetTransform(TimeNow);
-						
+
 						if ( MatchNodeToIndex( (x3dpointer*)ParentInfo->node ) == RootBoneIndex )
 						{
 							XSI::MATH::CTransformation flip;
 							flip.SetRotationFromXYZAnglesValues ( 90.0 * 0.01745329251994329547, 0.0, 0.0);
 							parent_xfo.MulInPlace ( flip );
 						}
-						
+
 						xfo.MulInPlace ( parent_xfo );
-												
+
 						if (( ParentInfo->ParentIndex == 0 ) || ( ParentInfo->ParentIndex == -1 ))
 						{
 							break;
 						}
-						
+
 						ParentInfo = &SerialTree[ ParentInfo->ParentIndex ];
-						
+
 					}
 				}
-				
+
 
 				XSI::MATH::CQuaternion quat = xfo.GetRotationQuaternion();
 				double rx,ry,rz;
 				xfo.GetRotationFromXYZAnglesValues ( rx, ry, rz );
-				
+
 				if ( i == RootBoneIndex ) //#check whether root
 				{
 					Thing->RawAnimKeys[AnimIndex].Orientation = FQuat(quat.GetX(),quat.GetY(),quat.GetZ(),quat.GetW());
@@ -2487,7 +2488,7 @@ int SceneIFC::DigestAnim(VActor *Thing, char* AnimName, char* RangeString )
 					Thing->RawAnimKeys[AnimIndex].Orientation = FQuat(quat.GetX(),quat.GetY(),quat.GetZ(),-quat.GetW());
 					Thing->RawAnimKeys[AnimIndex].Orientation.Normalize ();
 				}
-				
+
 				double tx, ty, tz;
 				xfo.GetTranslationValues(tx,ty,tz);
 				Thing->RawAnimKeys[AnimIndex].Position = FVector(tx,ty,tz);
@@ -2500,17 +2501,17 @@ int SceneIFC::DigestAnim(VActor *Thing, char* AnimName, char* RangeString )
 					Thing->RawScaleKeys[AnimIndex].Time = 1.0f;
 					Thing->RawScaleKeys[AnimIndex].ScaleVector = FVector(sx,sy,sz);
 				}
-				
+
 				AnimIndex++;
 			}
 		}
 		FrameCount++;
 	} // Time
-	
+
 	DLog.Close();
-	
-	
-	if (AnimIndex != (OurBoneTotal * OurTotalFrames)) 
+
+
+	if (AnimIndex != (OurBoneTotal * OurTotalFrames))
 	{
 		TCHAR OutString[500];
 		sprintf(OutString," Anim: digested %i Expected %i FrameCalc %i FramesProc %i \n",AnimIndex, OurBoneTotal*OurTotalFrames, OurTotalFrames,FrameCount);
@@ -2535,11 +2536,11 @@ int	SceneIFC::DigestSkin(VActor *Thing )
 	Thing->SkinData.Materials.Empty();
 	Thing->SkinData.RawBMPaths.Empty();
 
-	
+
 	// Digest total of materials encountered
 	if (DEBUGFILE)
 	{
-		char LogFileName[MAXPATHCHARS]; // = _T("\\X_AnimInfo_")+ _T(AnimName) +_T(".LOG");	
+		char LogFileName[MAXPATHCHARS]; // = _T("\\X_AnimInfo_")+ _T(AnimName) +_T(".LOG");
 		sprintf(LogFileName,"\\ActXSkin.LOG");
 		DLog.Open(LogPath,LogFileName,DEBUGFILE);
 	}
@@ -2575,7 +2576,7 @@ int	SceneIFC::DigestSkin(VActor *Thing )
 
 		if( FlippedFaces )
 		{
-		// TODO XSI	DebugBox(" Flipped faces: %i on node: %s",FlippedFaces,((INode*)OurSkins[i].Node)->GetName() );		
+		// TODO XSI	DebugBox(" Flipped faces: %i on node: %s",FlippedFaces,((INode*)OurSkins[i].Node)->GetName() );
 		}
 
 		DebugBox(" New points %i faces %i Wedges %i rawweights %i", LocalSkin.Points.Num(), LocalSkin.Faces.Num(), LocalSkin.Wedges.Num(), LocalSkin.RawWeights.Num() );
@@ -2619,7 +2620,7 @@ int	SceneIFC::DigestSkin(VActor *Thing )
 			Thing->SkinData.RawWeights.AddItem(RawWeight);
 		}
 	}
-	
+
 	DebugBox( "Total raw materials [%i] ", Thing->SkinData.RawMaterials.Num() ); //#debug
 
 	UBOOL IndexOverride = false;
@@ -2632,8 +2633,8 @@ int	SceneIFC::DigestSkin(VActor *Thing )
 
 		char *MatNameStr = new char [ ThisMtl.GetName().Length() + 1 ];
 		W2AHelper ( MatNameStr, ThisMtl.GetName().GetWideString() );
-		
-		
+
+
 		// Material name.
 		Stuff.SetName( MatNameStr );
 
@@ -2642,7 +2643,7 @@ int	SceneIFC::DigestSkin(VActor *Thing )
 		//TODO XSI : DebugBox( "Material: %s  [%i] ", ThisMtl->GetName(), i ); //#debug
 
 		// Rendering flags.
-		CalcMaterialFlags( ThisMtl, Stuff );	
+		CalcMaterialFlags( ThisMtl, Stuff );
 		// Reserved - for material sorting.
 		Stuff.AuxMaterial = 0;
 
@@ -2672,9 +2673,9 @@ int	SceneIFC::DigestSkin(VActor *Thing )
 
 		Thing->SkinData.RawBMPaths.AddItem( TextureSource );
 
-	}		
+	}
 
-	DebugBox( "Total unique materials [%i] ", Thing->SkinData.Materials.Num() ); 
+	DebugBox( "Total unique materials [%i] ", Thing->SkinData.Materials.Num() );
 
 	//
 	// Sort Thing->materials in order of 'skin' assignment.
@@ -2691,13 +2692,13 @@ int	SceneIFC::DigestSkin(VActor *Thing )
 			Thing->SkinData.Materials[t].AuxMaterial = t;
 		}
 
-		// Bubble sort.		
+		// Bubble sort.
 		int Sorted = 0;
 		while (Sorted==0)
 		{
 			Sorted=1;
 			for (int t=0; t<(NumMaterials-1);t++)
-			{	
+			{
 				UBOOL SwapNeeded = false;
 				if( Thing->SkinData.Materials[t].AuxFlags && (!Thing->SkinData.Materials[t+1].AuxFlags) )
 				{
@@ -2708,23 +2709,23 @@ int	SceneIFC::DigestSkin(VActor *Thing )
 					if( ( Thing->SkinData.Materials[t].AuxFlags && Thing->SkinData.Materials[t+1].AuxFlags ) &&
 						( Thing->SkinData.Materials[t].TextureIndex > Thing->SkinData.Materials[t+1].TextureIndex ) )
 						SwapNeeded = true;
-				}				
+				}
 				if( SwapNeeded )
 				{
 					Sorted=0;
 
 					VMaterial VMStore = Thing->SkinData.Materials[t];
 					Thing->SkinData.Materials[t]   = Thing->SkinData.Materials[t+1];
-					Thing->SkinData.Materials[t+1] = VMStore;					
-										
+					Thing->SkinData.Materials[t+1] = VMStore;
+
 					VBitmapOrigin BOStore = Thing->SkinData.RawBMPaths[t];
 					Thing->SkinData.RawBMPaths[t]   = Thing->SkinData.RawBMPaths[t+1];
-					Thing->SkinData.RawBMPaths[t+1] = BOStore;					
-				}			
+					Thing->SkinData.RawBMPaths[t+1] = BOStore;
+				}
 			}
 		}
 
-		DebugBox("Re-sorted material order for skin-index override.");	
+		DebugBox("Re-sorted material order for skin-index override.");
 
 		// Remap wedge material indices.
 		if (1)
@@ -2740,12 +2741,12 @@ int	SceneIFC::DigestSkin(VActor *Thing )
 				INT MatIdx = Thing->SkinData.Wedges[i].MatIndex;
 				if ( MatIdx >=0 && MatIdx < Thing->SkinData.Materials.Num() )
 					Thing->SkinData.Wedges[i].MatIndex =  RemapArray[MatIdx];
-			}}		
+			}}
 		}
 	}
 
-	DLog.Close();	
-	
+	DLog.Close();
+
 	return 1;
 }
 
@@ -2753,19 +2754,19 @@ int	SceneIFC::DigestSkin(VActor *Thing )
 int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin& LocalSkin, INT SmoothSkin, SkinInf* SkinHandle )
 {
 	// We need a digest of all objects in the scene that are meshes belonging
-	// to the skin. Use each meshes' parent node if it is a non-physiqued one; 
+	// to the skin. Use each meshes' parent node if it is a non-physiqued one;
 	// do physique bones digestion where possible.
 
 	// Get vertexes (=points)
 	// Get faces + allocate wedge for each face vertex.
 
-	if( 0 ) 
+	if( 0 )
 	{
-		char LogFileName[MAX_PATH]; 
+		char LogFileName[MAX_PATH];
 		sprintf(LogFileName,"\\Aaaa.LOG");
 		DLog.Open(LogPath,LogFileName,DOLOGFILE);
 	}
-	
+
 	if( SkinNode == NULL)
 	{
 		return 0;
@@ -2776,22 +2777,22 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 	UBOOL bMeshSelected = IsSelected ( x3d );
 
 	// If requested ignore all but selected geometry.
-	if( ( OurScene.DoSelectedGeom && !DoSkipSelectedGeom ) && !bMeshSelected ) 
-	{		
-		return 0; 
+	if( ( OurScene.DoSelectedGeom && !DoSkipSelectedGeom ) && !bMeshSelected )
+	{
+		return 0;
 	}
 
 	// If requested ignore all selected geometry.
-	if( ( OurScene.DoSelectedGeom && DoSkipSelectedGeom ) && bMeshSelected  ) 
+	if( ( OurScene.DoSelectedGeom && DoSkipSelectedGeom ) && bMeshSelected  )
 	{
 		return 0;
 	}
 
 	XSI::Geometry geom(x3d.GetActivePrimitive().GetGeometry());
 	XSI::PolygonMesh polygonmesh(geom);
-	
 
-	if (!polygonmesh.IsValid()) 
+
+	if (!polygonmesh.IsValid())
 	{
 		ErrorBox(" Invalid TriMesh Error. ");
 		return 0;
@@ -2830,7 +2831,7 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 	//
 	XSI::CRefArray		allClusters;
 	polygonmesh.GetClusters().Filter(L"poly",XSI::CStringArray(),L"",allClusters);
-	
+
 	for (int c=0;c<allClusters.GetCount();c++)
 	{
 		//
@@ -2845,7 +2846,7 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 		//
 
 		int ClusterMaterialIndex = DigestLocalMaterial ( l_pMat, Thing->SkinData.RawMaterials );
-	
+
 		//
 		// update the triangle map to point all tris using this material
 		// to the correct index
@@ -2871,28 +2872,28 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 
 	if (!SmoothSkin) // normal mesh
 	{
-		
+
 		INT NumberVertices = points.GetCount();
 
 		DebugBox("Vertices total: %i",NumberVertices);
 
 		if (DEBUGFILE && to_path[0])
 		{
-			DLog.Logf(" Mesh totals:  Points %i Faces %i \n", NumberVertices,polygonmesh.GetTriangles().GetCount());			
+			DLog.Logf(" Mesh totals:  Points %i Faces %i \n", NumberVertices,polygonmesh.GetTriangles().GetCount());
 		}
-		
+
 		DebugBox("Digesting geometry mesh - vertices %",NumberVertices);
 
 		INT MatchedNode = Thing->MatchNodeToSkeletonIndex(SkinNode);
 
-		// Is this node part of the hierarchy we digested earlier ? This should never occur.		
-		if( MatchedNode < 0 ) 
+		// Is this node part of the hierarchy we digested earlier ? This should never occur.
+		if( MatchedNode < 0 )
 		{
-			MatchedNode = 0; 
+			MatchedNode = 0;
 		}
-		
+
 		// Get vertices + weights.
-		for (int i=0; i< NumberVertices ; i++) 
+		for (int i=0; i< NumberVertices ; i++)
 		{
 			// SkinLocal brings the skin 3d vertices into world space.
 			XSI::Point point(points.GetItem(i) );
@@ -2901,21 +2902,21 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 
 			VPoint NewPoint;
 			NewPoint.Point = FVector(pos.GetX(),pos.GetY(),pos.GetZ());
-			LocalSkin.Points.AddItem(NewPoint); 						
-			
+			LocalSkin.Points.AddItem(NewPoint);
+
 			VRawBoneInfluence TempInf;
 			TempInf.PointIndex = i; // raw skinvertices index
-			TempInf.BoneIndex  =  MatchedNode; // Bone is it's own node.			
+			TempInf.BoneIndex  =  MatchedNode; // Bone is it's own node.
 			TempInf.Weight     = 1.0f; // Single influence by definition.
 
-			LocalSkin.RawWeights.AddItem(TempInf);  										
+			LocalSkin.RawWeights.AddItem(TempInf);
 		}
 
 		DebugBox("Digested geometry mesh - Points %",LocalSkin.Points.Num() );
 	}
 
 	int NodeMatchWarnings = 0;
-	
+
 	//
 	// Process a skin geometry object.
 	//
@@ -2937,7 +2938,7 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 			XSI::SceneItem item(x3d);
 			XSI::CRefArray l_Envelope = item.GetEnvelopes();
 
-			assert ( l_Envelope.GetCount() == 1 );	// what do we do for multiple envelopes?? 
+			assert ( l_Envelope.GetCount() == 1 );	// what do we do for multiple envelopes??
 
 
 			XSI::Envelope l_env = l_Envelope[0];
@@ -2959,7 +2960,7 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 					if ( myWeightArray[w] > 0.00001f ) // TODO XSI: use min??
 					{
 						int VertIndex = indexArray[w];
-						
+
 						//
 						//  find the ActorX index for this deformer
 						//
@@ -2972,9 +2973,9 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 								p = g_XSIInterface->m_pCachedScene[n];
 								break;
 							}
-							
+
 						}
-						
+
 						int BoneIndex = MatchNodeToIndex( p );
 
 						weightedvertex* l_pVert = &XSIEnvelope[VertIndex];
@@ -2982,7 +2983,7 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 						l_pVert->m_pWeights[l_pVert->m_pWeights.GetUsed()-1].m_iBoneIndex = BoneIndex;
 						l_pVert->m_pWeights[l_pVert->m_pWeights.GetUsed()-1].m_fWeight = myWeightArray[w];
 						l_pVert->m_pWeights[l_pVert->m_pWeights.GetUsed()-1].m_ptr = p;
-						
+
 
 					}
 
@@ -2991,7 +2992,7 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 			}
 
 			// Get vertices + weights.
-			for (int VertexIndex=0; VertexIndex< NumberVertices ; VertexIndex++) 
+			for (int VertexIndex=0; VertexIndex< NumberVertices ; VertexIndex++)
 			{
 				weightedvertex* l_pVert = &XSIEnvelope[VertexIndex];
 
@@ -3006,19 +3007,19 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 						SmoothVertInfluence NewInfluence( 0.0f, -1 );
 
 						NewInfluence.Weight = sweight->m_fWeight;
-						
+
 
 						// Now find the bone and add the influence only if there was a nonzero weight.
 						if( NewInfluence.Weight > 0.0f ) // SMALLESTWEIGHT constant instead ?
-						{						
+						{
 							NewInfluence.BoneIndex = sweight->m_iBoneIndex;
-							
+
 							// Node not found ?
 							if( NewInfluence.BoneIndex < 0 )
-							{														
+							{
 								NewInfluence.Weight = 0.0f;
-								NodeMatchWarnings++;		
-							}							
+								NodeMatchWarnings++;
+							}
 
 							SerialTree[  sweight->m_iBoneIndex ].LinksToSkin++; // Count number of vertices !
 
@@ -3032,24 +3033,24 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 							sprintf(OutString,"Weight invalid: [%f] - fixing it up....", NewInfluence.Weight);
 							ErrorBox(OutString);
 
-						
+
 						}
 					}
-				
+
 
 
 				// Verify we found at least one influence for this vert.
-				static INT PhysiqueTotalErrors = 0; 
+				static INT PhysiqueTotalErrors = 0;
 				if( RawInfluences.Num() == 0 ) //&& PhysiqueTotalErrors == 0 ) //#SKEL
 				{
 					TCHAR OutString[500];
 					sprintf(OutString,"Invalid number of physique bone influences (%i) for skin vertex %i",NumberBones,VertexIndex );
 					ErrorBox(OutString);
 					PhysiqueTotalErrors ++;
-				}				
+				}
 
-				
-				
+
+
 				WeightsSortAndNormalize( RawInfluences );
 
 				// Store all nonzero weights
@@ -3064,7 +3065,7 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 						TempInf.BoneIndex  = RawInfluences[t].BoneIndex;
 						TempInf.Weight     = RawInfluences[t].Weight;
 
-						LocalSkin.RawWeights.AddItem(TempInf);												
+						LocalSkin.RawWeights.AddItem(TempInf);
 					}
 				}
 
@@ -3074,23 +3075,23 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 
 				VPoint NewPoint;
 				NewPoint.Point = FVector(pos.GetX(),pos.GetY(),pos.GetZ());
-				LocalSkin.Points.AddItem(NewPoint); 						
+				LocalSkin.Points.AddItem(NewPoint);
 
 
 			}
 
 
-		}	
-		
+		}
+
 	}
 
-	if( NodeMatchWarnings ) 
+	if( NodeMatchWarnings )
 	{
 		ErrorBox("Warning: %8i 'Unmatched node ID' Physique skin vertex errors encountered.",(INT)NodeMatchWarnings);
 		NodeMatchWarnings=0;
 	}
 
-	
+
 
 	//
 	// Digest any mesh triangle data -> into unique wedges (ie common texture UV'sand (later) smoothing groups.)
@@ -3122,8 +3123,8 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 	if( OurScene.DoUnSmooth )
 	{
 		TempTranslator.createNewSmoothingGroups( x3d );
-			
-		if( TempTranslator.FaceSmoothingGroups.Num()  ) 
+
+		if( TempTranslator.FaceSmoothingGroups.Num()  )
 		{
 			bSmoothingGroups = true;
 		}
@@ -3134,7 +3135,7 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 	for (TriIndex = 0; TriIndex < NumFaces; TriIndex++)
 	{
 		XSI::Triangle TriFace = triarray[TriIndex];
-		
+
 		VVertex Wedge0;
 		VVertex Wedge1;
 		VVertex Wedge2;
@@ -3160,20 +3161,20 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 		Wedge0.PointIndex = TriFace.GetIndexArray()[0];  // TriFace->v[0];
 		Wedge1.PointIndex = TriFace.GetIndexArray()[1];
 		Wedge2.PointIndex = TriFace.GetIndexArray()[2];
-		
+
 		// Vertex coordinates are in localskin.point, already in worldspace.
 		FVector WV0 = LocalSkin.Points[ Wedge0.PointIndex ].Point;
 		FVector WV1 = LocalSkin.Points[ Wedge1.PointIndex ].Point;
 		FVector WV2 = LocalSkin.Points[ Wedge2.PointIndex ].Point;
 
-		// Figure out the handedness of the face by constructing a normal and comparing it to Max's normal.		
+		// Figure out the handedness of the face by constructing a normal and comparing it to Max's normal.
 		FVector OurNormal = (WV0 - WV1) ^ (WV2 - WV0);
-		// OurNormal /= sqrt(OurNormal.SizeSquared()+0.001f);// Normalize size (unnecessary ?);			
-		
+		// OurNormal /= sqrt(OurNormal.SizeSquared()+0.001f);// Normalize size (unnecessary ?);
+
 		Handedness = ( ( OurNormal | FaceNormal ) < 0.0f); // normals anti-parallel ?
 
 		BYTE MaterialIndex = TriangleMaterialMap[TriIndex];
-		
+
 
 		//NewFace.MatIndex = MaterialIndex;
 
@@ -3182,11 +3183,11 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 		Wedge2.Reserved = 0;
 
 		//
-		// Get UV texture coordinates: allocate a Wedge with for each and every 
-		// UV+ MaterialIndex ID; then merge these, and adjust links in the Triangles 
+		// Get UV texture coordinates: allocate a Wedge with for each and every
+		// UV+ MaterialIndex ID; then merge these, and adjust links in the Triangles
 		// that point to them.
 		//
-	
+
 		Wedge0.U = 0; // bogus UV's.
 		Wedge0.V = 0;
 		Wedge1.U = 1;
@@ -3195,7 +3196,7 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 		Wedge2.V = 1;
 
 		// Jul 12 '01: -> Changed to uses alternate indicator - the HAS_TVERTS flag apparently not supported correctly in Max 4.X
-		if( TotalTVNum > 0 )   // (TriFace->flags & HAS_TVERTS)  
+		if( TotalTVNum > 0 )   // (TriFace->flags & HAS_TVERTS)
 		{
 			DWORD UVidx0 = TriFace.GetIndexArray()[0];
 			DWORD UVidx1 = TriFace.GetIndexArray()[1];
@@ -3217,7 +3218,7 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 		else
 		{
 			CountNakedTris++;
-			NakedTri = true; 					
+			NakedTri = true;
 		}
 
 		//
@@ -3231,23 +3232,23 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 		Wedge0.MatIndex = ThisMaterial;
 		Wedge1.MatIndex = ThisMaterial;
 		Wedge2.MatIndex = ThisMaterial;
-		
+
 		LocalSkin.Wedges.AddItem(Wedge0);
 		LocalSkin.Wedges.AddItem(Wedge1);
 		LocalSkin.Wedges.AddItem(Wedge2);
-		
+
 		LocalSkin.Faces.AddItem(NewFace);
 		if (DEBUGFILE && to_path[0]) DLog.Logf(" [tri %4i ] Wedge UV  %f  %f  MaterialIndex %i  Vertex %i \n",TriIndex,LocalSkin.Wedges[LocalSkin.Wedges.Num()-1].U ,LocalSkin.Wedges[LocalSkin.Wedges.Num()-1].V ,LocalSkin.Wedges[LocalSkin.Wedges.Num()-1].MatIndex, LocalSkin.Wedges[LocalSkin.Wedges.Num()-1].PointIndex );
 	}
-	
-	if (NakedTri) 
+
+	if (NakedTri)
 	{
 		// TODO XSI:
 		//TSTR NodeName( ((INode*)SkinNode)->GetName() );
-		//int numTexVerts = OurTriMesh->getNumTVerts();		
+		//int numTexVerts = OurTriMesh->getNumTVerts();
 		//WarningBox("Triangles [%i] without UV mapping detected for mesh object: %s ", CountNakedTris, NodeName );
 	}
-	
+
 	DebugBox( "Digested %i Triangles.", NumFaces );
 
 	// DIGEST the wedges. Merge _all_ non-unique ones, but keep most of the current ordering intact..\
@@ -3259,7 +3260,7 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 	TArray  <VVertex> NewWedges;
 	TArray  <int>     WedgeRemap;
 
-	WedgeRemap.SetSize( LocalSkin.Wedges.Num() ); 
+	WedgeRemap.SetSize( LocalSkin.Wedges.Num() );
 
 	DebugBox( "Digesting %i Wedges.", LocalSkin.Wedges.Num() );
 
@@ -3271,7 +3272,7 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 		if( LocalSkin.Wedges[t].Reserved != 0xFF ) // not flagged ?
 		{
 			// Remember this wedge's unique new index.
-			WedgeRemap[t] = NewWedges.Num();		
+			WedgeRemap[t] = NewWedges.Num();
 			NewWedges.AddItem( LocalSkin.Wedges[t] ); // then it's unique.
 
 			// Any copies ?
@@ -3288,7 +3289,7 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 
 	//
 	// Re-point all indices from all Triangles to the proper unique-ified Wedges.
-	// 
+	//
 
 	for (TriIndex = 0; TriIndex < NumFaces; TriIndex++)
 	{
@@ -3299,11 +3300,11 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 		// Verify we all mapped within new bounds.
 		if (LocalSkin.Faces[TriIndex].WedgeIndex[0] >= NewWedges.Num()) ErrorBox("Wedge Overflow 1");
 		if (LocalSkin.Faces[TriIndex].WedgeIndex[1] >= NewWedges.Num()) ErrorBox("Wedge Overflow 1");
-		if (LocalSkin.Faces[TriIndex].WedgeIndex[2] >= NewWedges.Num()) ErrorBox("Wedge Overflow 1");	
+		if (LocalSkin.Faces[TriIndex].WedgeIndex[2] >= NewWedges.Num()) ErrorBox("Wedge Overflow 1");
 
 		// Flip faces?
-		if( Handedness ) 
-		{			
+		if( Handedness )
+		{
 			FlippedFaces++;
 			INT Index1 = LocalSkin.Faces[TriIndex].WedgeIndex[2];
 			LocalSkin.Faces[TriIndex].WedgeIndex[2] = LocalSkin.Faces[TriIndex].WedgeIndex[1];
@@ -3321,7 +3322,7 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 	{for( int t=0; t<NewWedges.Num(); t++ )
 	{
 		LocalSkin.Wedges[t] = NewWedges[t];
-		if (DEBUGFILE && to_path[0]) 
+		if (DEBUGFILE && to_path[0])
 		{
 			DLog.Logf(" [ %4i ] Wedge UV  %f  %f  Material %i  Vertex %i \n",t,NewWedges[t].U,NewWedges[t].V,NewWedges[t].MatIndex,NewWedges[t].PointIndex );
 		}
@@ -3332,7 +3333,7 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 		DLog.Logf(" Digested totals: Wedges %i Points %i Faces %i \n", LocalSkin.Wedges.Num(),LocalSkin.Points.Num(),LocalSkin.Faces.Num());
 	}
 
-	
+
 	return 1;
 };
 
@@ -3349,7 +3350,7 @@ int SceneIFC::DigestMaterial(AXNode *node,  INT matIndex,  TArray<void*>& RawMat
 		XSI::X3DObject x3d = ((x3dpointer*)node)->m_ptr;
 		mat = x3d.GetMaterial();
 	}
-	
+
 
 	// This should be checked for in advance.
 	if (!mat.IsValid())
@@ -3380,7 +3381,7 @@ int SceneIFC::DigestSkeleton(VActor *Thing)
 
 	TextFile SkelLog;
 
-	
+
 	Thing->RefSkeletonBones.SetSize(0);  //SetSize( SerialNodes ); //#debug  'ourbonetotal ?'
 	Thing->RefSkeletonNodes.SetSize(0);  //SetSize( SerialNodes );
 
@@ -3401,8 +3402,8 @@ int SceneIFC::DigestSkeleton(VActor *Thing)
 	OurBoneTotal = 0;
 	for (int i = RootBoneIndex; i<SerialTree.Num(); i++)
 	{
-		if ( SerialTree[i].InSkeleton ) 
-		{	
+		if ( SerialTree[i].InSkeleton )
+		{
 			if (i != RootBoneIndex)
 			{
 				XSI::X3DObject obj ( ((x3dpointer*)SerialTree[i].node)->m_ptr );
@@ -3472,7 +3473,7 @@ int SceneIFC::DigestSkeleton(VActor *Thing)
 				{
 					if( NewParents[f] == OldParent ) LocalParent=f;
 				}
-				
+
 				if (LocalParent == -1 )
 				{
 					ErrorBox(" Local parent lookup failed.");
@@ -3486,7 +3487,7 @@ int SceneIFC::DigestSkeleton(VActor *Thing)
 				ThisBone.ParentIndex = 0; // root links to itself...? .Info.ParentIndex
 			}
 /*
-			
+
 			Matrix3 parentTM, nodeTM, localTM;
 			nodeTM = ((INode*)ThisNode)->GetNodeTM(TimeStatic);
 			parent = ((INode*)ThisNode)->GetParentNode();
@@ -3512,9 +3513,9 @@ int SceneIFC::DigestSkeleton(VActor *Thing)
 			{
 				xfo = ThisNode.GetKinematics().GetGlobal().GetTransform();
 
-				
+
 				// convert coordinate systems
-				
+
 				XSI::MATH::CTransformation flip;
 				flip.SetRotationFromXYZAnglesValues ( 90.0 * 0.01745329251994329547, 0.0, 0.0);
 				xfo.MulInPlace ( flip );
@@ -3548,7 +3549,7 @@ int SceneIFC::DigestSkeleton(VActor *Thing)
 				// saying that we concatenate the transform for
 				// each node upwards in the hierarchy that were
 				// optimized out.)
-				// 
+				//
 
 				while ( !ParentInfo->InSkeleton )
 				{
@@ -3566,7 +3567,7 @@ int SceneIFC::DigestSkeleton(VActor *Thing)
 
 					xfo.MulInPlace ( parent_xfo );
 
-					
+
 					if (( ParentInfo->ParentIndex == 0 ) || ( ParentInfo->ParentIndex == -1 ))
 					{
 						break;
@@ -3582,14 +3583,14 @@ int SceneIFC::DigestSkeleton(VActor *Thing)
 			XSI::MATH::CQuaternion quat = xfo.GetRotationQuaternion();
 			double rx,ry,rz;
 			xfo.GetRotationFromXYZAnglesValues ( rx, ry, rz );
-			
+
 			if ( /*SerialTree[i].ParentIndex == 0*/ i == RootBoneIndex ) //#check whether root
 			{
 				//XSI::MATH::CTransformation flip;
 				//flip.SetRotationFromXYZAnglesValues ( -90.0 * 0.01745329251994329547, 0.0, 0.0);
 				//xfo.MulInPlace ( flip );
-				
-				//quat = xfo.GetRotationQuaternion();			
+
+				//quat = xfo.GetRotationQuaternion();
 
 				ThisBone.BonePos.Orientation = FQuat(quat.GetX(),quat.GetY(),quat.GetZ(),quat.GetW());
 			}
@@ -3598,18 +3599,18 @@ int SceneIFC::DigestSkeleton(VActor *Thing)
 			//	XSI::MATH::CTransformation flip;
 			//	flip.SetRotationFromXYZAnglesValues ( 0.0, 0.0, -90.0 * 0.01745329251994329547);
 			//	xfo.MulInPlace ( flip );
-				
+
 			//	quat = xfo.GetRotationQuaternion();
 				ThisBone.BonePos.Orientation = FQuat(quat.GetX(),quat.GetY(),quat.GetZ(),-quat.GetW());
 				ThisBone.BonePos.Orientation.Normalize ();
 			}
-			
+
 			double tx, ty, tz;
 			xfo.GetTranslationValues(tx,ty,tz);
 			ThisBone.BonePos.Position = FVector(tx,ty,tz);
 
 			Thing->RefSkeletonNodes.AddItem(((void*)SerialTree[i].node));
-			Thing->RefSkeletonBones.AddItem(ThisBone);			
+			Thing->RefSkeletonBones.AddItem(ThisBone);
 		}
 	}
 
@@ -3619,7 +3620,7 @@ int SceneIFC::DigestSkeleton(VActor *Thing)
 	{
 		for(INT j=0; j< Thing->RefSkeletonBones.Num(); j++)
 		{
-			if( (i!=j) && ( strcmp( Thing->RefSkeletonBones[i].Name, Thing->RefSkeletonBones[j].Name)==0)  ) 
+			if( (i!=j) && ( strcmp( Thing->RefSkeletonBones[i].Name, Thing->RefSkeletonBones[j].Name)==0)  )
 			{
 				DuplicateBones++;
 				WarningBox( " Duplicate bone name encountered in skeleton: %s ", Thing->RefSkeletonBones[j].Name );
@@ -3628,7 +3629,7 @@ int SceneIFC::DigestSkeleton(VActor *Thing)
 	}}
 	if (DuplicateBones)
 	{
-		WarningBox( "%i total duplicate bone name(s) detected.", DuplicateBones );		
+		WarningBox( "%i total duplicate bone name(s) detected.", DuplicateBones );
 	}
 
 	DLog.Close();
@@ -3654,12 +3655,12 @@ int SceneIFC::EvaluateSkeleton( INT RequireBones )
 	int i;
 
 	for( i=0; i<SerialTree.Num(); i++)
-	{	
+	{
 		if( (SerialTree[i].IsBone != 0 )/* && (SerialTree[i].ParentIndex == 0)*/ )
 		{
 			// choose one with the biggest number of bones, that must be the
 			// intended skeleton/hierarchy.
-			
+
 			BonesMax += MarkBonesOfSystem(i);
 		}
 	}
@@ -3705,11 +3706,11 @@ int SceneIFC::RecurseValidBones(const int RIndex, int &BoneCount)
 	SerialTree[RIndex].InSkeleton = 1; //part of our skeleton.
 	BoneCount++;
 
-	for (int c = 0; c < SerialTree[RIndex].NumChildren; c++) 
+	for (int c = 0; c < SerialTree[RIndex].NumChildren; c++)
 	{
 		if( GetChildNodeIndex(RIndex,c) <= 0 ) ErrorBox("GetChildNodeIndex assertion failed");
 
-		RecurseValidBones( GetChildNodeIndex(RIndex,c), BoneCount); 
+		RecurseValidBones( GetChildNodeIndex(RIndex,c), BoneCount);
 	}
 	return 1;
 }
@@ -3728,7 +3729,7 @@ int	SceneIFC::MarkBonesOfSystem(int RIndex)
 
 	// DebugBox("Recursed valid bones: %i",BoneCount);
 
-	// How to get the hierarchy with support of our 
+	// How to get the hierarchy with support of our
 	// flags, too:
 	// - ( a numchildren, and look-for-nth-child routine for our array !)
 
@@ -3738,7 +3739,7 @@ int	SceneIFC::MarkBonesOfSystem(int RIndex)
 
 int SceneIFC::GetSceneInfo()
 {
-	
+
 	DLog.Logf(" Total nodecount %i \n",SerialTree.Num());
 
 	TotalSkinNodeNum = 0;
@@ -3753,7 +3754,7 @@ int SceneIFC::GetSceneInfo()
 	TotalSkinLinks = 0;
 
 	DebugBox("* Total serial nodes to check: %i \n",SerialTree.Num());
-	
+
 	if (SerialTree.Num() == 0) return 0;
 
 	DebugBox("Go over serial nodes & set flags");
@@ -3761,7 +3762,7 @@ int SceneIFC::GetSceneInfo()
 	OurSkins.Empty();
 	int i;
 	for( i=0; i<SerialTree.Num(); i++)
-	{			
+	{
 		XSI::X3DObject x3d = ((x3dpointer*)SerialTree[i].node)->m_ptr;
 		XSI::SceneItem item ( x3d );
 
@@ -3769,7 +3770,7 @@ int SceneIFC::GetSceneInfo()
 		XSI::PolygonMesh polygonmesh(geom);
 		// Any meshes at all ?
 		SerialTree[i].HasMesh = polygonmesh.IsValid();
-		
+
 		// Check for a bone candidate.
 		//SerialTree[i].IsBone = EvaluateBone(i);
 		SerialTree[i].IsBone = g_XSIInterface->IsBone(x3d);
@@ -3793,11 +3794,11 @@ int SceneIFC::GetSceneInfo()
 		{
 
 			// Physique/MaxSkin skins dont act as bones themselves. Any other mesh object can act as a bone, though.
-			SerialTree[i].IsBone = 0; 
-			SerialTree[i].IsSkin = 1;			
+			SerialTree[i].IsBone = 0;
+			SerialTree[i].IsSkin = 1;
 
 			// OurSkins array can hold handles for multile physique/maxskin nodes.
-			SkinInf NewSkin;			
+			SkinInf NewSkin;
 
 			NewSkin.Node = SerialTree[i].node;
 			NewSkin.IsSmoothSkinned = 1;
@@ -3819,14 +3820,14 @@ int SceneIFC::GetSceneInfo()
 			TotalSkinNodeNum++;
 		}
 		else if (SerialTree[i].HasTexture && SerialTree[i].HasMesh && DoTexGeom )
-		{		
-			
+		{
+
 			// Any nonphysique mesh object acts as its own bone ?
-			SerialTree[i].IsBone = 1; 
+			SerialTree[i].IsBone = 1;
 			SerialTree[i].IsSkin = 1;
 
 			// Multiple physique nodes...
-			SkinInf NewSkin;			
+			SkinInf NewSkin;
 
 			NewSkin.Node = SerialTree[i].node;
 			NewSkin.IsSmoothSkinned = 0;
@@ -3841,17 +3842,17 @@ int SceneIFC::GetSceneInfo()
 			// Prefer the first or the selected skin if more than one encountered.
 			//TSTR NodeName(((INode*)SerialTree[i].node)->GetName());
 			//DebugBox("Textured geometry mesh: %s",NodeName);
-			
+
 		}
 		else if (SerialTree[i].HasMesh && ExportingStaticMesh )
-		{		
-			
+		{
+
 			// Any nonphysique mesh object acts as its own bone ?
-			SerialTree[i].IsBone = 1; 
+			SerialTree[i].IsBone = 1;
 			SerialTree[i].IsSkin = 1;
 
 			// Multiple physique nodes...
-			SkinInf NewSkin;			
+			SkinInf NewSkin;
 
 			NewSkin.Node = SerialTree[i].node;
 			NewSkin.IsSmoothSkinned = 0;
@@ -3866,9 +3867,9 @@ int SceneIFC::GetSceneInfo()
 			// Prefer the first or the selected skin if more than one encountered.
 			//TSTR NodeName(((INode*)SerialTree[i].node)->GetName());
 			//DebugBox("Textured geometry mesh: %s",NodeName);
-			
+
 		}
-		
+
 	}
 
 	DebugBox("Number of skinned nodes: %i",OurSkins.Num());
@@ -3892,13 +3893,13 @@ int SceneIFC::GetSceneInfo()
 	if (this->DoCullDummies)
 	{
 		for( i=0; i<SerialTree.Num(); i++)
-		{	
+		{
 			XSI::CRefArray l_children = XSI::X3DObject(((x3dpointer*)SerialTree[i].node)->m_ptr).FindChildren ( L"", L"", XSI::CStringArray(), false );
 
-			if ( 
-			   ( SerialTree[i].LinksToSkin == 0)  && 
-			   ( l_children.GetCount() ==0 ) && 
-			   ( SerialTree[i].HasTexture == 0 ) && 
+			if (
+			   ( SerialTree[i].LinksToSkin == 0)  &&
+			   ( l_children.GetCount() ==0 ) &&
+			   ( SerialTree[i].HasTexture == 0 ) &&
 			   ( SerialTree[i].IsBone == 1 )
 			   )
 			{
@@ -3917,7 +3918,7 @@ int SceneIFC::GetSceneInfo()
 	if (DEBUGFILE)
 	{
 		for( i=0; i<SerialTree.Num(); i++)
-		{	
+		{
 			TSTR NodeName(((INode*)SerialTree[i].node)->GetName());
 			DLog.Logf("Node: %4i %-23s Dummy: %2i PHelper %2i Bone: %2i Skin: %2i PhyLinks: %4i NodeID %10i Parent %4i Isroot %4i HasTexture %i Childrn %i Culld %i Parent %3i \n",i,
 				NodeName,
@@ -3950,14 +3951,14 @@ int SceneIFC::EvaluateBone(int RIndex)
 
 	for( int i=0; i<SerialTree.Num(); i++)
 	{
-	
+
 		XSI::X3DObject node = ((x3dpointer*)SerialTree[i].node)->m_ptr;
 		XSI::SceneItem item ( node );
-		
+
 		if ( item.IsValid() )
 		{
 			XSI::CRefArray l_pEnvelopes = item.GetEnvelopes();
-			
+
 			for (int e=0;e<l_pEnvelopes.GetCount();e++)
 			{
 				XSI::Envelope env ( l_pEnvelopes[e] );
@@ -3982,10 +3983,10 @@ int SceneIFC::EvaluateBone(int RIndex)
 					}
 
 				}
-				
+
 			}
-			
-			
+
+
 		}
 
 	}
@@ -4016,7 +4017,7 @@ int SceneIFC::EvaluateBone(int RIndex)
 					p = g_XSIInterface->m_pCachedScene[c];
 					break;
 				}
-					
+
 			}
 
 			if ( EvaluateBone ( MatchNodeToIndex( p ) ) )
@@ -4057,7 +4058,7 @@ void SceneIFC::SurveyScene()
 	g_XSIInterface->m_pHRLevels.DisposeData();
 
 
-	
+
 
 	//
 	// Cache x3d object
@@ -4090,7 +4091,7 @@ void SceneIFC::SurveyScene()
 
 	TimeStatic = startframe;
 
-	// Frame 0 for reference: 
+	// Frame 0 for reference:
 	if( DoPoseZero ) TimeStatic = 0.0f;
 
 	FrameStart = startframe;
@@ -4122,7 +4123,7 @@ void SceneIFC::SurveyScene()
 			{
 				SerialTree[i].IsSelected = true;
 			}
-			
+
 		}
 
 		XSI::X3DObject m_parent = XSI::X3DObject(((x3dpointer*)SerialTree[i].node)->m_ptr).GetParent();
@@ -4138,8 +4139,8 @@ void SceneIFC::SurveyScene()
 			}
 
 		}
-		
-		
+
+
 		// Establish our hierarchy by way of Serialtree indices... upward only.
 		SerialTree[i].ParentIndex = MatchNodeToIndex( p );
 
@@ -4148,14 +4149,14 @@ void SceneIFC::SurveyScene()
 		SerialTree[i].NumChildren = ( children.GetCount() );
 
 	}
-	
+
 	g_XSIInterface->AnalyzeSkeleton();
 
 }
 
 int SceneIFC::WriteVertexAnims(VActor *Thing, char* DestFileName, char* RangeString )
 {
-	
+
     //#define DOLOGVERT 0
 	//if( DOLOGVERT )
 	//{
@@ -4168,16 +4169,16 @@ int SceneIFC::WriteVertexAnims(VActor *Thing, char* DestFileName, char* RangeStr
 
 	Thing->FrameRate = playControl.GetParameterValue(L"rate");
 
-	INT FirstFrame = (INT)FrameStart / FrameTicks; // Convert ticks to frames. FrameTicks set in 
+	INT FirstFrame = (INT)FrameStart / FrameTicks; // Convert ticks to frames. FrameTicks set in
 	INT LastFrame = (INT)FrameEnd / FrameTicks;
 
 	ParseFrameRange( RangeString, FirstFrame, LastFrame );
 
-	OurTotalFrames = FrameList.GetTotal();	
-	Thing->RawNumFrames = OurTotalFrames; 
+	OurTotalFrames = FrameList.GetTotal();
+	Thing->RawNumFrames = OurTotalFrames;
 	Thing->RawAnimKeys.SetSize( OurTotalFrames * OurBoneTotal );
 	Thing->RawNumBones  = OurBoneTotal;
-	Thing->FrameTotalTicks = OurTotalFrames * FrameTicks; 
+	Thing->FrameTotalTicks = OurTotalFrames * FrameTicks;
 	Thing->FrameRate = playControl.GetParameterValue(L"rate");
 
 	INT FrameCount = 0;
@@ -4185,14 +4186,14 @@ int SceneIFC::WriteVertexAnims(VActor *Thing, char* DestFileName, char* RangeStr
 
 	VertexMeshHeader MeshHeader;
 	VertexAnimHeader AnimHeader;
-	
+
 	TArray<VertexMeshTri> VAFaces;
 	TArray<FMeshVert> VAVerts;
 	TArray<FVector> VARawVerts;
 
 	// Get 'reference' triangles; write the _d.3d file. Scene time of sampling here unimportant.
-	OurScene.DigestSkin(&TempActor );  
-	
+	OurScene.DigestSkin(&TempActor );
+
 	// NOTE: handedness-flips all triangles - to be consistent with Unreal engine self-normal generation dependent on winding.
 	{for( INT f=0; f< TempActor.SkinData.Faces.Num(); f++)
 	{
@@ -4200,7 +4201,7 @@ int SceneIFC::WriteVertexAnims(VActor *Thing, char* DestFileName, char* RangeStr
 		TempActor.SkinData.Faces[f].WedgeIndex[1] = TempActor.SkinData.Faces[f].WedgeIndex[2];
 		TempActor.SkinData.Faces[f].WedgeIndex[2] = WIndex;
 	}}
-	
+
 	// Gather triangles
 	INT t;
 	for( t=0; t< TempActor.SkinData.Faces.Num(); t++)
@@ -4210,7 +4211,7 @@ int SceneIFC::WriteVertexAnims(VActor *Thing, char* DestFileName, char* RangeStr
 		NewTri.Color = 0;
 		NewTri.Flags = 0;
 
-		
+
 		NewTri.iVertex[0] = TempActor.SkinData.Wedges[ TempActor.SkinData.Faces[t].WedgeIndex[0] ].PointIndex;
 		NewTri.iVertex[1] = TempActor.SkinData.Wedges[ TempActor.SkinData.Faces[t].WedgeIndex[1] ].PointIndex;
 		NewTri.iVertex[2] = TempActor.SkinData.Wedges[ TempActor.SkinData.Faces[t].WedgeIndex[2] ].PointIndex;
@@ -4222,12 +4223,12 @@ int SceneIFC::WriteVertexAnims(VActor *Thing, char* DestFileName, char* RangeStr
 			NewTri.Tex[v].U = (INT)( TexScaler * TempActor.SkinData.Wedges[ TempActor.SkinData.Faces[t].WedgeIndex[v] ].U );
 			NewTri.Tex[v].V = (INT)( TexScaler * TempActor.SkinData.Wedges[ TempActor.SkinData.Faces[t].WedgeIndex[v] ].V );
 		}
-		
+
 		NewTri.TextureNum = TempActor.SkinData.Faces[t].MatIndex;
 
 		// #TODO - Verify that this is the proper flag assignment for things like alpha, masked, doublesided, etc...
 		if( NewTri.TextureNum < Thing->SkinData.RawMaterials.Num() )
-			NewTri.Flags = Thing->SkinData.Materials[NewTri.TextureNum].PolyFlags; 
+			NewTri.Flags = Thing->SkinData.Materials[NewTri.TextureNum].PolyFlags;
 
 		VAFaces.AddItem( NewTri );
 	}
@@ -4237,9 +4238,9 @@ int SceneIFC::WriteVertexAnims(VActor *Thing, char* DestFileName, char* RangeStr
 	{
 		FastFileClass OutFile;
 		char OutPath[MAX_PATH];
-		sprintf(OutPath,"%s\\%s_d.3d",(char*)to_pathvtx,(char*)DestFileName);		
-		//PopupBox("OutPath for _d file: %s",OutPath); 
-		if ( OutFile.CreateNewFile(OutPath) != 0) 
+		sprintf(OutPath,"%s\\%s_d.3d",(char*)to_pathvtx,(char*)DestFileName);
+		//PopupBox("OutPath for _d file: %s",OutPath);
+		if ( OutFile.CreateNewFile(OutPath) != 0)
 			ErrorBox( "File creation error. ");
 
 		MeshHeader.NumPolygons = VAFaces.Num();
@@ -4255,7 +4256,7 @@ int SceneIFC::WriteVertexAnims(VActor *Thing, char* DestFileName, char* RangeStr
 		for( INT f=0; f< VAFaces.Num(); f++)
 		{
 			OutFile.Write( &(VAFaces[f]), sizeof(VertexMeshTri) );
-		}		
+		}
 
 		OutFile.CloseFlush();
 						if( OutFile.GetError()) ErrorBox("Vertex skin save error.");
@@ -4268,42 +4269,42 @@ int SceneIFC::WriteVertexAnims(VActor *Thing, char* DestFileName, char* RangeStr
 
 	XSI::UIToolkit kit = app.GetUIToolkit();
 	XSI::ProgressBar	l_pBar = kit.GetProgressBar();
-	
+
 	l_pBar.PutMaximum( 100 );
 	l_pBar.PutMinimum( 1 );
 	l_pBar.PutStep( 1 );
 	l_pBar.PutValue( 1 );
 
-	for( INT f=0; f<FrameList.GetTotal(); f++)		
+	for( INT f=0; f<FrameList.GetTotal(); f++)
 	{
 		float TimeNow = FrameList.GetFrame(f) * FrameTicks;
 
 		// Advance progress bar; obey bailout.
 		INT Progress = (INT) 100.0f * ( t/(FrameList.GetTotal()+0.01f) );
-		
+
 		l_pBar.PutValue ( Progress );
-		
+
 		if ( l_pBar.IsCancelPressed() )
 		{
 			if ( MessageBox ( NULL, "Really cancel?", "Cancel Export", MB_YESNO|MB_ICONWARNING ) == IDYES )
 			{
 				break;
 			} else {
-				
+
 				l_pBar.PutVisible( true );
 			}
-			
+
 		}
-	
+
 		// Capture current mesh as a 'reference pose'  at 'TimeNow'.
-		TimeStatic = TimeNow;		
-		OurScene.DigestSkin(&TempActor ); 
+		TimeStatic = TimeNow;
+		OurScene.DigestSkin(&TempActor );
 		for( INT v=0; v< Thing->SkinData.Points.Num(); v++ )
-		{			
+		{
 			VARawVerts.AddItem( Thing->SkinData.Points[v].Point ); //Store full 3d point, since we may be rescaling stuff later.
 		}
 
-		// Add raw skin verts to buffer; we don't care about bones.		
+		// Add raw skin verts to buffer; we don't care about bones.
 
 		FrameCount++;
 	} // Time.
@@ -4314,7 +4315,7 @@ int SceneIFC::WriteVertexAnims(VActor *Thing, char* DestFileName, char* RangeStr
 	if( VARawVerts.Num() )
 	{
 		INT FileError = 0;
-		
+
 		if( OurScene.DoScaleVertex )
 		{
 			//
@@ -4343,7 +4344,7 @@ int SceneIFC::WriteVertexAnims(VActor *Thing, char* DestFileName, char* RangeStr
 		//
 		FastFileClass OutFile;
 		char OutPath[MAX_PATH];
-		sprintf(OutPath,"%s\\%s_a.3d",(char*)to_pathvtx,(char*)DestFileName);							
+		sprintf(OutPath,"%s\\%s_a.3d",(char*)to_pathvtx,(char*)DestFileName);
 
 		if( ! OurScene.DoAppendVertex )
 		{
@@ -4361,7 +4362,7 @@ int SceneIFC::WriteVertexAnims(VActor *Thing, char* DestFileName, char* RangeStr
 				FileError = 1;
 			}
 			// Need to explicitly move file ptr to end for appending.
-			INT SeekLoc = OutFile.Seek(OutFile.GetSize()); 
+			INT SeekLoc = OutFile.Seek(OutFile.GetSize());
 		}
 
 		if( ! FileError )
@@ -4377,7 +4378,7 @@ int SceneIFC::WriteVertexAnims(VActor *Thing, char* DestFileName, char* RangeStr
 			for( INT f=0; f< VAVerts.Num(); f++)
 			{
 				OutFile.Write( &(VAVerts[f]), sizeof(FMeshVert));
-			}		
+			}
 
 			OutFile.CloseFlush();
 				if( OutFile.GetError()) ErrorBox("Vertex anim save error.");
@@ -4395,7 +4396,7 @@ int SceneIFC::WriteVertexAnims(VActor *Thing, char* DestFileName, char* RangeStr
 }
 
 //
-// Unreal flags from materials (original material tricks by Steve Sinclair, Digital Extremes ) 
+// Unreal flags from materials (original material tricks by Steve Sinclair, Digital Extremes )
 // - uses classic Unreal/UT flag conventions for now.
 // Determine the polyflags, in case a multimaterial is present
 // reference the matID value (pass in the face's matID).
@@ -4417,22 +4418,22 @@ void CalcMaterialFlags(XSI::Material mat, VMaterial& Stuff )
 	BOOL	masked=FALSE;
 	BOOL	flat=FALSE;
 	BOOL    alpha=FALSE;
-	
-	// Check skin index 
+
+	// Check skin index
 	// TODO XSI: INT skinIndex = FindValueTag( pName, _T("skin") ,2 ); // Double (or single) digit skin index.......
 	INT skinIndex = 0;
-	if ( skinIndex < 0 ) 
+	if ( skinIndex < 0 )
 	{
 		skinIndex = 0;
-		Stuff.AuxFlags = 0;  
+		Stuff.AuxFlags = 0;
 	}
 	else
 		Stuff.AuxFlags = 1; // Indicates an explicitly defined skin index.
 
 	Stuff.TextureIndex = skinIndex;
-	
+
 	// Lodbias
-	// TODO XSI: INT LodBias = FindValueTag( pName, _T("lodbias"),2); 
+	// TODO XSI: INT LodBias = FindValueTag( pName, _T("lodbias"),2);
 	INT LodBias = 5;
 	// END TODO XSI
 	if ( LodBias < 0 ) LodBias = 5; // Default value when tag not found.
@@ -4460,36 +4461,36 @@ void CalcMaterialFlags(XSI::Material mat, VMaterial& Stuff )
 	if (CheckSubString(pName,_T("trans")))  translucent=true;
 	if (CheckSubString(pName,_T("opaque"))) translucent=false;
 	if (CheckSubString(pName,_T("alph"))) alpha=true;
- 
+
 	BYTE MatFlags= MTT_Normal;
-	
+
 	if (two)
 		MatFlags|= MTT_NormalTwoSided;
-	
+
 	if (translucent)
 		MatFlags|= MTT_Translucent;
-	
+
 	if (masked)
 		MatFlags|= MTT_Masked;
-	
+
 	if (modulate)
 		MatFlags|= MTT_Modulate;
-	
+
 	if (unlit)
 		MatFlags|= MTT_Unlit;
-	
+
 	if (flat)
 		MatFlags|= MTT_Flat;
-	
+
 	if (enviro)
 		MatFlags|= MTT_Environment;
-	
+
 	if (nofiltering)
 		MatFlags|= MTT_NoSmooth;
 
 	if (alpha)
 		MatFlags|= MTT_Alpha;
-	
+
 	if (weapon)
 		MatFlags= MTT_Placeholder;
 
@@ -4553,7 +4554,7 @@ UBOOL ExecuteBatchFile( char* batchfilename, SceneIFC* OurScene )
 //
 // False = greyed out.
 //
-void ToggleControlEnable( HWND hWnd, int control, BOOL state ) 
+void ToggleControlEnable( HWND hWnd, int control, BOOL state )
 {
 	HWND hDlg = GetDlgItem(hWnd,control);
 	EnableWindow(hDlg,state);
@@ -4570,7 +4571,7 @@ bool IsSelected ( XSI::X3DObject in_obj )
 {
 	XSI::Application app;
 	XSI::CRefArray l_pSelection = app.GetSelection().GetArray();
-	
+
 	for (int s=0;s<l_pSelection.GetCount();s++)
 	{
 		XSI::CRef cref = in_obj;
@@ -4678,5 +4679,3 @@ void A2WHelper( wchar_t* out_wcs, const char* in_sz, int in_cch )
 		}
 	}
 }
-
-

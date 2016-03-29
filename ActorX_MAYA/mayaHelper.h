@@ -1,3 +1,6 @@
+// Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
+// Licensed under the BSD license. See LICENSE.txt file in the project root for full license information.
+
 #ifndef __MayaHelper__H
 #define __MayaHelper__H
 
@@ -9,7 +12,7 @@
 
 	by Sebastian Woldanski
 
-	
+
 */
 
 
@@ -38,11 +41,11 @@ public:
 
 	void destroy()
 	{
-		for (INT i =0; i< _edges.size(); i++)		
+		for (INT i =0; i< _edges.size(); i++)
 			if (_edges[i]) delete _edges[i];
-		for (INT i =0; i< _vertsPairs.size(); i++)		
+		for (INT i =0; i< _vertsPairs.size(); i++)
 			if (_vertsPairs[i]) delete _vertsPairs[i];
-		for (INT i =0; i< _vertEdges.size(); i++)		
+		for (INT i =0; i< _vertEdges.size(); i++)
 			if (_vertEdges[i]) delete _vertEdges[i];
 	}
 	typedef struct edge
@@ -82,7 +85,7 @@ private:
 #define NUM_EXTRA_UV_SETS 3
 
 /*
-triangulatedMesh 
+triangulatedMesh
 	triangulates maya dag path and builds tructure of indexes
 
 */
@@ -127,7 +130,7 @@ public:
 	};
 	typedef struct Triangle
 	{
-		Index	Indices[3];			
+		Index	Indices[3];
 		int		ShadingGroupIndex;	// index for ShadingGroups
 	};
 
@@ -136,7 +139,7 @@ public:
 
 	vector <Triangle *>	triangles;
 
-	MFloatArray uArray[NUM_EXTRA_UV_SETS+1]; 
+	MFloatArray uArray[NUM_EXTRA_UV_SETS+1];
 	MFloatArray vArray[NUM_EXTRA_UV_SETS+1];
 
 	int numVerts;
@@ -146,9 +149,9 @@ public:
 	edgesPool * edges;
 
 	bool exportNormals;
-	
 
-	
+
+
 
 private:
 	MDagPath  dag;

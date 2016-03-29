@@ -1,8 +1,9 @@
+// Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
+// Licensed under the BSD license. See LICENSE.txt file in the project root for full license information.
+
 /*=============================================================================
 
 	UnSkeletal.h: General ActorXporter support functions, misc math classes ripped from Unreal.
-
-    Copyright 1998-2011 Epic Games, Inc. All Rights Reserved.
 
 =============================================================================*/
 
@@ -30,25 +31,25 @@
 	Types, 	pragmas, etc snipped from the Unreal Engine 3 codebase
 -----------------------------------------------------------------------------*/
 
-#pragma warning(disable : 4018) // signed/unsigned mismatch                                             
-#pragma warning(disable : 4100) // unreferenced formal parameter										
-#pragma warning(disable : 4127) // Conditional expression is constant									
-#pragma warning(disable : 4200) // Zero-length array item at end of structure, a VC-specific extension	
-#pragma warning(disable : 4201) // nonstandard extension used : nameless struct/union					
-#pragma warning(disable : 4244) // conversion to float, possible loss of data						
-#pragma warning(disable : 4245) // conversion from 'enum ' to 'unsigned long', signed/unsigned mismatch 
-#pragma warning(disable : 4291) // typedef-name '' used as synonym for class-name ''                    
-#pragma warning(disable : 4324) // structure was padded due to __declspec(align())						
-#pragma warning(disable : 4355) // this used in base initializer list                                   
-#pragma warning(disable : 4389) // signed/unsigned mismatch                                             
-#pragma warning(disable : 4511) // copy constructor could not be generated                              
-#pragma warning(disable : 4512) // assignment operator could not be generated                           
-#pragma warning(disable : 4514) // unreferenced inline function has been removed						
-#pragma warning(disable : 4699) // creating precompiled header											
-#pragma warning(disable : 4702) // unreachable code in inline expanded function							
-#pragma warning(disable : 4710) // inline function not expanded											
-#pragma warning(disable : 4711) // function selected for autmatic inlining								
-#pragma warning(disable : 4714) // __forceinline function not expanded									
+#pragma warning(disable : 4018) // signed/unsigned mismatch
+#pragma warning(disable : 4100) // unreferenced formal parameter
+#pragma warning(disable : 4127) // Conditional expression is constant
+#pragma warning(disable : 4200) // Zero-length array item at end of structure, a VC-specific extension
+#pragma warning(disable : 4201) // nonstandard extension used : nameless struct/union
+#pragma warning(disable : 4244) // conversion to float, possible loss of data
+#pragma warning(disable : 4245) // conversion from 'enum ' to 'unsigned long', signed/unsigned mismatch
+#pragma warning(disable : 4291) // typedef-name '' used as synonym for class-name ''
+#pragma warning(disable : 4324) // structure was padded due to __declspec(align())
+#pragma warning(disable : 4355) // this used in base initializer list
+#pragma warning(disable : 4389) // signed/unsigned mismatch
+#pragma warning(disable : 4511) // copy constructor could not be generated
+#pragma warning(disable : 4512) // assignment operator could not be generated
+#pragma warning(disable : 4514) // unreferenced inline function has been removed
+#pragma warning(disable : 4699) // creating precompiled header
+#pragma warning(disable : 4702) // unreachable code in inline expanded function
+#pragma warning(disable : 4710) // inline function not expanded
+#pragma warning(disable : 4711) // function selected for autmatic inlining
+#pragma warning(disable : 4714) // __forceinline function not expanded
 #pragma warning(disable : 4482) // nonstandard extension used: enum 'enum' used in qualified name (having hte enum name helps code readability and should be part of TR1 or TR2)
 #pragma warning(disable : 4748)	// /GS can not protect parameters and local variables from local buffer overrun because optimizations are disabled in function
 #pragma warning(disable : 4996)	// unsafe CRT functions
@@ -136,7 +137,7 @@ class  FPlane;
 class  FCoords;
 class  FMatrix;
 class  FQuat;
-class  FAngAxis;  
+class  FAngAxis;
 
 
 
@@ -144,11 +145,11 @@ class  FAngAxis;
 //
 // Floating point 4-element vector, for use with KNI 4x[4x3] matrix
 // Warning: not fully or properly implemented all the FVector equivalent methods yet.
-// 
+//
 
 // Floating point vector.
 //
-class FVector 
+class FVector
 {
 public:
 	// Variables.
@@ -263,11 +264,11 @@ public:
 	{
 		return X*X + Y*Y + Z*Z;
 	}
-	FLOAT Size2D() const 
+	FLOAT Size2D() const
 	{
 		return (FLOAT) sqrt( X*X + Y*Y );
 	}
-	FLOAT SizeSquared2D() const 
+	FLOAT SizeSquared2D() const
 	{
 		return X*X + Y*Y;
 	}
@@ -431,7 +432,7 @@ public:
 	// Variables.
 	union
 	{
-		FLOAT M[4][4]; 
+		FLOAT M[4][4];
 		struct
 		{
 			FPlane XPlane; // each plane [x,y,z,w] is a *column* in the matrix.
@@ -795,16 +796,16 @@ public:
 
 		// Assign to individual variable names to aid selecting
 		// correct elements
-		a1 = M[0][0]; b1 = M[0][1]; 
+		a1 = M[0][0]; b1 = M[0][1];
 		c1 = M[0][2]; d1 = M[0][3];
 
-		a2 = M[1][0]; b2 = M[1][1]; 
+		a2 = M[1][0]; b2 = M[1][1];
 		c2 = M[1][2]; d2 = M[1][3];
 
-		a3 = M[2][0]; b3 = M[2][1]; 
+		a3 = M[2][0]; b3 = M[2][1];
 		c3 = M[2][2]; d3 = M[2][3];
 
-		a4 = M[3][0]; b4 = M[3][1]; 
+		a4 = M[3][0]; b4 = M[3][1];
 		c4 = M[3][2]; d4 = M[3][3];
 
 	    return Float_Mac4_VU0(
@@ -847,16 +848,16 @@ public:
 
 		// Assign to individual variable names to aid
 		// selecting correct values
-		a1 = M[0][0]; b1 = M[0][1]; 
+		a1 = M[0][0]; b1 = M[0][1];
 		c1 = M[0][2]; d1 = M[0][3];
 
-		a2 = M[1][0]; b2 = M[1][1]; 
+		a2 = M[1][0]; b2 = M[1][1];
 		c2 = M[1][2]; d2 = M[1][3];
 
 		a3 = M[2][0]; b3 = M[2][1];
 		c3 = M[2][2]; d3 = M[2][3];
 
-		a4 = M[3][0]; b4 = M[3][1]; 
+		a4 = M[3][0]; b4 = M[3][1];
 		c4 = M[3][2]; d4 = M[3][3];
 
 	    /* row column labeling reversed since we transpose rows & columns */
@@ -864,17 +865,17 @@ public:
 	    matrix.M[1][0] = -Determinant3_VU0( a2, a3, a4, c2, c3, c4, d2, d3, d4);
 	    matrix.M[2][0] =  Determinant3_VU0( a2, a3, a4, b2, b3, b4, d2, d3, d4);
 	    matrix.M[3][0] = -Determinant3_VU0( a2, a3, a4, b2, b3, b4, c2, c3, c4);
-	        
+
 	    matrix.M[0][1] = -Determinant3_VU0( b1, b3, b4, c1, c3, c4, d1, d3, d4);
 	    matrix.M[1][1] =  Determinant3_VU0( a1, a3, a4, c1, c3, c4, d1, d3, d4);
 	    matrix.M[2][1] = -Determinant3_VU0( a1, a3, a4, b1, b3, b4, d1, d3, d4);
 	    matrix.M[3][1] =  Determinant3_VU0( a1, a3, a4, b1, b3, b4, c1, c3, c4);
-	        
+
 	    matrix.M[0][2] =  Determinant3_VU0( b1, b2, b4, c1, c2, c4, d1, d2, d4);
 	    matrix.M[1][2] = -Determinant3_VU0( a1, a2, a4, c1, c2, c4, d1, d2, d4);
 	    matrix.M[2][2] =  Determinant3_VU0( a1, a2, a4, b1, b2, b4, d1, d2, d4);
 	    matrix.M[3][2] = -Determinant3_VU0( a1, a2, a4, b1, b2, b4, c1, c2, c4);
-	        
+
 	    matrix.M[0][3] = -Determinant3_VU0( b1, b2, b3, c1, c2, c3, d1, d2, d3);
 	    matrix.M[1][3] =  Determinant3_VU0( a1, a2, a3, c1, c2, c3, d1, d2, d3);
 	    matrix.M[2][3] = -Determinant3_VU0( a1, a2, a3, b1, b2, b3, d1, d2, d3);
@@ -889,7 +890,7 @@ public:
 		int i, j;
 	    	float det;
 	    	float rdet;
-	
+
 		// Calculate the adjoint tmatrix
 		Adjoint_VU0( Result );
 
@@ -1042,13 +1043,13 @@ public:
 
 		return Result;
 	}
-	
+
 };
 
 
 // Conversions for Unreal1 coordinate system class.
 
-inline FMatrix FMatrixFromFCoords(const FCoords& FC) 
+inline FMatrix FMatrixFromFCoords(const FCoords& FC)
 {
 	FMatrix M;
 	M.XPlane = FPlane( FC.XAxis.X, FC.XAxis.Y, FC.XAxis.Z, FC.Origin.X );
@@ -1070,13 +1071,13 @@ inline FCoords FCoordsFromFMatrix(const FMatrix& FM)
 
 
 /*-----------------------------------------------------------------------------
-	FQuat.          
+	FQuat.
 -----------------------------------------------------------------------------*/
 
 //
 // floating point quaternion.
 //
-class FQuat 
+class FQuat
 {
 	public:
 	// Variables.
@@ -1104,19 +1105,19 @@ class FQuat
 
 	FQuat operator*( const FQuat& Q ) const
 	{
-		return FQuat( 
-			X*Q.X - Y*Q.Y - Z*Q.Z - W*Q.W, 
-			X*Q.Y + Y*Q.X + Z*Q.W - W*Q.Z, 
-			X*Q.Z - Y*Q.W + Z*Q.X + W*Q.Y, 
+		return FQuat(
+			X*Q.X - Y*Q.Y - Z*Q.Z - W*Q.W,
+			X*Q.Y + Y*Q.X + Z*Q.W - W*Q.Z,
+			X*Q.Z - Y*Q.W + Z*Q.X + W*Q.Y,
 			X*Q.W + Y*Q.Z - Z*Q.Y + W*Q.X
 			);
 	}
 
 	FQuat operator*( const FLOAT& Scale ) const
 	{
-		return FQuat( Scale*X, Scale*Y, Scale*Z, Scale*W);			
+		return FQuat( Scale*X, Scale*Y, Scale*Z, Scale*W);
 	}
-	
+
 	// Unary operators.
 	FQuat operator-() const
 	{
@@ -1128,22 +1129,22 @@ class FQuat
 	{
 		return X!=Q.X || Y!=Q.Y || Z!=Q.Z || W!=Q.W;
 	}
-	
+
 	UBOOL Normalize()
 	{
-		// 
+		//
 		FLOAT SquareSum = (FLOAT)(X*X+Y*Y+Z*Z+W*W);
 		if( SquareSum >= DELTA )
 		{
 			FLOAT Scale = 1.0f/(FLOAT)sqrt(SquareSum);
-			X *= Scale; 
-			Y *= Scale; 
+			X *= Scale;
+			Y *= Scale;
 			Z *= Scale;
 			W *= Scale;
 			return true;
 		}
-		else 
-		{	
+		else
+		{
 			X = 0.0f;
 			Y = 0.0f;
 			Z = 0.1f;
@@ -1162,13 +1163,13 @@ class FQuat
 
 	// friends
 	// friend FAngAxis	FQuatToFAngAxis(const FQuat& Q);
-	// friend void SlerpQuat(const FQuat& Q1, const FQuat& Q2, FLOAT slerp, FQuat& Result)		
+	// friend void SlerpQuat(const FQuat& Q1, const FQuat& Q2, FLOAT slerp, FQuat& Result)
 	// friend FQuat	BlendQuatWith(const FQuat& Q1, FQuat& Q2, FLOAT Blend)
 	// friend  FLOAT FQuatDot(const FQuat&1, FQuat& Q2);
 };
 
 //
-// Misc conversions 
+// Misc conversions
 //
 
 FQuat FMatrixToFQuat(const FMatrix& M);
@@ -1192,7 +1193,7 @@ public:
 };
 
 
-// Inlines 
+// Inlines
 
 inline FLOAT Square(const FLOAT F1)
 {
@@ -1202,7 +1203,7 @@ inline FLOAT Square(const FLOAT F1)
 // Error measure (angle) between two quaternions, ranged [0..1]
 inline FLOAT FQuatError(FQuat& Q1,FQuat& Q2)
 {
-	// Returns the hypersphere-angle between two quaternions; alignment shouldn't matter, though 
+	// Returns the hypersphere-angle between two quaternions; alignment shouldn't matter, though
 	// normalized input is expected.
 	FLOAT cosom = Q1.X*Q2.X + Q1.Y*Q2.Y + Q1.Z*Q2.Z + Q1.W*Q2.W;
 	return ( abs(cosom) < 0.9999999f) ? acos(cosom)*(1.f/3.1415926535f) : 0.0f;
@@ -1236,12 +1237,12 @@ inline FQuat SlerpQuat(const FQuat &quat1,const FQuat &quat2, float slerp)
 			quat1.W * quat2.W;
 
 	if( cosom < 0.99999999f )
-	{	
+	{
 		omega = acos(cosom);
 		sininv = 1.f/sin(omega);
 		scale0 = sin((1.f - slerp) * omega) * sininv;
 		scale1 = sin(slerp * omega) * sininv;
-		
+
 		result.X = scale0 * quat1.X + scale1 * quat2.X;
 		result.Y = scale0 * quat1.Y + scale1 * quat2.Y;
 		result.Z = scale0 * quat1.Z + scale1 * quat2.Z;
@@ -1252,7 +1253,7 @@ inline FQuat SlerpQuat(const FQuat &quat1,const FQuat &quat2, float slerp)
 	{
 		return quat1;
 	}
-	
+
 }
 
 inline FVector FVector::TransformVectorBy( const FCoords &Coords ) const
@@ -1292,11 +1293,11 @@ inline void FTexCoordsToVectors( FVector V0, FVector ST0, FVector V1, FVector ST
 	}
 
 	//
-	// Solve the equations to find our texture U/V vectors 'TU' and 'TV' by stacking them 
-	// into a 3x3 matrix , one for  u(t) = TU dot (x(t)-x(o) + u(o) and one for v(t)=  TV dot (.... , 
-	// then the third assumes we're perpendicular to the normal. 
+	// Solve the equations to find our texture U/V vectors 'TU' and 'TV' by stacking them
+	// into a 3x3 matrix , one for  u(t) = TU dot (x(t)-x(o) + u(o) and one for v(t)=  TV dot (.... ,
+	// then the third assumes we're perpendicular to the normal.
 	//
-	FCoords TexEqu; 
+	FCoords TexEqu;
 	TexEqu.XAxis = FVector(	V1.X - V0.X, V1.Y - V0.Y, V1.Z - V0.Z );
 	TexEqu.YAxis = FVector( V2.X - V0.X, V2.Y - V0.Y, V2.Z - V0.Z );
 	TexEqu.ZAxis = FVector( PN.X,        PN.Y,        PN.Z        );
@@ -1311,10 +1312,10 @@ inline void FTexCoordsToVectors( FVector V0, FVector ST0, FVector V1, FVector ST
 
 	//
 	// Adjust the BASE to account for U0 and V0 automatically, and force it into the same plane.
-	//				
+	//
 	FCoords BaseEqu;
 	BaseEqu.XAxis = TUResult;
-	BaseEqu.YAxis = TVResult; 
+	BaseEqu.YAxis = TVResult;
 	BaseEqu.ZAxis = FVector( PN.X, PN.Y, PN.Z );
 	BaseEqu.Origin = FVector( 0.0f, 0.0f, 0.0f );
 

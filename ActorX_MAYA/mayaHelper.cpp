@@ -1,3 +1,6 @@
+// Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
+// Licensed under the BSD license. See LICENSE.txt file in the project root for full license information.
+
 #include "mayaHelper.h"
 // PCF BEGIN
 /*
@@ -35,7 +38,7 @@ bool edgesPool::add (int v1, int v2, int face)
 		//		found =1;
 		//		break;
 		//	}
-		//	
+		//
 		//}
 
 		//if (!found)
@@ -51,17 +54,17 @@ bool edgesPool::add (int v1, int v2, int face)
 		//	}
 
 		//}
-	if (e) 
+	if (e)
 	{
 		// check if face on edge exists
-		if (e->f1 == -1 && e->f2 != face) 
+		if (e->f1 == -1 && e->f2 != face)
 			e->f1 = face;
 		else if (e->f2 == -1 && e->f1 != face)
 			e->f2 = face;
 		else
-			return false;	
+			return false;
 
-		return false;	
+		return false;
 	}
 	else
 	{
@@ -76,9 +79,9 @@ bool edgesPool::add (int v1, int v2, int face)
 		edge * e = new edge;
 		e->v1 = v1;
 		e->v2 = v2;
-		if (e->f1 == -1   ) 
+		if (e->f1 == -1   )
 			e->f1  =face;
-		else 
+		else
 			e->f2  = face;
 		_edges.push_back(e);
 
@@ -89,7 +92,7 @@ bool edgesPool::add (int v1, int v2, int face)
 		ar = _vertEdges[v2];
 		ar->append(newEdgeind);
 
-		return true;	
+		return true;
 
 	}
 
@@ -102,7 +105,7 @@ bool edgesPool::findFaces (int v1, int v2, int fases[2] )
 
 		if (_vertsPairs[v1])
 		{
-		
+
 			MIntArray & ar = *_vertsPairs[v1];
 			for (int i =0; i< ar.length(); i++)
 			{
@@ -156,7 +159,7 @@ void edgesPool::setEdgeSmoothing (MDagPath& mesh  )
 	MItMeshEdge eIt( mesh );
 	for ( ; !eIt.isDone(); eIt.next() ) // Iterate over edges.
 	{
-		bool smooth = eIt.isSmooth();  // Smoothness retrieval for edge.		
+		bool smooth = eIt.isSmooth();  // Smoothness retrieval for edge.
 		edge * e= find(eIt.index(0), eIt.index(1));
 		if (e)
 			e->smooth = smooth;
@@ -170,7 +173,7 @@ bool triangulatedMesh::createEdgesPool()
 	edges =new edgesPool(numVerts);
 	if (edges)
 	{
-	
+
 
 		for ( int i =0 ; i < triangles.size(); i++)
 		{
@@ -207,7 +210,7 @@ bool triangulatedMesh::triangulate(MDagPath & dagPath)
 	MIntArray shaderIndicesPerPoly;
 	stat = fnMesh.getConnectedShaders(0, shaders, shaderIndicesPerPoly);
 	if (!stat)
-	{		
+	{
 		return 0;
 	}
 	bool hasColors = false;
@@ -216,7 +219,7 @@ bool triangulatedMesh::triangulate(MDagPath & dagPath)
 	if (fnMesh.getCurrentColorSetName ( colorSetName) && colorSetName.length() )
 		hasColors = true;
 
-	MItMeshPolygon polyIter ( dagPath);	
+	MItMeshPolygon polyIter ( dagPath);
 
 	int c = 0;
 
@@ -232,10 +235,10 @@ bool triangulatedMesh::triangulate(MDagPath & dagPath)
 	for ( ; ! polyIter.isDone(); polyIter.next() )
 	{
 		if (! polyIter.hasValidTriangulation())
-		{			
+		{
 			return 0;
 		}
-	
+
 		for( int UVIndex = 0; UVIndex < NumUVSets; ++UVIndex )
 		{
 			if (! polyIter.hasUVs(uvSetNames[UVIndex]))
@@ -270,11 +273,11 @@ bool triangulatedMesh::triangulate(MDagPath & dagPath)
 		tris_vertexListLocal.setLength(tris_vertexListGlobal.length());
 
 		for ( int i =0 ; i <  tris_vertexListGlobal.length(); i++)
-		{	
+		{
 
 			for ( int j =0 ; j <  verticesIndices.length(); j++)
-			{	
-				//	cerr << "		" << tris_vertexListGlobal[i] << " ? " << verticesIndices[j]<<endl;			
+			{
+				//	cerr << "		" << tris_vertexListGlobal[i] << " ? " << verticesIndices[j]<<endl;
 				if (tris_vertexListGlobal[i] == verticesIndices[j] )
 				{
 					tris_vertexListLocal[i] = j;
@@ -282,7 +285,7 @@ bool triangulatedMesh::triangulate(MDagPath & dagPath)
 				}
 			}
 		}
-		//cerr << "	dupa 2"<<endl;	
+		//cerr << "	dupa 2"<<endl;
 
 		int c=0;
 		for ( int i =0 ; i <  triNum; i++)
@@ -306,7 +309,7 @@ bool triangulatedMesh::triangulate(MDagPath & dagPath)
 						if (stat)
 						{
 							t.Indices[j].tcIndex[UVIndex] = indexuv;
-							
+
 							if( UVIndex > 0 )
 							{
 								t.Indices[j].hasExtraUVs[ UVIndex - 1 ] = true;
@@ -320,10 +323,10 @@ bool triangulatedMesh::triangulate(MDagPath & dagPath)
 				}
 
 				int colorIndex = -1;
-				if (hasColors && fnMesh.getFaceVertexColorIndex( u,tris_vertexListLocal[c], colorIndex, &colorSetName) == MS::kSuccess) 
+				if (hasColors && fnMesh.getFaceVertexColorIndex( u,tris_vertexListLocal[c], colorIndex, &colorSetName) == MS::kSuccess)
 				{
 					t.Indices[j].vertexColor = colorIndex;
-				}	
+				}
 
 
 
@@ -349,6 +352,6 @@ bool triangulatedMesh::triangulate(MDagPath & dagPath)
 
 	return true;
 
-	
+
 }
 //PCF END

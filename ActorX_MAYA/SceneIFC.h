@@ -1,9 +1,9 @@
+// Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
+// Licensed under the BSD license. See LICENSE.txt file in the project root for full license information.
+
 /**************************************************************************
 
    SceneIFC.h	- File Exporter class definitions.
-
-   Copyright 1998-2011 Epic Games, Inc. All Rights Reserved.
-
 
 ***************************************************************************/
 
@@ -116,9 +116,9 @@ public:
 		{
 			StringArray.AddItem( Source[Index] );
 			Index++;
-		}				
+		}
 		return Length();
-	}	
+	}
 
 	CHAR* StringPtr()
 	{
@@ -129,7 +129,7 @@ public:
 			{
 				StringArray.AddZeroed(1);
 			}
-			return &(StringArray[0]);			
+			return &(StringArray[0]);
 		}
 		else
 		{
@@ -146,7 +146,7 @@ public:
 	XString(CHAR* SourceString)
 	{
 		CopyFrom( SourceString );
-	}	
+	}
 	~XString()
 	{
 		EmptyString();
@@ -173,7 +173,7 @@ class GFace
 {
 	public:
 
-	INT     WedgeIndex[3];	     			// point to three vertices in the vertex list.	
+	INT     WedgeIndex[3];	     			// point to three vertices in the vertex list.
 	INT     Wedge2Index[3];				// point to three vertices in the (second UV set) vertex list.
 	DWORD   SmoothingGroups;			// 32-bit flag for smoothing groups AND Lod-bias calculation.
 	DWORD   AuxSmoothingGroups;         //
@@ -189,8 +189,8 @@ class GFace
 		MaterialIndices.Empty();
 	}
 
-	void operator=( GFace& G ) 
-	{	
+	void operator=( GFace& G )
+	{
 		WedgeIndex[0] = G.WedgeIndex[0];
 		WedgeIndex[1] = G.WedgeIndex[1];
 		WedgeIndex[2] = G.WedgeIndex[2];
@@ -200,7 +200,7 @@ class GFace
 		Wedge2Index[2] = G.Wedge2Index[2];
 
 		SmoothingGroups = G.SmoothingGroups;
-		AuxSmoothingGroups = G.AuxSmoothingGroups;		
+		AuxSmoothingGroups = G.AuxSmoothingGroups;
 
 		MaterialIndices.Empty();
 		for( INT mIndex = 0; mIndex<G.MaterialIndices.Num(); mIndex++)
@@ -218,7 +218,7 @@ class GWedge
 	INT				PointIndex;	 // Index to a point.
 	FLOAT U;
 	FLOAT V;
-	INT   MaterialIndex;		
+	INT   MaterialIndex;
 };
 
 //
@@ -247,7 +247,7 @@ class GColor
 // Static mesh material.
 //
 class GMaterial
-{		
+{
 	public:
 	XString Name;       // Name we'll export it with.
 	XString BitmapName; //
@@ -268,18 +268,18 @@ class GMaterial
 class PrimGroupList
 {
 	public:
-	TArray<INT> Groups;	
+	TArray<INT> Groups;
 
-	PrimGroupList()	
+	PrimGroupList()
 	{
 		Memzero( this, sizeof( PrimGroupList));
 	}
 	~PrimGroupList()
 	{
-		Groups.Empty();		
+		Groups.Empty();
 	}
 
-	void operator=( PrimGroupList& P ) 
+	void operator=( PrimGroupList& P )
 	{
 		Groups.Empty();
 		for( INT i=0; i<P.Groups.Num(); i++)
@@ -287,7 +287,7 @@ class PrimGroupList
 			Groups.AddItem( P.Groups[i] );
 		}
 	}
-	
+
 };
 
 // Static mesh export.
@@ -296,14 +296,14 @@ class GeometryPrimitive
 
 public:
 	AXNode* node;         // Original scene node.
-	XString   Name;       //	
+	XString   Name;       //
 	INT  Selected;
 
 	TArray<FVector>	Vertices;
 	TArray<GWedge>	Wedges;
 	TArray<GFace>	Faces;
 	TArray<GWedge>	Wedges2;
-	TArray<GColor>		VertColors;		
+	TArray<GColor>		VertColors;
 
 
 
@@ -314,9 +314,9 @@ public:
 	{
 		Memzero( this, sizeof( GeometryPrimitive ));
 	}
-	// dtor 
+	// dtor
 	~GeometryPrimitive()
-	{		
+	{
 		for(INT i=0; i< FaceSmoothingGroups.Num(); i++)
 		{
 			FaceSmoothingGroups[i].Groups.Empty();
@@ -329,7 +329,7 @@ public:
 		}
 		Faces.Empty();
 
-		Wedges.Empty();		
+		Wedges.Empty();
 		Vertices.Empty();
 		VertColors.Empty();
 		Wedges2.Empty();
@@ -392,23 +392,23 @@ class SkinInf
 class SceneIFC
 {
 public:
-	
-	void		SurveyScene();		
+
+	void		SurveyScene();
 	int			GetSceneInfo();
 
-	int         DigestSkeleton(VActor *Thing); 
+	int         DigestSkeleton(VActor *Thing);
 	int         DigestSkin( VActor *Thing );
 	int         DigestBrush( VActor *Thing );
 	int         FixMaterials( VActor *Thing ); // internal
 	int	        ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin& LocalSkin, INT SmoothSkin);
-	int         LogSkinInfo( VActor *Thing, const char* SkinName);	
+	int         LogSkinInfo( VActor *Thing, const char* SkinName);
 	int			WriteScriptFile( VActor *Thing, char* ScriptName, char* BaseName, char* SkinFileName, char* AnimFileName );
 	int         DigestAnim(VActor *Thing, char* AnimName, char* RangeString );
 	int 		InitializeCurve(VActor *Thing, INT TotalFrameCount );
 	int         LogAnimInfo( VActor *Thing, char* AnimName);
 	void        FixRootMotion( VActor *Thing );
 	int	        DoUnSmoothVerts(VActor *Thing, INT DoTangentVectorSeams );
-	int			WriteVertexAnims( VActor *Thing, char* DestFileName, char* RangeString );	 
+	int			WriteVertexAnims( VActor *Thing, char* DestFileName, char* RangeString );
 
 	int			MarkBonesOfSystem(int RIndex);
 	int         RecurseValidBones(int RIndex, int &BoneCount);
@@ -422,7 +422,7 @@ public:
 
 	// Static mesh export
 	int         DigestStaticMeshes();
-	int         ProcessStaticMesh( int TreeIndex); 
+	int         ProcessStaticMesh( int TreeIndex);
 	int         SaveStaticMeshes( char* OutFileName );
 	//PCF BEGIN
 	int         SaveStaticMesh( char* OutFileName, INT );
@@ -443,15 +443,15 @@ public:
 	TArray <SkinInf> OurSkins;
 	AXNode*      OurRootBone;
 	int         RootBoneIndex;
-	// LH: deprecating this variable - 
+	// LH: deprecating this variable -
 	// This is almost identical as TotalBones except
 	// this does not include noexport/ignored parameter
-	// but used to calculate wrong size of data for keytrack. 
+	// but used to calculate wrong size of data for keytrack.
 	// This will be replaced with TotalBones
 	int         OurBoneTotal;
 
 	// Simple array of nodes for the whole scene tree.
-	TArray< NodeInfo >  SerialTree; 
+	TArray< NodeInfo >  SerialTree;
 
 	// Physique skin data
 	int         PhysiqueNodes;
@@ -499,7 +499,7 @@ public:
 	/** User preference that controls whether or not we strip reference file prefixes from node names */
 	UBOOL	bCheckStripRef;
 
-	// Static mesh export panel 
+	// Static mesh export panel
 	UBOOL   DoConvertSmooth, DoForceTriangles, DoUnderscoreSpace, DoGeomAsFilename, DoUntexturedAsCollision, DoSuppressPopups, DoSelectedStatic, DoConsolidateGeometry;
 
 	UBOOL   QuickSaveDisk;
@@ -509,9 +509,9 @@ public:
 
 	FLOAT   PersistentRate;
 	FLOAT   VertexExportScale;
-	
+
 	//PCF BEGIN
-	
+
 	UBOOL DoExportInObjectSpace ; //object space export for static mesh
 
 	UBOOL DoExportTextureSuffix; //"_Mat" suffix for correct auto import
@@ -529,7 +529,7 @@ public:
 		DoUnSmooth = 1;
 		DoTangents = 0;
 		DoTexPCX = 0;
-		DoPhysGeom = 1;				
+		DoPhysGeom = 1;
 		DoConsolidateGeometry = 0;
 		VertexExportScale = 1.0;
 		DoExportInObjectSpace =0;
@@ -543,7 +543,7 @@ public:
 		FrameList.Empty();
 		SerialTree.Empty();
 		OurSkins.Empty();
-		
+
 		StaticPrimitives.Empty();
 		StaticMeshMaterials.Empty();
 	}
@@ -567,16 +567,16 @@ public:
 		int Sibling = 0;
 		for (int t=0; t<SerialTree.Num(); t++)
 		{
-			if (SerialTree[t].ParentIndex == PIndex) 
+			if (SerialTree[t].ParentIndex == PIndex)
 			{
-				if( Sibling == ChildNumber ) 
-				{	
+				if( Sibling == ChildNumber )
+				{
 					return t; // return Nth child.
 				}
 				Sibling++;
 			}
 		}
-		return -1; // no matching node found.		
+		return -1; // no matching node found.
 	}
 
 	int	    GetParentNodeIndex(int CIndex)
@@ -590,7 +590,7 @@ private:
 	void		StoreNodeTree(AXNode* node);
 	int			SerializeSceneTree();
 	void        ParseFrameRange(char* pString, INT startFrame,INT endFrame);
-	
+
 	/**
 	 * Removes the file path and the file extension from a full file path.
 	 * The only thing returned is the name of the file.
@@ -616,4 +616,3 @@ private:
 
 
 #endif // __SceneIFC__H
-

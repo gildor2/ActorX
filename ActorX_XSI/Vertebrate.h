@@ -1,22 +1,23 @@
-/**********************************************************************
-	
-	Vertebrate.h - Binary structures for digesting and exporting skeleton, skin & animation data.
+// Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
+// Licensed under the BSD license. See LICENSE.txt file in the project root for full license information.
 
-  	Copyright 1998-2011 Epic Games, Inc. All Rights Reserved.
+/**********************************************************************
+
+	Vertebrate.h - Binary structures for digesting and exporting skeleton, skin & animation data.
 
 	New model limits (imposed by the binary format and/or engine)
 		256		materials.
 		65535  'wedges' = amounts to approx 20000 triangles/vertices, depending on texturing complexity.
 	A realistic upper limit, with LOD in mind, is 10000 wedges.
 
-	Todo: 
+	Todo:
 	 Smoothing group support !
 	-> Unreal's old non-lod code had structures in place for all adjacent triangles-to-a-vertex,
-	   to compute the vertex normal. 
+	   to compute the vertex normal.
     -> LODMeshes only needs the connectivity of each triangle to its three vertices.
 	-> Facet-shading as opposed to gouraud/vertex shading would be a very nice option.
 	-> Normals should be exported per influence & transformed along with vertices for faster drawing/lighting pipeline in UT ?!
-		 
+
 ************************************************************************/
 
 #ifndef VERTHDR_H
@@ -46,7 +47,7 @@ enum EJSMeshTriType
 	MTT_Alpha				= 0x20,	// This material has per-pixel alpha.
 	MTT_Environment			= 0x40,	// Environment mapped.
 	MTT_NoSmooth			= 0x80,	// No bilinear filtering on this poly's texture.
-	
+
 };
 
 // Unreal engine internal / T3D polyflags
@@ -89,12 +90,12 @@ enum EPolyFlags
 	// Editor flags.
 	PF_Memorized     	= 0x01000000,	// Editor: Poly is remembered.
 	PF_Selected      	= 0x02000000,	// Editor: Poly is selected.
-	PF_Highlighted      = 0x10000000,	// Editor: Poly is highlighted.   
-	PF_FlatShaded		= 0x40000000,	// FPoly has been split by SplitPolyWithPlane.   
+	PF_Highlighted      = 0x10000000,	// Editor: Poly is highlighted.
+	PF_FlatShaded		= 0x40000000,	// FPoly has been split by SplitPolyWithPlane.
 
 	// Internal.
 	PF_EdProcessed 		= 0x40000000,	// FPoly was already processed in editorBuildFPolys.
-	PF_EdCut       		= 0x80000000,	// FPoly has been split by SplitPolyWithPlane.  
+	PF_EdCut       		= 0x80000000,	// FPoly has been split by SplitPolyWithPlane.
 	PF_RenderFog		= 0x40000000,	// Render with fogmapping.
 	PF_Occlude			= 0x80000000,	// Occludes even if PF_NoOcclude.
 	PF_RenderHint       = 0x01000000,   // Rendering optimization hint.
@@ -110,11 +111,11 @@ enum EPolyFlags
 };
 
 //
-// Most of these structs are mirrored in Unreal's "UnSkeletal.h" and need to stay binary compatible with Unreal's 
+// Most of these structs are mirrored in Unreal's "UnSkeletal.h" and need to stay binary compatible with Unreal's
 // skeletal data import routines.
 //
 
-// File header structure. 
+// File header structure.
 struct VChunkHdr
 {
 	char		ChunkID[20];  // string ID of up to 19 chars (usually zero-terminated?)
@@ -128,10 +129,10 @@ struct VChunkHdr
 struct VMaterial
 {
 	char		MaterialName[64]; // Straightforward ascii array, for binary input.
-	int         TextureIndex;     // multi/sub texture index 
+	int         TextureIndex;     // multi/sub texture index
 	DWORD		PolyFlags;        // all poly's with THIS material will have this flag.
 	int         AuxMaterial;      // index into another material, eg. alpha/detailtexture/shininess/whatever
-	DWORD		AuxFlags;		  // reserved: auxiliary flags 
+	DWORD		AuxFlags;		  // reserved: auxiliary flags
 	INT			LodBias;          // material-specific lod bias
 	INT			LodStyle;         // material-specific lod style
 
@@ -155,7 +156,7 @@ struct VMaterial
 			}
 		}
 		return Match;
-	}	
+	}
 
 	// Copy a name and properly zero-terminate it.
 	void SetName( char* NewName)
@@ -164,7 +165,7 @@ struct VMaterial
 		for(c=0; c<64; c++)
 		{
 			MaterialName[c]=NewName[c];
-			if( MaterialName[c] == 0 ) 
+			if( MaterialName[c] == 0 )
 				break;
 		}
 		// fill out
@@ -172,7 +173,7 @@ struct VMaterial
 		{
 			MaterialName[c] = 0;
 			c++;
-		}	
+		}
 	}
 };
 
@@ -199,21 +200,21 @@ struct FNamedBoneBinary
 	char	   Name[64];     // ANSICHAR   Name[64];	// Bone's name
 	DWORD      Flags;		 // reserved
 	INT        NumChildren;  //
-	INT		   ParentIndex;	 // 0/NULL if this is the root bone.  
+	INT		   ParentIndex;	 // 0/NULL if this is the root bone.
 	VJointPos  BonePos;	     //
 };
 
 struct AnimInfoBinary
 {
 	ANSICHAR Name[64];     // Animation's name
-	ANSICHAR Group[64];    // Animation's group name	
+	ANSICHAR Group[64];    // Animation's group name
 
 	INT TotalBones;           // TotalBones * NumRawFrames is number of animation keys to digest.
 
 	INT ScaleInclude;         // if 1, scaling keys will follow in the scale key chunk for this sequence.  Old name: "RootInclude".
 	INT KeyCompressionStyle;  // Reserved: variants in tradeoffs for compression.
-	INT KeyQuotum;            // Max key quotum for compression	
-	FLOAT KeyReduction;       // desired 
+	INT KeyQuotum;            // Max key quotum for compression
+	FLOAT KeyReduction;       // desired
 	FLOAT TrackTime;          // explicit - can be overridden by the animation rate
 	FLOAT AnimRate;           // frames per second.
 	INT StartBone;            // - Reserved: for partial animations.
@@ -230,9 +231,9 @@ struct VQuatAnimKey
 
 
 struct VScaleAnimKey
-{	
+{
 	FVector ScaleVector;   // If uniform scaling is required, just use the X component..
-	FLOAT   Time;          // disregarded	
+	FLOAT   Time;          // disregarded
 };
 
 struct VBoneInfIndex // ,, ,, contains Index, number of influences per bone (+ N detail level sizers! ..)
@@ -240,7 +241,7 @@ struct VBoneInfIndex // ,, ,, contains Index, number of influences per bone (+ N
 	_WORD WeightIndex;
 	_WORD Detail0;  // how many to process if we only handle 1 master bone per vertex.
 	_WORD Detail1;  // how many to process if we're up to 2 max influences
-	_WORD Detail2;  // how many to process if we're up to full 3 max influences 
+	_WORD Detail2;  // how many to process if we're up to full 3 max influences
 
 };
 
@@ -261,7 +262,7 @@ struct VRawBoneInfluence // Just weight, vertex, and Bone, sorted later.
 // Points: regular FVectors (for now..)
 //
 struct VPoint
-{	
+{
 	FVector			Point;             //  change into packed integer later IF necessary, for 3x size reduction...
 };
 
@@ -306,7 +307,7 @@ struct VSkin
 	// Brushes: UV must embody the material size...
 	TArray <INT>				MaterialUSize;
 	TArray <INT>				MaterialVSize;
-	
+
 	int NumBones; // Explicit number of bones (?)
 };
 
@@ -329,7 +330,7 @@ struct VAnimation
 	}
 
 	// Copy.
-	void operator=( VAnimation& V ) 
+	void operator=( VAnimation& V )
 	{
 		AnimInfo = V.AnimInfo;
 
@@ -345,7 +346,7 @@ struct VAnimation
 			ScaleTrack.AddItem( V.ScaleTrack[s] );
 		}
 	}
-	
+
 };
 
 
@@ -365,7 +366,7 @@ struct FMeshByteUV
 	BYTE V;
 };
 
-struct VertexMeshHeader 
+struct VertexMeshHeader
 {
    _WORD  NumPolygons;  // Polygon count.
    _WORD  NumVertices;  // Vertex count.
@@ -375,7 +376,7 @@ struct VertexMeshHeader
    DWORD   BogusNormY;
    DWORD   BogusNormZ;
    DWORD   FixScale;
-   DWORD   Unused[3]; 
+   DWORD   Unused[3];
    BYTE    Unknown[12];
    // Padding issues ?
 };
@@ -439,13 +440,13 @@ class VActor
 public:
 
 	//
-	// Some globals from the scene probe. 
+	// Some globals from the scene probe.
 	//
 	INT		NodeCount;
 	INT     MeshCount;
 
-	FLOAT	FrameTotalTicks; 
-	FLOAT   FrameRate; 
+	FLOAT	FrameTotalTicks;
+	FLOAT   FrameRate;
 
 	// file stuff
 	char*	LogFileName;
@@ -493,7 +494,7 @@ public:
 		return 1;
 	}
 
-	
+
 	// Ctor
 	VActor()
 	{
@@ -504,7 +505,7 @@ public:
 		AnimationBoneNumber = 0;
 
 	};
-			
+
 	void Cleanup()
 	{
 		RawAnimKeys.Empty();
@@ -549,7 +550,7 @@ public:
 
 		//TCHAR MessagePopup[512];
 		//sprintf(MessagePopup, "Writing Skin file, 3d vertices : %i",SkinData.Points.Num());
-		//PopupBox(GetActiveWindow(),MessagePopup, "Saving", MB_OK);				
+		//PopupBox(GetActiveWindow(),MessagePopup, "Saving", MB_OK);
 
 		// Skin: 3D Points
 		_tcscpy(ChunkHdr.ChunkID,("PNTS0000"));
@@ -610,15 +611,15 @@ public:
 
 		// Reference Skeleton: Refskeleton.TotalBones times a VBone.
 		_tcscpy(ChunkHdr.ChunkID,("RAWWEIGHTS"));
-		ChunkHdr.DataCount = SkinData.RawWeights.Num(); 
+		ChunkHdr.DataCount = SkinData.RawWeights.Num();
 		ChunkHdr.DataSize  = sizeof ( VRawBoneInfluence ) ;
 		OutFile.Write( &ChunkHdr, sizeof (ChunkHdr));
-			
+
 		for( i=0; i< SkinData.RawWeights.Num(); i++)
 		{
 			OutFile.Write( &SkinData.RawWeights[i], sizeof (VRawBoneInfluence));
 		}
-		
+
 		return OutFile.GetError();
 	};
 
@@ -636,8 +637,8 @@ public:
 
 		// Bone names (+flags) list:
 		_tcscpy(ChunkHdr.ChunkID,("BONENAMES"));
-		ChunkHdr.DataCount = RefSkeletonBones.Num(); 
-		ChunkHdr.DataSize  = sizeof ( FNamedBoneBinary ); 
+		ChunkHdr.DataCount = RefSkeletonBones.Num();
+		ChunkHdr.DataSize  = sizeof ( FNamedBoneBinary );
 		OutFile.Write(&ChunkHdr, sizeof (ChunkHdr));
 		for(int b = 0; b < RefSkeletonBones.Num(); b++)
 		{
@@ -656,7 +657,7 @@ public:
 			TotalAnimFrames += OutAnims[i].AnimInfo.NumRawFrames;
 			TotalScaleKeys  += OutAnims[i].ScaleTrack.Num();
 		}
-	
+
 		_tcscpy(ChunkHdr.ChunkID,("ANIMINFO"));
 	    ChunkHdr.DataCount = OutAnims.Num();
 		ChunkHdr.DataSize  = sizeof( AnimInfoBinary  ); // heap of angaxis/pos/length, 8 floats #debug
@@ -665,17 +666,17 @@ public:
 		{
 			OutFile.Write( &OutAnims[i].AnimInfo, sizeof( AnimInfoBinary ) );
 		}
-		
+
 		_tcscpy(ChunkHdr.ChunkID,("ANIMKEYS"));
-	    ChunkHdr.DataCount = TotalAnimKeys;            // RefSkeletonBones.Num() * RawNumFrames; 
+	    ChunkHdr.DataCount = TotalAnimKeys;            // RefSkeletonBones.Num() * RawNumFrames;
 		ChunkHdr.DataSize  = sizeof( VQuatAnimKey );   // Heap of angaxis/pos/length, 8 floats #debug
 		OutFile.Write( &ChunkHdr, sizeof (ChunkHdr));
 
 		// Save out all in our 'digested' array.
 		for( INT a = 0; a<OutAnims.Num(); a++ )
-		{	
+		{
 			// Raw keys chunk....
-			for( INT i=0; i<OutAnims[a].KeyTrack.Num(); i++) 
+			for( INT i=0; i<OutAnims[a].KeyTrack.Num(); i++)
 			{
 				OutFile.Write( &OutAnims[a].KeyTrack[i], sizeof ( VQuatAnimKey ) );
 			}
@@ -683,18 +684,18 @@ public:
 
 		// Scalers chunk.
 		_tcscpy(ChunkHdr.ChunkID,("SCALEKEYS"));
-		ChunkHdr.DataCount = TotalScaleKeys;            // RefSkeletonBones.Num() * RawNumFrames; 
+		ChunkHdr.DataCount = TotalScaleKeys;            // RefSkeletonBones.Num() * RawNumFrames;
 		ChunkHdr.DataSize  = sizeof( VScaleAnimKey );   // Heap of angaxis/pos/length, 8 floats #debug
 		OutFile.Write( &ChunkHdr, sizeof (ChunkHdr));
 
-		// Optional: separate chunk with scaler keys. 
+		// Optional: separate chunk with scaler keys.
 		if( TotalScaleKeys )
-		{			
+		{
 			// Save out all scaler keys.
 			for( INT a = 0; a<OutAnims.Num(); a++ )
-			{	
+			{
 				// Raw keys chunks will be written only for those sequences that have TempInfo.ScaleInclude == 1.
-				for( INT i=0; i<OutAnims[a].ScaleTrack.Num(); i++) 
+				for( INT i=0; i<OutAnims[a].ScaleTrack.Num(); i++)
 				{
 					OutFile.Write( &OutAnims[a].ScaleTrack[i], sizeof ( VScaleAnimKey ) );
 				}
@@ -708,7 +709,7 @@ public:
 	int LoadAnimation(FastFileClass &InFile)
 	{
 		//
-		// Animation layout:  
+		// Animation layout:
 		//
 		// name        variable										type
 		//
@@ -721,7 +722,7 @@ public:
 		// Animation header.
 		VChunkHdr ChunkHdr;
 		// Output error message if not found.
-		INT ReadBytes = InFile.Read(&ChunkHdr,sizeof(ChunkHdr));	
+		INT ReadBytes = InFile.Read(&ChunkHdr,sizeof(ChunkHdr));
 
 		INT PSAVersion = ChunkHdr.TypeFlag;
 
@@ -730,31 +731,31 @@ public:
 		// Bones
 		InFile.Read(&ChunkHdr,sizeof(ChunkHdr));
 
-		
+
 		// SKIP the bones - relying on our scene to have consistent (number of) bones... #TODO: add error message if not consistent ?
 #if 0
-		RefSkeletonBones.Empty();		
-		RefSkeletonBones.Add( ChunkHdr.DataCount ); 
+		RefSkeletonBones.Empty();
+		RefSkeletonBones.Add( ChunkHdr.DataCount );
 		for( INT i=0; i<RefSkeletonBones.Num(); i++ )
 		{
-			InFile.Read( &RefSkeletonBones[i], sizeof(FNamedBoneBinary) );			
-		}		
+			InFile.Read( &RefSkeletonBones[i], sizeof(FNamedBoneBinary) );
+		}
 		RefSkeletonBones.Empty();
 #else
 		// See https://udn.epicgames.com/lists/showpost.php?list=unprog&id=38289
 		TArray<FNamedBoneBinary> TempBones;
-		TempBones.Add( ChunkHdr.DataCount ); 
+		TempBones.Add( ChunkHdr.DataCount );
 		INT i;
 		for( i = 0 ; i < TempBones.Num() ; ++i )
 		{
 			InFile.Read( &TempBones[i], sizeof(FNamedBoneBinary) );
 
-		} 
+		}
 #endif
 		// Animation info
 		InFile.Read(&ChunkHdr,sizeof(ChunkHdr));
 
-		// Proper cleanup: de-linking of tracks! -> because they're 'an array of arrays' and our 
+		// Proper cleanup: de-linking of tracks! -> because they're 'an array of arrays' and our
 		// dynamic array stuff is dumb and doesn't call individual element-destructors, which would usually carry this responsibility.
 		for( i=0; i<OutAnims.Num();i++)
 		{
@@ -766,9 +767,9 @@ public:
 
 		// AnimInfo chunks - per-sequence information.
 		for( i = 0; i<OutAnims.Num(); i++)
-		{	
+		{
 			InFile.Read( &OutAnims[i].AnimInfo, sizeof(AnimInfoBinary));
-		}		
+		}
 
 		// Key tracks.
 		InFile.Read(&ChunkHdr,sizeof(ChunkHdr));
@@ -778,7 +779,7 @@ public:
 
 		//PopupBox(" Start loading Keytracks, number: %i OutAnims: %i ", ChunkHdr.DataCount , OutAnims.Num() );
 		for( i = 0; i<OutAnims.Num(); i++)
-		{	
+		{
 			INT TrackKeys = OutAnims[i].AnimInfo.NumRawFrames * OutAnims[i].AnimInfo.TotalBones;
 			OutAnims[i].KeyTrack.Empty();
 			OutAnims[i].KeyTrack.Add(TrackKeys);
@@ -787,22 +788,22 @@ public:
 			ReadKeys += TrackKeys;
 		}
 
-		// Scaler tracks.. if present -> checks main chunk type number for backward compatibility....		
+		// Scaler tracks.. if present -> checks main chunk type number for backward compatibility....
 		if( ScalerChunkExpected )
 		{
 			InFile.Read(&ChunkHdr,sizeof(ChunkHdr));
 			// verify if total matches read keys...
 			INT TotalScaleKeys = ChunkHdr.DataCount;
 			INT ReadScaleKeys = 0;
-			
+
 			if( TotalScaleKeys )
 			{
 				for( INT s = 0; s<OutAnims.Num(); s++)
-				{	
+				{
 					OutAnims[s].ScaleTrack.Empty();
 					if( OutAnims[s].AnimInfo.ScaleInclude ) // ONLY for those sequences with scaling.
 					{
-						INT TrackScaleKeys = OutAnims[s].AnimInfo.NumRawFrames * OutAnims[s].AnimInfo.TotalBones;						
+						INT TrackScaleKeys = OutAnims[s].AnimInfo.NumRawFrames * OutAnims[s].AnimInfo.TotalBones;
 						if( ReadScaleKeys + TrackScaleKeys <= TotalScaleKeys ) // Enough on disk left to read ?!
 						{
 							OutAnims[s].ScaleTrack.Add( TrackScaleKeys );
@@ -829,20 +830,20 @@ public:
 
 	// Add a current 'RawAnimKeys' animation data to our TempActor's in-memory repertoire.
 	int RecordAnimation()
-	{		
+	{
 		AnimInfoBinary TempInfo;
 		TempInfo.FirstRawFrame = 0; // Fixed up at write time
-		TempInfo.NumRawFrames =  RawNumFrames; // RawAnimKeys.Num() 
-		TempInfo.StartBone = 0; // 
+		TempInfo.NumRawFrames =  RawNumFrames; // RawAnimKeys.Num()
+		TempInfo.StartBone = 0; //
 		TempInfo.TotalBones = RawNumBones; // OurBoneTotal;
 		TempInfo.TrackTime = RawNumFrames; // FrameRate;
-		TempInfo.AnimRate =  FrameRate; // RawNumFrames;		
+		TempInfo.AnimRate =  FrameRate; // RawNumFrames;
 		TempInfo.KeyReduction = 1.0;
 		TempInfo.KeyQuotum = RawAnimKeys.Num(); // NumFrames * RawNumBones; //Set to full size...
 		TempInfo.KeyCompressionStyle = 0;
-		TempInfo.ScaleInclude = RawScaleKeys.Num() == ( RawNumFrames * RawNumBones ) ? 1:0; // Proper number of RawScaleKeys ? then digest 
+		TempInfo.ScaleInclude = RawScaleKeys.Num() == ( RawNumFrames * RawNumBones ) ? 1:0; // Proper number of RawScaleKeys ? then digest
 
-		if( RawNumFrames && RawNumBones ) 
+		if( RawNumFrames && RawNumBones )
 		{
 			INT ThisIndex = Animations.Num(); // Add to top of Animations (sequences) array.
 
@@ -852,7 +853,7 @@ public:
 				AnimationBoneNumber = RawNumBones;
 			}
 			else if ( AnimationBoneNumber != RawNumBones )
-			{				
+			{
 				PopupBox("ERROR !! Inconsistent number of bones detected: %i instead of %i",RawNumBones,AnimationBoneNumber );
 				return 0;
 			}
@@ -877,8 +878,8 @@ public:
 			_tcscpy( Animations[ThisIndex].AnimInfo.Name, RawAnimName );
 			// get group name
 			_tcscpy( Animations[ThisIndex].AnimInfo.Group, ("None") );
-			
-			INT TotalKeys = Animations[ThisIndex].KeyTrack.Num();					
+
+			INT TotalKeys = Animations[ThisIndex].KeyTrack.Num();
 			RawNumFrames = 0;
 
 			RawAnimKeys.Empty();
@@ -886,7 +887,7 @@ public:
 
 			return TotalKeys;
 		}
-		else 
+		else
 		{
 			RawNumFrames = 0;
 			RawAnimKeys.Empty();
@@ -924,36 +925,36 @@ public:
 		if (CheckSubString(pName,_T("trans")))  translucent=true;
 		if (CheckSubString(pName,_T("opaque"))) translucent=false;
 		if (CheckSubString(pName,_T("alph"))) alpha=true;
- 
+
 		BYTE MatFlags= MTT_Normal;
-		
+
 		if (two)
 			MatFlags|= MTT_NormalTwoSided;
-		
+
 		if (translucent)
 			MatFlags|= MTT_Translucent;
-		
+
 		if (masked)
 			MatFlags|= MTT_Masked;
-		
+
 		if (modulate)
 			MatFlags|= MTT_Modulate;
-		
+
 		if (unlit)
 			MatFlags|= MTT_Unlit;
-		
+
 		if (flat)
 			MatFlags|= MTT_Flat;
-		
+
 		if (enviro)
 			MatFlags|= MTT_Environment;
-		
+
 		if (nofiltering)
 			MatFlags|= MTT_NoSmooth;
 
 		if (alpha)
 			MatFlags|= MTT_Alpha;
-		
+
 		if (weapon)
 			MatFlags= MTT_Placeholder;
 
@@ -966,13 +967,13 @@ public:
 		for(INT t=0; SkinData.Materials.Num(); t++)
 		{
 			SkinData.Materials[t].PolyFlags = FlagsFromName(SkinData.Materials[t].MaterialName);
-		}	
+		}
 		return 1;
 	}
 
 	// Write out a brush to the file. Everything's in SkinData - ignore any weights etc.
 	int WriteBrush(FastFileClass &OutFile, INT DoSmooth, INT OneTexture )
-	{		
+	{
 		//for(INT m=0; m<SkinData.Materials.Num(); m++)
 		//	PopupBox("MATERIAL OUTPUT SIZES: [%i] %i %i",m,SkinData.MaterialUSize[m],SkinData.MaterialVSize[m]);
 
@@ -981,7 +982,7 @@ public:
 		// Write all faces.
 		for(INT i=0; i<SkinData.Faces.Num(); i++)
 		{
-			
+
 			FVector Base;
 			FVector Normal;
 			FVector TextureU;
@@ -1006,15 +1007,15 @@ public:
 			//FLOAT MaterialWidth  = 1024; //SkinData.MaterialUSize[TexIndex]; //256.0f
 			//FLOAT MaterialHeight = -1024; //SkinData.MaterialVSize[TexIndex]; //256.0f
 
-			FLOAT MaterialWidth  = SkinData.MaterialUSize[TexIndex]; 
-			FLOAT MaterialHeight = -SkinData.MaterialVSize[TexIndex]; 			
+			FLOAT MaterialWidth  = SkinData.MaterialUSize[TexIndex];
+			FLOAT MaterialHeight = -SkinData.MaterialVSize[TexIndex];
 
 			FTexCoordsToVectors
 			(
 				Vertex[0], FVector( U[0],V[0],0.0f) * FVector( MaterialWidth, MaterialHeight, 1),
 				Vertex[1], FVector( U[1],V[1],0.0f) * FVector( MaterialWidth, MaterialHeight, 1),
 				Vertex[2], FVector( U[2],V[2],0.0f) * FVector( MaterialWidth, MaterialHeight, 1),
-				&Base, &TextureU, &TextureV 
+				&Base, &TextureU, &TextureV
 			);
 
 			// Need to flip the one texture vector ?
@@ -1023,13 +1024,13 @@ public:
 			FVector Flip(-1,1,1);
 			Vertex[0] *= Flip;
 			Vertex[1] *= Flip;
-			Vertex[2] *= Flip;			
+			Vertex[2] *= Flip;
 			Base *= Flip;
 			TextureU *= Flip;
 			TextureV *= Flip;
 
 			// Maya: need to flip everything 'upright' -Y vs Z?
-			
+
 			// Write face
 			OutFile.Print("	Begin Polygon");
 
@@ -1042,7 +1043,7 @@ public:
 			// SkinData.Materials[TexIndex].PolyFlags
 			DWORD TriFlags = SkinData.Materials[TexIndex].PolyFlags;
 			if( TriFlags)
-			{		
+			{
 				// Set style based on triangle type.
 				if     ( (TriFlags&15)==MTT_Normal         ) PolyFlags |= 0;
 				else if( (TriFlags&15)==MTT_NormalTwoSided ) PolyFlags |= PF_TwoSided;
@@ -1058,7 +1059,7 @@ public:
 				if     ( TriFlags&MTT_NoSmooth          ) PolyFlags |= PF_NoSmooth;
 
 				// per-pixel Alpha flag ( Reuses Flatness triangle tag and PF_AlphaTexture engine tag...)
-				if     ( TriFlags&MTT_Flat				) PolyFlags |= PF_AlphaTexture; 
+				if     ( TriFlags&MTT_Flat				) PolyFlags |= PF_AlphaTexture;
 			}
 
 			OutFile.Print(" Flags=%i",PolyFlags );
@@ -1066,13 +1067,13 @@ public:
 			OutFile.Print(" Link=%u", i);
 			OutFile.Print("\r\n");
 
-			OutFile.Print("		Origin   %+013.6f,%+013.6f,%+013.6f\r\n", Base.X, Base.Y, Base.Z );			
+			OutFile.Print("		Origin   %+013.6f,%+013.6f,%+013.6f\r\n", Base.X, Base.Y, Base.Z );
 			OutFile.Print("		TextureU %+013.6f,%+013.6f,%+013.6f\r\n", TextureU.X, TextureU.Y, TextureU.Z );
 			OutFile.Print("		TextureV %+013.6f,%+013.6f,%+013.6f\r\n", TextureV.X, TextureV.Y, TextureV.Z );
 			for( v=0; v<3; v++ )
 			OutFile.Print("		Vertex   %+013.6f,%+013.6f,%+013.6f\r\n", Vertex[v].X, Vertex[v].Y, Vertex[v].Z );
 			OutFile.Print("	End Polygon\r\n");
-		}		
+		}
 		OutFile.Print("End PolyList\r\n");
 
 		return 0;
@@ -1080,9 +1081,3 @@ public:
 };
 
 #endif
-
-
-
-
-
-

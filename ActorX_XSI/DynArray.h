@@ -1,20 +1,22 @@
+// Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
+// Licensed under the BSD license. See LICENSE.txt file in the project root for full license information.
+
 /*
 
-	DynArray.h - Dynamic Array (generic list) template class. 
+	DynArray.h - Dynamic Array (generic list) template class.
 
-    Copyright 1998-2011 Epic Games, Inc. All Rights Reserved.
 	Created by Erik de Neve
 
-	Parts borrowed from the Game Developer Magazine 'Bunnylod' example source by Stan Melax.  
+	Parts borrowed from the Game Developer Magazine 'Bunnylod' example source by Stan Melax.
 	Cooler than Unreal's native dynamic arrays since it allows square bracket access :-)
 
-	Usage:	
+	Usage:
 
 	declare a dynamic array like:
 	TArray <StructureOrClassType>  NewListName;
 
 	Destruction is automatic for temp arrays.
-   
+
 	Todo:  - Make resizing and reallocation more like Unreal's TArray..
 	       - Constructor/Destructor issues; verify use of new(TArrayName)ElementCtor()
 
@@ -41,37 +43,37 @@ template <class Type> class TArray {
 	public:
 
 		//
-		TArray(int s=0);     
-		~TArray();		
+		TArray(int s=0);
+		~TArray();
 		void	Empty();
 		void	SetSize(int s);
 		int    AddItem(Type);
 		int     Add(int n=1);
-		int     AddZeroed(int n=1); 
+		int     AddZeroed(int n=1);
 		void	AddExactItem(Type);
 		int     AddExact(int n=1);
-		int     AddExactZeroed(int n=1); 
+		int     AddExactZeroed(int n=1);
 		int		Num();
 
 		void	AddUniqueItem(Type);
-		int 	Contains(Type); 
+		int 	Contains(Type);
 		int     Where(Type);   // Returns index of item.
 		void	Remove(Type);  // Remove first and only occurrence of item (assumed unique - otherwise triggers assertion..)
 		void    Shrink();      // Ensures only used entries are allocated.
 		void    Reset(int n=INITIALSIZE); // Empties ArrayNum, sets ArrayMax to n and reallocates.
-		void	DelIndex(int i);		
+		void	DelIndex(int i);
 		Type&   TopItem();
 		Type	&operator[](int i)
-		{ 
-			debugassert( i>=0 && i<ArrayNum ,"");				
-			return Data[i]; 
-		}		
+		{
+			debugassert( i>=0 && i<ArrayNum ,"");
+			return Data[i];
+		}
 
 	// private:
 	// Variables.
-		Type*	Data;		
+		Type*	Data;
 		int     ArrayNum; // Number of used elements.
-		int		ArrayMax; // Total amount of items allocated.				
+		int		ArrayMax; // Total amount of items allocated.
 
 	protected:
 		void	TRealloc(int s);
@@ -90,11 +92,11 @@ TArray<Type>::TArray(int s)
 	ArrayNum=0;
 	ArrayMax = 0;
 	Data = NULL;
-	if( s > 0 ) 
+	if( s > 0 )
 	{
 		TRealloc(s);
 	}
-	else 
+	else
 	{
 		ArrayNum = 0;
 		ArrayMax = 0;
@@ -103,7 +105,7 @@ TArray<Type>::TArray(int s)
 
 template <class Type>
 TArray<Type>::~TArray()
-{	
+{
 	Empty();
 }
 
@@ -111,8 +113,8 @@ TArray<Type>::~TArray()
 // Shrink: reallocate array to allocate only the used elements.
 template <class Type>
 void TArray<Type>::Shrink()
-{	
-	if ( ArrayNum>0 && ArrayMax>ArrayNum ) 
+{
+	if ( ArrayNum>0 && ArrayMax>ArrayNum )
 		TRealloc( ArrayNum );
 }
 
@@ -121,7 +123,7 @@ void TArray<Type>::Shrink()
 
 template <class Type>
 void TArray<Type>::Reset(int n)
-{	
+{
 	INT NewArrayMax;
 
 	if( n>=1 )
@@ -129,10 +131,10 @@ void TArray<Type>::Reset(int n)
 	else
 		NewArrayMax = INITIALSIZE;
 
-	if (ArrayNum>0) 
+	if (ArrayNum>0)
 	{
 		ArrayNum = 0;
-		TRealloc(NewArrayMax);		
+		TRealloc(NewArrayMax);
 	}
 }
 
@@ -142,7 +144,7 @@ template <class Type>
 int TArray<Type>::Add(int n)
 {
 	debugassert(ArrayNum<=ArrayMax,"!ArrayNum<=ArrayMax in Add()");
-	debugassert(n>0,"n>0 in Add()");	
+	debugassert(n>0,"n>0 in Add()");
 
 	if ( (ArrayNum+n) >= ArrayMax)
 	{
@@ -150,7 +152,7 @@ int TArray<Type>::Add(int n)
 		TRealloc(NewArrayMax);
 	}
 	int LastTopElementIndex = ArrayNum;
-	ArrayNum += n;	
+	ArrayNum += n;
 	debugassert(ArrayNum<=ArrayMax,"ArrayNum<=ArrayMax in Add()");
 	return LastTopElementIndex;
 }
@@ -160,14 +162,14 @@ template <class Type>
 int TArray<Type>::AddExact(int n)
 {
 	debugassert(ArrayNum<=ArrayMax,"ArrayNum<=ArrayMax in AddExact");
-	debugassert(n>0,"n>0 in AddExact");	
+	debugassert(n>0,"n>0 in AddExact");
 	if ( (ArrayNum+n) > ArrayMax)
 	{
 		INT NewArrayMax = ArrayNum+n;
 		TRealloc(NewArrayMax);
 	}
 	int LastTopElementIndex = ArrayNum;
-	ArrayNum += n;	
+	ArrayNum += n;
 	debugassert(ArrayNum<=ArrayMax,"ArrayNum<=ArrayMax in AddExact");
 	return LastTopElementIndex;
 }
@@ -185,7 +187,7 @@ int TArray<Type>::AddZeroed(int n)
 	if ( (ArrayNum+n) >= ArrayMax ) // need to allocate more ?
 	{
 		INT NewArrayMax = (ArrayNum+n) + 3*(ArrayNum+n)/8 + INITIALSIZE;
-		TRealloc(NewArrayMax);	
+		TRealloc(NewArrayMax);
 	}
 	int NewElementIndex = ArrayNum;
 	ArrayNum += n;
@@ -195,7 +197,7 @@ int TArray<Type>::AddZeroed(int n)
 	{
 			memset( ((BYTE*)Data) + (i*sizeof(Type)), 0, sizeof(Type) );
 	}
-		
+
 	return NewElementIndex;
 }
 
@@ -210,7 +212,7 @@ int TArray<Type>::AddExactZeroed(int n)
 	if ( (ArrayNum+n) > ArrayMax )
 	{
 		INT NewArrayMax = ArrayNum+n;
-		TRealloc(NewArrayMax);	
+		TRealloc(NewArrayMax);
 	}
 	int NewElementIndex = ArrayNum;
 	ArrayNum += n;
@@ -230,15 +232,15 @@ int TArray<Type>::AddExactZeroed(int n)
 template <class Type>
 void TArray<Type>::Empty()
 {
-	if( (Data != NULL) && ( ArrayMax > 0 ) ) 
+	if( (Data != NULL) && ( ArrayMax > 0 ) )
 	{
 		if( ArrayNum > 0 ) // Why: destructors allowed only if there are valid array members present.
 			delete Data;
 		else
-			delete (BYTE*)Data;		
+			delete (BYTE*)Data;
 
 		Data = NULL;
-		
+
 	}
 	ArrayMax = 0;
 	ArrayNum = 0;
@@ -248,37 +250,37 @@ template <class Type>
 void TArray<Type>::SetSize(int s)
 {
 	debugassert( s >= 0,"! s>=0 " );
-	if( s==0 ) 
-	{ 
+	if( s==0 )
+	{
 		Empty();
 	}
-	else 
+	else
 	{
-		if( ArrayNum > s ) 
+		if( ArrayNum > s )
 		{
 			ArrayNum = s;
 		}
-		TRealloc(s); 
+		TRealloc(s);
 		ArrayNum=s;
 	}
-	
+
 }
 
 template <class Type>
 int TArray<Type>::AddItem(Type t)
-{	
+{
 	INT NewIdx = ArrayNum;
 	Add(1);
-	Data[NewIdx] = t;	
+	Data[NewIdx] = t;
 	return NewIdx;
 }
 
 template <class Type>
 void TArray<Type>::AddExactItem(Type t)
-{	
+{
 	INT NewIdx = ArrayNum;
 	AddExact(1);
-	Data[NewIdx] = t;	
+	Data[NewIdx] = t;
 }
 
 
@@ -288,7 +290,7 @@ int TArray<Type>::Contains(Type t)
 {
 	int i;
 	int count=0;
-	for(i=0;i<ArrayNum;i++) 
+	for(i=0;i<ArrayNum;i++)
 	{
 		if(Data[i] == t) count++;
 	}
@@ -302,7 +304,7 @@ int TArray<Type>::Where(Type t)
 {
 	int i;
 	int count=0;
-	for(i=0;i<ArrayNum;i++) 
+	for(i=0;i<ArrayNum;i++)
 	{
 		if(Data[i] == t) return i;
 	}
@@ -339,15 +341,15 @@ template <class Type>
 void TArray<Type>::Remove(Type t)
 {
 	int i;
-	for(i=0;i<ArrayNum;i++) 
+	for(i=0;i<ArrayNum;i++)
 	{
-		if(Data[i] == t) 
+		if(Data[i] == t)
 		{
 			break;
 		}
 	}
 	DelIndex(i);
-	for(i=0;i<ArrayNum;i++) 
+	for(i=0;i<ArrayNum;i++)
 	{
 		debugassert(Data[i] != t,"! Data[i] != t");
 	}
@@ -365,43 +367,43 @@ void TArray<Type>::TRealloc(int s)
 		BYTE* OldData = (BYTE*) Data;
 		INT OldSize = ArrayMax; // old ArrayMax may well be 0.
 
-	ArrayMax = s;	
+	ArrayMax = s;
 
-		// DUMB allocation/deletion - we don't want any destructors or constructors to be called, not of 
-		// classes in the arrays and certainly not of inner TArrays - since we'll be copying over raw data 
+		// DUMB allocation/deletion - we don't want any destructors or constructors to be called, not of
+		// classes in the arrays and certainly not of inner TArrays - since we'll be copying over raw data
 		// instead. We DO allow ctors/dtors everywhere else.
 
 		Data = (Type*) new BYTE[ ArrayMax * sizeof(Type) ];
-	
-		debugassert(Data,"! Data zero in TRealloc");	
+
+		debugassert(Data,"! Data zero in TRealloc");
 
 		if( OldData != NULL )
 	{
-			//  Don't copy per element - risks special operator= interfering with byte-for-byte copying		
+			//  Don't copy per element - risks special operator= interfering with byte-for-byte copying
 			memcpy( (BYTE*)Data, (BYTE*)OldData, ArrayNum * sizeof(Type) );
 
 			// Delete it as a raw byte pointer.
-			delete OldData;	 
+			delete OldData;
 		}
 		else
 		{
 			MemLog.LogfLn(" First allocation for data ptr at [%i] is %i elements of size %i.",(BYTE*)Data, ArrayMax, sizeof(Type) );
 		}
 	}
-	
+
 	if( 0 ) // Realloc method - less wasteful of cpu and memory  ? -> defective.
-	{	
+	{
 		BYTE* OldData = (BYTE*) Data;
 		INT OldSize = ArrayMax; // old ArrayMax may well be 0.
 		ArrayMax = s;	// New size.
-				
+
 		if( OldSize == 0 ) // Initial allocation.
 		{
 			if( OldData )
 		delete OldData;
 			Data = NULL;
 		OldData = NULL;
-			
+
 			realloc( (BYTE*)Data, ArrayMax * sizeof(Type) );
 			//Data = (Type*) new BYTE[ ArrayMax*sizeof(Type) ];
 		}
@@ -409,7 +411,7 @@ void TArray<Type>::TRealloc(int s)
 		{
 			realloc( (BYTE*)Data, ArrayMax * sizeof(Type) );
 		}
-		else if ( ArrayMax == 0 && ArrayNum == 0 ) 
+		else if ( ArrayMax == 0 && ArrayNum == 0 )
 		{
 			// Nothing in array. Delete without dtors.
 			if( OldData )
@@ -420,7 +422,7 @@ void TArray<Type>::TRealloc(int s)
 }
 
 //
-// Array operator,   "new(TArrayToAddTo)ClassConstructor()" 
+// Array operator,   "new(TArrayToAddTo)ClassConstructor()"
 //
 template <class T> void* operator new( size_t Size, TArray<T>& Array )
 {
@@ -438,6 +440,3 @@ template <class T> void* operator new( size_t Size, TArray<T>& Array, INT Index 
 
 
 #endif
-
-
-

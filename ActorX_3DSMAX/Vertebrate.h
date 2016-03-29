@@ -1,8 +1,10 @@
+// Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
+// Licensed under the BSD license. See LICENSE.txt file in the project root for full license information.
+
 /**********************************************************************
 
 	Vertebrate.h - Binary structures for digesting and exporting skeleton, skin & animation data.
 
-  	Copyright 1998-2011 Epic Games, Inc. All Rights Reserved.
 	Created by Erik de Neve
 
 	New model limits (imposed by the binary format and/or engine)

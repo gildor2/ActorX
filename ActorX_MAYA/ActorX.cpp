@@ -1,3 +1,6 @@
+// Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
+// Licensed under the BSD license. See LICENSE.txt file in the project root for full license information.
+
 /*****************************************************************
 pcf ugly fix:
 	- add suffix _Mat to texture path for autoimporting materials
@@ -6,14 +9,13 @@ pcf ugly fix:
 ******************************************************************/
 
 /*****************************************************************
- 	
-	ActorX.cpp		Actor eXporter for Unreal.
-	Copyright 1998-2011 Epic Games, Inc. All Rights Reserved.
-	Created by Erik de Neve 
 
-	Exports smooth-skinned meshes and arbitrary hierarchies of regular textured meshes, 
+	ActorX.cpp		Actor eXporter for Unreal.
+	Created by Erik de Neve
+
+	Exports smooth-skinned meshes and arbitrary hierarchies of regular textured meshes,
 	and their animation in offsetvector/quaternion timed-key format.
-    
+
   Main structures:
 	   SceneIFC OurScene  => Contains necessary current scene info i.e. the scene tree, current timings, etc.
 	   VActor   TempActor => Contains reference skeleton+skin, accumulated animations.
@@ -30,13 +32,13 @@ pcf ugly fix:
 
   Rev 1.7 Feb 2001
      - Minor stuff / safer dynamic arrays..(?!)
-	 - Note: still gets pointer error related to memory deletion in the dyn. arrays in debug mode (known VC++ issue)   
+	 - Note: still gets pointer error related to memory deletion in the dyn. arrays in debug mode (known VC++ issue)
 
-  Rev 1.8 feb 2001 
+  Rev 1.8 feb 2001
     - Fixed base/class name getting erased between sessions.
 
   Rev 1.9 - 1.92   may 2001
-    - Batch processing option (Max)	
+    - Batch processing option (Max)
 	- Untextured vertices warning names specific mesh (max)
 	- Persistent names & settings
 
@@ -44,7 +46,7 @@ pcf ugly fix:
     - Vertex animation export
 	- Maya ASE brush export
 	- Edge smoothing to smoothing group conversion
-	- Automatic arbitrary-poly triangulation	
+	- Automatic arbitrary-poly triangulation
     - 'Scene Info' button works again.
 
    Rev 2.26
@@ -55,7 +57,7 @@ pcf ugly fix:
   Todo (MAYA)
 	  - ? Maya scaler modifier before root: accept / warn ?
 	  - Look into unification into single project with build options for various Max Maya versions ?
-         The only project-specific files are now BrushExport, MayaInterface, MaxInterface ( and various 
+         The only project-specific files are now BrushExport, MayaInterface, MaxInterface ( and various
 	     resource files that may be in one but not the other )
 
   Todo (MAX/MAYA)
@@ -65,12 +67,12 @@ pcf ugly fix:
   	- Fix 'get scene info'.
 	- Fix the 'frame-0 reference pose must be accessible' requirement for non-biped(?) meshes.
 	- Verify whether it's the somewhat arbitrary sign flips in the quats at '#inversion' cause the character to turn 90 degrees at export.
-	- Verify mystery crash when editing/saving/loading multiple animation sequences are fixed...	
-	- Enable more flexible 'nontextured' mesh export.	
+	- Verify mystery crash when editing/saving/loading multiple animation sequences are fixed...
+	- Enable more flexible 'nontextured' mesh export.
 
 
   #ifdef MAX
-  #ifdef MAYA 
+  #ifdef MAYA
   MAYAVER = 3, 4 etc
   MAXVER = 3,4 etc
   MAXCSVER=3.1, 3.2 etc
@@ -106,14 +108,14 @@ char    PluginRegPath[] = ("Software\\Epic Games\\ActorXMax");
 char	DestPath[MAX_PATH],   // General  scratchpath :)
 		LogPath[MAX_PATH],  // Log file destination.
   		to_path[MAX_PATH],   // Global output folder name.
-		to_meshoutpath[MAX_PATH],  
+		to_meshoutpath[MAX_PATH],
 		to_animfile[MAX_PATH],
 		to_skinfile[MAX_PATH],
 		newsequencename[MAX_PATH],
 		framerangestring[MAXINPUTCHARS],
 		vertframerangestring[MAXINPUTCHARS],
-		classname[MAX_PATH],		
-		basename[MAX_PATH],	
+		classname[MAX_PATH],
+		basename[MAX_PATH],
 		batchfoldername[MAX_PATH];
 
 
@@ -136,12 +138,12 @@ void ResetPlugin()
 	ExportBlendShapes=0;
 
 	// Set access to our registry path
-	PluginReg.SetRegistryPath( (char*) &PluginRegPath );	
+	PluginReg.SetRegistryPath( (char*) &PluginRegPath );
 
 	// Get all relevant ones from the registry....
 	INT SwitchPersistent;
 	PluginReg.GetKeyValue("PERSISTSETTINGS", SwitchPersistent);
-	
+
 	if( SwitchPersistent )
 	{
 		// Skeletal export options.
@@ -176,16 +178,16 @@ void ResetPlugin()
 		PluginReg.GetKeyValue("DOSCALEVERTEX",OurScene.DoScaleVertex);
 		PluginReg.GetKeyValue("DOSUPPRESSANIMPOPUPS", OurScene.DoSuppressAnimPopups );
 
-		// Static mesh export options.		
+		// Static mesh export options.
 		PluginReg.GetKeyValue("DOCONVERTSMOOTH", OurScene.DoConvertSmooth );
 		PluginReg.GetKeyValue("DOFORCETRIANGLES", OurScene.DoForceTriangles );
 		PluginReg.GetKeyValue("DOUNDERSCORESPACE", OurScene.DoUnderscoreSpace);
 		PluginReg.GetKeyValue("DOGEOMASFILENAME", OurScene.DoGeomAsFilename);
 		PluginReg.GetKeyValue("DOSELECTEDSTATIC", OurScene.DoSelectedStatic );
-		PluginReg.GetKeyValue("DOSUPPRESSPOPUPS", OurScene.DoSuppressPopups );	
+		PluginReg.GetKeyValue("DOSUPPRESSPOPUPS", OurScene.DoSuppressPopups );
 		PluginReg.GetKeyValue("DOCONSOLIDATE", OurScene.DoConsolidateGeometry );
 
-		PluginReg.GetKeyString( "TOMESHOUTPATH", to_meshoutpath );		
+		PluginReg.GetKeyString( "TOMESHOUTPATH", to_meshoutpath );
 	}
 
 	INT SwitchPersistPaths;
@@ -197,17 +199,10 @@ void ResetPlugin()
 		PluginReg.GetKeyString("CLASSNAME", classname );
 
 		PluginReg.GetKeyString("TOPATH", to_path );
-		_tcscpy_s(LogPath,to_path);		
+		_tcscpy_s(LogPath,to_path);
 		PluginReg.GetKeyString("TOANIMFILE", to_animfile );
 		PluginReg.GetKeyString("TOSKINFILE", to_skinfile );
-		
+
 	}
 
 }
-
-
-
-
-
-
-

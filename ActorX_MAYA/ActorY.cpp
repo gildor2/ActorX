@@ -1,23 +1,23 @@
+// Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
+// Licensed under the BSD license. See LICENSE.txt file in the project root for full license information.
+
 /*
 	PCF BEGIN
 		New static mesh export function (codeneme ActorY) with mell support and exporting per mesh
-
-		
-
 */
 #include "SceneIFC.h"
-#include "ActorY.h"	
+#include "ActorY.h"
 
-void* ActorY::creator()										\
-{																\
-	return new ActorY;										\
-}	
+void* ActorY::creator()
+{
+	return new ActorY;
+}
 
 MStatus ActorY::doIt( const MArgList& args )
 {
 	MStatus stat = MS::kSuccess;
 
-	MGlobal::displayInfo("actory command executed.\n")	  ;
+	MGlobal::displayInfo("actory command executed.\n");
 
 	UTExportMeshY(args);
 	OurScene.Cleanup();
@@ -50,7 +50,7 @@ MStatus ActorY::UTExportMeshY( const MArgList& args )
 
 
 
-	MArgDatabase argData(syntax(), args);	
+	MArgDatabase argData(syntax(), args);
 
 	if (argData.isFlagSet("-scale"))
 	{
@@ -62,19 +62,19 @@ MStatus ActorY::UTExportMeshY( const MArgList& args )
 	// First digest the scene into separately, named brush datastructures.
 
 
-	if (argData.isFlagSet("-DoExportInObjectSpace"))	
+	if (argData.isFlagSet("-DoExportInObjectSpace"))
 		OurScene.DoExportInObjectSpace =true;
-	if (argData.isFlagSet("-all"))	
+	if (argData.isFlagSet("-all"))
 		OurScene.DoSelectedStatic = false;
-	if (argData.isFlagSet("-consolidateGeometry"))	
+	if (argData.isFlagSet("-consolidateGeometry"))
 		OurScene.DoConsolidateGeometry = true;
-	if (argData.isFlagSet("-convertSmooth"))	
+	if (argData.isFlagSet("-convertSmooth"))
 		OurScene.DoConvertSmooth = true;
-		
 
-	if (OurScene.DigestStaticMeshes() == -1) 
+
+	if (OurScene.DigestStaticMeshes() == -1)
 		return MS::kFailure;
-	
+
 	// If anything to save:
 	// see if we had DoGeomAsFilename -> use the main non-collision geometry name as filename
 	// otherwise: prompt for name.
@@ -102,7 +102,7 @@ MStatus ActorY::UTExportMeshY( const MArgList& args )
 	if( OurScene.StaticPrimitives.Num() )
 	{
 		char filterlist[] = "ASE Files (*.ase)\0*.ase\0"\
-			"ASE Files (*.ase)\0*.ase\0";						 
+			"ASE Files (*.ase)\0*.ase\0";
 
 		char defaultextension[] = ".ase";
 
@@ -133,7 +133,7 @@ MStatus ActorY::UTExportMeshY( const MArgList& args )
 		}
 		else
 		{
-		
+
 			for( int s=0; s<OurScene.StaticPrimitives.Num();s++)
 			{
 				INT NewFaceCount = OurScene.StaticPrimitives[s].Faces.Num();
@@ -143,11 +143,11 @@ MStatus ActorY::UTExportMeshY( const MArgList& args )
 					TotalSelected++;
 				}
 				if(  MostFaces < NewFaceCount )
-				{								
+				{
 
 					NameSakeIdx = s;
 					MostFaces = NewFaceCount;
-				}								
+				}
 			}
 			if( TotalSelected == 1)
 				NameSakeIdx = UniquelySelected;

@@ -1,9 +1,9 @@
+// Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
+// Licensed under the BSD license. See LICENSE.txt file in the project root for full license information.
+
 /**************************************************************************
 
    SceneIFC.h	- File Exporter class definitions.
-
-   Copyright 1998-2011 Epic Games, Inc. All Rights Reserved.
- 
 
 ***************************************************************************/
 
@@ -140,21 +140,21 @@ class SceneIFC
 {
 public:
 
-	void		SurveyScene();		
+	void		SurveyScene();
 	int			GetSceneInfo();
 
-	int         DigestSkeleton(VActor *Thing); 
+	int         DigestSkeleton(VActor *Thing);
 	int         DigestSkin( VActor *Thing );
 	int         DigestBrush( VActor *Thing );
 	int         FixMaterials( VActor *Thing ); // internal
 	int	        ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin& LocalSkin, INT SmoothSkin, SkinInf* SkinHandle );
-	int         LogSkinInfo( VActor *Thing, TCHAR* SkinName);	
+	int         LogSkinInfo( VActor *Thing, TCHAR* SkinName);
 	int			WriteScriptFile( VActor *Thing, TCHAR* ScriptName, TCHAR* BaseName, TCHAR* SkinFileName, TCHAR* AnimFileName );
 	int         DigestAnim(VActor *Thing, TCHAR* AnimName, TCHAR* RangeString );
 	int         LogAnimInfo( VActor *Thing, TCHAR* AnimName);
 	void        FixRootMotion( VActor *Thing );
 	int	        DoUnSmoothVerts(VActor *Thing, INT DoTangentVectorSeams );
-	int			WriteVertexAnims( VActor *Thing, TCHAR* DestFileName, TCHAR* RangeString );	 
+	int			WriteVertexAnims( VActor *Thing, TCHAR* DestFileName, TCHAR* RangeString );
 
 	int			MarkBonesOfSystem(int RIndex);
 	int         RecurseValidBones(int RIndex, int &BoneCount);
@@ -179,7 +179,7 @@ public:
 	int         OurBoneTotal;
 
 	// Simple array of nodes for the whole scene tree.
-	TArray< NodeInfo > SerialTree; 
+	TArray< NodeInfo > SerialTree;
 
 	// Physique skin data
 	int         TotalSkinNodeNum;
@@ -195,7 +195,7 @@ public:
 	int         TotalDummies;
 	int         TotalBipBones;
 	int         TotalMaxBones;
-	// More stats:	
+	// More stats:
 	int         TotalVerts;
 	int         TotalFaces;
 	int         TotalPointHelpers;
@@ -241,7 +241,7 @@ public:
 		DoUnSmooth = 1;
 		DoTangents = 0;
 		DoExportScale = 0;
-		DoSkinGeom = 1;		
+		DoSkinGeom = 1;
 		DoTexPCX = 1;
 		DoForceRate = 0;
 	}
@@ -270,16 +270,16 @@ public:
 		int Sibling = 0;
 		for (int t=0; t<SerialTree.Num(); t++)
 		{
-			if (SerialTree[t].ParentIndex == PIndex) 
+			if (SerialTree[t].ParentIndex == PIndex)
 			{
-				if( Sibling == ChildNumber ) 
-				{	
+				if( Sibling == ChildNumber )
+				{
 					return t; // return Nth child.
 				}
 				Sibling++;
 			}
 		}
-		return -1; // no matching node found.		
+		return -1; // no matching node found.
 	}
 
 	int	    GetParentNodeIndex(int CIndex)
@@ -296,4 +296,3 @@ public:
 
 
 #endif // __SceneIFC__H
-

@@ -1,6 +1,7 @@
+// Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
+// Licensed under the BSD license. See LICENSE.txt file in the project root for full license information.
+
 /**************************************************************************
- 
-   Copyright 1998-2011 Epic Games, Inc. All Rights Reserved.
 
    MaxInterface.h - MAX-specific exporter scene interface code.
 
@@ -46,15 +47,15 @@ UBOOL SaveAnimSet( char* DestPath );
 FLOAT GetMayaTimeStart();
 FLOAT GetMayaTimeEnd();
 // Get an actual shader, from a higher (shading group) node.
-MObject findShader( MObject& setNode );  
+MObject findShader( MObject& setNode );
 // Get a texture name (forward slashes converted to backward) from a shader.
-INT GetTextureNameFromShader( const MObject& shaderNode, char* BitmapFileName, int MaxChars ); 
+INT GetTextureNameFromShader( const MObject& shaderNode, char* BitmapFileName, int MaxChars );
 
 INT DigestMayaMaterial( MObject& NewShader  );
 
 
 //
-// HINSTANCE ParentApp_hInstance; // Parent instance 
+// HINSTANCE ParentApp_hInstance; // Parent instance
 //
 extern struct HINSTANCE__ * MhInstPlugin;  // Link to parent app
 extern WinRegistry PluginReg;
@@ -80,7 +81,7 @@ struct VertEdges
 
 struct GroupList
 {
-	TArray<INT> Groups;	
+	TArray<INT> Groups;
 	INT FinalGroup;
 };
 
@@ -99,13 +100,13 @@ public:
 
     // Edge lookup methods
     void            buildEdgeTable( MDagPath& mesh );
-	void            createNewSmoothingGroups( MDagPath& mesh );	
+	void            createNewSmoothingGroups( MDagPath& mesh );
 	//PCF BEGIN
-	void            createNewSmoothingGroupsFromTriangulatedMesh( triangulatedMesh& );	
+	void            createNewSmoothingGroupsFromTriangulatedMesh( triangulatedMesh& );
 	//PCF END
     void            addEdgeInfo( INT v1, INT v2, bool smooth );
     MayaEdge*       findEdgeInfo( INT v1, INT v2);
-    UBOOL		smoothingAlgorithm( INT, MFnMesh& fnMesh );	
+    UBOOL		smoothingAlgorithm( INT, MFnMesh& fnMesh );
 // PCF BEGIN - not using MFnMesh& fnMesh
 	void            fillSmoothFaces( INT polyid );
 //PCF END
@@ -123,7 +124,7 @@ public:
 		{
 			VertEdgePools[v].Edges.Empty();
 		}
-		VertEdgePools.Empty();	
+		VertEdgePools.Empty();
 
 		for( int g=0; g<GroupTouchPools.Num(); g++)
 		{
@@ -174,7 +175,7 @@ public:
 				{
 					GroupTouchPools[i].Groups.AddItem( NewGroups[n] );
 				}
-			}			
+			}
 		}
 
 		// Merge source Pool elements into dest pool.
@@ -185,7 +186,7 @@ public:
 		}
 
 		// Delete 'dest' element lager..
-		GroupTouchPools[source].Groups.Empty();		
+		GroupTouchPools[source].Groups.Empty();
 	}
 
 
@@ -198,15 +199,15 @@ public:
 
 	TArray< INT >					PolyProcessFlags;
 	TArray<FaceEnviron>       FacePools;
-	TArray< VertEdges >			VertEdgePools;	    
+	TArray< VertEdges >			VertEdgePools;
 
-	TArray< GroupList >			GroupTouchPools;	
+	TArray< GroupList >			GroupTouchPools;
 	TArray< INT >					FacesTodo;	 // Bookmarks for flood filling group assignment.
 	TArray< INT >					SmoothEnvironmentFaces; // Smoothly joined neighbor faces for current face.
 	TArray< INT >					HardEnvironmentFaces; // Non-smoothly joined neighbor faces for current face.
 
 	INT					CurrentGroup;
-   
+
     DWORD           nextSmoothingGroup;
     DWORD           currSmoothingGroup;
     bool				 newSmoothingGroup;
