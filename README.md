@@ -34,7 +34,7 @@ SDK
 ---
 
 SDK are not distributed for legal reasons. You should download them from corresponding developer's sites and place
-under /SDK directory. Directory layout for x86/x64 mixed platofrms is:
+under /SDK directory (relative to the project's root). Directory layout for x86/x64 mixed platofrms is:
 
     /SDK
       /Max2012
@@ -52,6 +52,7 @@ For x64-only SDK's, use the following layout:
          /lib
 
 All libraries should go to the `<SDK_Ver>/lib` directory. Suffix `_x64` of directory name is required.
+<SDK_Ver> = (Max|Maya)(Year)[_x64]
 
 Web resources
 -------------

@@ -2,16 +2,23 @@ ActorX Exporter plugin for Autodesk 3ds Max 2012+ and Autodesk Maya 2012+
 Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 
 Maintained by Konstantin Nosov (Gildor), http://www.gildor.org/
-You may download updated versions, check for updates and request for support here:
+Epic Games is not responsible for the plugin versions taken from gildor.org.
+
+Web resources:
+~~~~~~~~~~~~~~
+You may download recent version, check for updates and request for support here:
 http://www.gildor.org/smf/index.php/topic,1221.0.html
 
-Epic Games is not responsible for plugin versions taken from gildor.org.
-
-Original plugin home page:
+Original plugin's home page:
 http://udn.epicgames.com/Three/ActorX.html
+
 Versions for Max and Maya prior to 2012 are available in UDK distributions, or on this page:
 http://udn.epicgames.com/Two/ActorX.html
 
+License:
+~~~~~~~~
+Source code is licensed under the BSD license (see LICENSE.txt) and available here:
+https://github.com/gildor2/ActorX
 
 Changes:
 ~~~~~~~~
