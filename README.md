@@ -30,6 +30,14 @@ To launch a build process without a batch, simply execute
     bash build.sh
 
 
+This command line will issue building ActorX plugin for all available supported SDKs. If you want to build a particular
+version, use this command line format:
+
+    bash build.sh <SDK_Ver>
+
+(see description of SDK_Ver format below)
+
+
 SDK
 ---
 
@@ -37,11 +45,13 @@ SDK are not distributed for legal reasons. You should download them from corresp
 under /SDK directory (relative to the project's root). Directory layout for x86/x64 mixed platofrms is:
 
     /SDK
-      /Max2012
+      /<SDK_Ver>
          /include
          /lib
          /x64
            /lib
+
+`<SDK_Ver> ::= (Max|Maya)(Year)[_x64]`
 
 All includes goes to `<SDK_Ver>/include`, x86 libraries to `<SDK_Ver>/lib`, x64 libraries to `<SDK_Ver>/x64/lib`.
 For x64-only SDK's, use the following layout:
@@ -51,8 +61,10 @@ For x64-only SDK's, use the following layout:
          /include
          /lib
 
-All libraries should go to the `<SDK_Ver>/lib` directory. Suffix `_x64` of directory name is required.
-<SDK_Ver> = (Max|Maya)(Year)[_x64]
+All libraries should go to the `<SDK_Ver>/lib` directory. Suffix `_x64` of SDK's directory name is required.
+
+Build script is intended to work with Max and Maya versions starting from 2012 year, but it should work well with older
+versions too.
 
 Web resources
 -------------
