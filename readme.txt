@@ -22,6 +22,10 @@ https://github.com/gildor2/ActorX
 
 Changes:
 ~~~~~~~~
+26.07.2016
+- added Max 2017 version
+- rebuilt everything with Visual Studio 2013
+
 06.11.2015
 - added Max 2016 and Maya 2016 versions
 

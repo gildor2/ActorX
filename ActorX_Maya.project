@@ -7,7 +7,8 @@ OPTIMIZE  = speed
 LIBC       = static
 CPP_EXCEPT = 1
 
-DEFINES   = _MBCS NT_PLUGIN REQUIRE_IOSTREAM MAYA
+# Adding _USING_V110_SDK71_ to avoid lots of warnings when building with VS2013+
+DEFINES   = _MBCS NT_PLUGIN REQUIRE_IOSTREAM MAYA _USING_V110_SDK71_
 #OPTIONS=
 LINKFLAGS = -export:initializePlugin -export:uninitializePlugin
 

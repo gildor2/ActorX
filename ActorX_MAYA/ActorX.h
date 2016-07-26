@@ -23,4 +23,8 @@ void ResetPlugin();
 #define NEWMAYAEXPORT
 //PCF END
 
+#ifndef max
+#define max(x,y)	( (x) > (y) ? (x) : (y) )
+#endif
+
 #endif // __ACTORX__H

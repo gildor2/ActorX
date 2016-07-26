@@ -62,7 +62,7 @@ function build()
 	makefile=obj/ActorX_$cfg.mak
 	./genmake ActorX_$host.project SDK_INC=$sdk/include SDK_LIB=$libdir CFG=$cfg VER=$year TARGET=vc-win32 > $makefile
 	# build
-	vc32tools --version=10 $vctool_opts --make $makefile
+	vc32tools --version=12 $vctool_opts --make $makefile
 }
 
 
