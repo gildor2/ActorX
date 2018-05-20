@@ -21,6 +21,13 @@
 
 //PCF BEGIN
 // Maya API  includes  -
+
+// Workaround for Maya 2018 SDK: it has declaration of "round" function in MTypes.h, which conflicts with declaration
+// in math.h of VS2013 and VS2015
+#define round maya_round
+#include <maya/MTypes.h>
+#undef round
+
 #include <maya/MIOStream.h>
 #include <maya/MFileIO.h>
 #include <maya/MStatus.h>

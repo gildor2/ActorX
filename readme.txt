@@ -22,6 +22,9 @@ https://github.com/gildor2/ActorX
 
 Changes:
 ~~~~~~~~
+20.05.2018
+- added Max 2018, Max 2019 and Maya 2018 versions
+
 27.02.2017
 - added Maya 2017 version
 

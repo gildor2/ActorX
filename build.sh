@@ -80,7 +80,7 @@ fi
 
 # build all known targets
 for host in "Max" "Maya"; do
-	for ver in {2012..2018}; do
+	for ver in {2012..2030}; do
 		for amd64 in "" "_x64"; do
 			cfg=${host}${ver}${amd64}
 			build $cfg
