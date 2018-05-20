@@ -54,10 +54,12 @@ defined(var)         will be replaced with 0 or 1
 3. System variables:
 
 platform specification:
-	PLATFORM	= win32 | cygwin | unix
+	PLATFORM	= win32 | win64 | cygwin | unix | unix32 | unix64
 	COMPILER	= VisualC | GnuC
-	TARGET		= vc-win32 | mingw32 | cygwin | linux
+	TARGET		= vc-win32 | vc-win64 | mingw32 | cygwin | linux | linux32 | linux64
 		Should specify either "TARGET" or "PLATFORM"+"COMPILER"
+		"linux" = use current system's platform
+		"linux32" or "linux64" = cross-compile for different platform
 
 global:
 	CPP_EXCEPT	= 1 == undef | 0		0 = disable C++ exceptions
@@ -451,6 +453,9 @@ sub InitCompiler {
 		if ($TARGET eq "vc-win32") {
 			$COMPILER = "VisualC";
 			$PLATFORM = "win32";
+		} elsif ($TARGET eq "vc-win64") {
+			$COMPILER = "VisualC";
+			$PLATFORM = "win64";
 		} elsif ($TARGET eq "mingw32") {
 			$COMPILER = "GnuC";
 			$PLATFORM = "win32";
@@ -460,6 +465,12 @@ sub InitCompiler {
 		} elsif ($TARGET eq "linux") {
 			$COMPILER = "GnuC";
 			$PLATFORM = "unix";
+		} elsif ($TARGET eq "linux32") {
+			$COMPILER = "GnuC";
+			$PLATFORM = "unix32";
+		} elsif ($TARGET eq "linux64") {
+			$COMPILER = "GnuC";
+			$PLATFORM = "unix64";
 		} else {
 			Error ("Unknown TARGET: \"$TARGET\"");
 		}
@@ -478,11 +489,11 @@ sub InitCompiler {
 		}
 	} elsif (defined($PLATFORM)) {
 		# defaults for PLATFORM
-		if ($PLATFORM eq "win32") {
+		if ($PLATFORM eq "win32" || $PLATFORM eq "win64") {
 			$COMPILER = "VisualC";
 		} elsif ($PLATFORM eq "cygwin") {
 			$COMPILER = "GnuC";
-		} elsif ($PLATFORM eq "unix") {
+		} elsif ($PLATFORM eq "unix" || $PLATFORM eq "unix32" || $PLATFORM eq "unix64") {
 			$COMPILER = "GnuC";
 		} else {
 			Error ("Unknown PLATFORM: \"$PLATFORM\"");
@@ -503,13 +514,17 @@ sub InitCompiler {
 	} elsif ($COMPILER eq "GnuC") {
 		$ObjFileExt = ".o";
 		$LibFileExt = ".a";
+	} else {
+		die;
 	}
-	if ($PLATFORM eq "unix") {
+	if ($PLATFORM eq "unix" || $PLATFORM eq "unix32" || $PLATFORM eq "unix64") {
 		$ExeFileExt = "";
 		$DllFileExt = ".so";
-	} elsif ($PLATFORM eq "win32" || $PLATFORM eq "cygwin") {
+	} elsif ($PLATFORM eq "win32" || $PLATFORM eq "win64" || $PLATFORM eq "cygwin") {
 		$ExeFileExt = ".exe";
 		$DllFileExt = ".dll";
+	} else {
+		die;
 	}
 }
 
@@ -518,15 +533,21 @@ sub EmitCompilerDefs {
 	Splitter ("Compiler definitions");
 	if ($COMPILER eq "VisualC") {
 		print "CPP  = cl.exe -nologo -c -D WIN32 -D _WINDOWS\n";
-		print "LINK = link.exe -nologo -filealign:512 -incremental:no\n";
+		my $machine = "X86";
+		$machine = "X64" if $PLATFORM eq "win64";
+		print "LINK = link.exe -nologo -filealign:512 -incremental:no -machine:$machine\n";
 		print "AR   = link.exe -lib -nologo\n";		# cannot use "LIB" name
 	} elsif ($COMPILER eq "GnuC") {
 		my $platf = "gcc";
+		# platform override
 		if ($PLATFORM eq "win32") {
 			# mingw32
 			$platf .= " -mno-cygwin";
+		} elsif ($PLATFORM eq "unix32") {
+			$platf .= " -m32";
+		} elsif ($PLATFORM eq "unix64") {
+			$platf .= " -m64";
 		}
-		#?? test -pipe under Win9X and Linux (cygwin/winxp - ok)
 		print "CPP  = $platf -pipe -c\n";
 		print "LINK = $platf -pipe -s\n";
 		print "AR   = ar -rcs\n";					# r=(replace files), c=(create archive), s=(write object file index)
@@ -624,9 +645,11 @@ sub AddObjectList {
 			# debugging
 			$opt = GetSrcOption("PDB", 0);
 			if ($opt >= 2) {
-				$options .= " -Zi -Fd\"$objdir/\"";	# enable debugging information; note: no final slash, so pdb will be names as objdir
+				# NOTE: using -Zi will not allow parallel compilation of multiple source files with VS2013+
+#??				$options .= " -Zi -Fd\"$objdir/\"";	# enable debugging information; note: no final slash, so pdb will be names as objdir
+				$options .= " -Z7";						# enable debugging information stored in OBJ file
 			}
-		} elsif ($COMPILER eq "GnuC") {		#!! GnuC - compiler options
+		} elsif ($COMPILER eq "GnuC") {
 			my $opt = GetSrcOption ("WARNLEVEL");
 			# warning level: GnuC can disable warnings or enable all warnings
 			if ($opt ne "") {
@@ -825,13 +848,15 @@ sub CollectFileDependencies {
 
 	$dep = "";
 	$depends{$file} = "(computing)";			# flag for detection of recursive includes
-	my ($path) = $file =~ /^(\S+)\/[\w+\.]+$/;
+	my ($path) = $file =~ /^(\S+)\/[\w+\-\.]+$/;
 	$path = "" if !defined($path);
 
-	if ($srcType eq "rc") {
-		$depends{$file} = "";					# do not parse resources and avoid processing later
-		return 1;
-	}
+# -- disabled 08.10.2014: process .rc file like it's ordinary C++ file; perhaps later should allow
+# -- "relaxed" includes, if we'll have any problems: should completely ignore includes which genmake can't find
+#	if ($srcType eq "rc") {
+#		$depends{$file} = "";					# do not parse resources and avoid processing later
+#		return 1;
+#	}
 
 	local *DEP;									# NOTE: "local", not "my"
 	open (DEP, $file) || Error ("cannot open file \"$file\"");	# headers should be already checked, but .c/.cpp - may absent
@@ -1019,11 +1044,21 @@ sub FlushObjectFile {
 	my $line = "";
 	if ($COMPILER eq "VisualC") {
 		if ($srcType eq "asm") {
-			$line = "nasm.exe -f win32 -i $srcDir -o \"$objFile\"";
+			my $tgt = "win32";
+			$tgt = "win64" if $PLATFORM eq "win64";
+			$line = "nasm.exe -f $tgt ".GenerateOptions($includes, "-I")." -o \"$objFile\"";
 		} elsif ($srcType eq "rc") {
 			my $inc = "";
-			$inc = " ".GenerateOptions ($includes, "-I ") if $includes ne "";
-			$line = "rc.exe -l 0x409 -i $srcDir$inc -fo\"$objFile\" -dNDEBUG";
+			my $defs = "";
+			$inc = " ".GenerateOptions ($includes, "-i ") if $includes ne "";
+			$defs = " ".GenerateOptions ($defines, "-d ") if $defines ne "";
+			if ($PLATFORM eq "win32") {
+				$defs .= " -d _WIN32 -d WIN32";
+			} else {
+				$defs .= " -d _WIN64 -d WIN64";
+			}
+			$srcDir = "." if $srcDir eq "";		# empty $srcDir means current directory
+			$line = "rc.exe -l 0x409 -i ${srcDir}${inc}${defs} -fo\"$objFile\" -dNDEBUG";
 		} else {
 			# C/C++ file
 			my $crt = GetSrcOption ("LIBC");
@@ -1042,9 +1077,10 @@ sub FlushObjectFile {
 		$line .= " $srcFile";
 	} elsif ($COMPILER eq "GnuC") {	#!! GnuC - other
 		if ($srcType eq "asm") {
-			my $tgt = "elf";		#?? linux: check this
+			my $tgt = "elf32";
+			$tgt = "elf64" if $PLATFORM eq "unix64";
 			$tgt = "coff" if $PLATFORM eq "win32";
-			$line = "nasm -f $tgt -i $srcDir -o \"$objFile\"";
+			$line = "nasm -f $tgt ".GenerateOptions($includes, "-I")." -o \"$objFile\"";
 		} elsif ($srcType eq "rc") {
 			$line .= "windres -O coff -I $srcDir -o $objFile";
 		} else {					#!! GnuC - compiler
@@ -1153,7 +1189,7 @@ sub FlushTargetText {
 	my $line;
 
 	# cut file extension
-	my ($shortOutName) = $n =~ /^([^\s\.]+)(\.\w+)?$/;
+	my ($shortOutName) = $n =~ /^(.*?)(\.\w+)?$/;	# strip extension
 	# get used libraries
 	my $libs     = GetTargetOption ($n, "LIBS");
 	my $stdlibs  = GetTargetOption ($n, "STDLIBS");
@@ -1190,13 +1226,16 @@ sub FlushTargetText {
 	#-------------- Visual C++ options --------------------
 	if ($COMPILER eq "VisualC") {
 		$prefix .= "\techo Creating $target \"$n\" ...\n";
+		if ($target eq "static") {
+			return $prefix."\t\$(AR) -out:\"$n\"$fileList";
+		}
 		$line = "\t\$(LINK) -out:\"$n\"";
 		$line .= GenerateOptions ($libpath, "-libpath:") if $libpath ne "";
 		$line .= " $stdlibs" if $stdlibs ne "";
 		$line .= " $libs" if $libs ne "";
 		$line .= " -base:0x$baseaddr" if $baseaddr ne "";
 		$line .= " -map:\"$shortOutName.map\"" if GetTargetOption ($n, "MAPFILES") eq "1";
-		$line .= " -debug -pdb:\"$shortOutName.pdb\" -pdbtype:sept -opt:ref -opt:icf" if GetSrcOption("PDB", 0) >= 1;
+		$line .= " -debug -pdb:\"$shortOutName.pdb\" -opt:ref -opt:icf" if GetSrcOption("PDB", 0) >= 1;
 		$line .= $fileList;
 		my $linkflags = GetTargetOption ($n, "LINKFLAGS");
 		$line .= " $linkflags" if ($linkflags ne "");
@@ -1218,19 +1257,19 @@ sub FlushTargetText {
 			} else {
 				# if IMPLIB is not specified, delete unneeded linker output
 				$line .= " -implib:\"delete.lib\"";
-				$line .= "\n\techo ... and deleting them ...\n\tdel delete.lib\n\tdel delete.exp";
+				$line .= "\n\tdel delete.lib\n\tdel delete.exp";
 			}
 			return $prefix.$line;
-		} elsif ($target eq "static") {
-			return $prefix."\t\$(AR) -out:\"$n\"$fileList";
-#		} else {
-#			Error ("unknown target: \"$target\"");
+		} else {
+			Error ("unknown target: \"$target\"");
 		}
 	#--------------- Gnu C Compiler -----------------------
 	} elsif ($COMPILER eq "GnuC") {		#!! GnuC - linker
 		$prefix .= "\t\@echo Creating $target \"$n\" ...\n";
 		$line = "\t\$(LINK) -o $n";
 		$line .= $fileList;
+		my $linkflags = GetTargetOption ($n, "LINKFLAGS");
+		$line .= " $linkflags" if ($linkflags ne "");
 		# static/shared libgcc
 		my $crt = GetSrcOption ("LIBC");
 		if ($crt eq "static") {
@@ -1392,19 +1431,20 @@ for $target (@targets) {
 	print FlushTargetText($type, $outfile, $objListName, $dirList)."\n\n";
 }
 
-# refine @sources array: remove files, not linked into any target
+# refine @sources array: remove files which are not linked to any target
 @sources2 = ();
 for $item (@sources) {
 	my ($src, undef, undef, undef, undef, $objListName) = split('%', $item);
 	for my $tgt (@targets) {
+		my $found = 0;
 		my (undef, undef, undef, $tgtObjListName) = split('%', $tgt);
 		for my $listName (split(',', $tgtObjListName)) {
 			if ($objListName eq $listName) {
 				push @sources2, $item;					#?? check for duplicates - single cpp may be included multiple times for different targets
-				undef $item;							# "found" flag
-				last;
+				$found = 1;
 			}
 		}
+		last if $found == 1;
 	}
 # -- it's normal situation now when the object list is not used
 #	WarningOnce("unused object list \"$objListName\"", "unused:$objListName") if defined($item);
