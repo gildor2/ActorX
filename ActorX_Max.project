@@ -23,14 +23,12 @@ LIBRARIES = $SDK_LIB
 
 LIBS = kernel32 user32 advapi32 comdlg32 shell32 bmm core geom gfx mesh maxutil maxscrpt gup paramblk2
 
+INCLUDES += ActorX_3DSMAX Common
+
 ALLOW_MISSING_INCLUDES=1
 sources(MAX) = {
-	ActorX_3DSMAX/ActorX.cpp
-	ActorX_3DSMAX/Dialogs.cpp
-	ActorX_3DSMAX/MaxInterface.cpp
-	ActorX_3DSMAX/SceneIFC.cpp
-	ActorX_3DSMAX/UnSkeletal.cpp
-	ActorX_3DSMAX/Win32IO.cpp
+	ActorX_3DSMAX/*.cpp
+	Common/*.cpp
 	ActorX_3DSMAX/Res/ActorX.rc
 }
 

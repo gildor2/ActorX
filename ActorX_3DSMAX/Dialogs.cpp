@@ -748,7 +748,7 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 
 					TCHAR newname[MAX_PATH];
 					newname[0] = 0;
-					if (GetLoadName( hWnd, newname, to_path, filterList))
+					if (GetLoadName( hWnd, newname, ARRAY_COUNT(newname), to_path, filterList))
 					{
 						GetNameFromPath(to_animfile,newname, MAX_PATH );
 						_tcscpy( DestPath, newname );
@@ -789,7 +789,7 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 						TCHAR newname[MAX_PATH];
 						_tcscpy(newname,_T("XX"));
 						TCHAR defaultextension[]=_T(".psa");
-						if (GetSaveName( hWnd, newname, to_path, NULL, defaultextension ))
+						if (GetSaveName( hWnd, newname, ARRAY_COUNT(newname), to_path, NULL, defaultextension ))
 							SaveAnimSet( newname );
 					}
 					break;

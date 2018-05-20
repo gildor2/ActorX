@@ -1,5 +1,7 @@
 #!/bin/bash
 
+vc_ver=2013
+
 # create directory for placing makefiles
 mkdir -p obj
 
@@ -54,15 +56,17 @@ function build()
 	# check bitness (32/64)
 	if [ $amd64 ]; then
 		vctool_opts="--64"
+		platform="vc-win64"
 	else
 		vctool_opts=""
+		platform="vc-win32"
 	fi
 
 	# generate makefile
 	makefile=obj/ActorX_$cfg.mak
-	./genmake ActorX_$host.project SDK_INC=$sdk/include SDK_LIB=$libdir CFG=$cfg VER=$year TARGET=vc-win32 > $makefile
+	./genmake ActorX_$host.project SDK_INC=$sdk/include SDK_LIB=$libdir CFG=$cfg VER=$year TARGET=$platform > $makefile
 	# build
-	vc32tools --version=12 $vctool_opts --make $makefile
+	vc32tools --version=$vc_ver $vctool_opts --make $makefile || exit 1
 }
 
 

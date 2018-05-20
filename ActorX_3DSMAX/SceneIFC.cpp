@@ -26,6 +26,11 @@
 #include "SceneIFC.h"
 #include "ActorX.h"
 
+#ifdef MAYA
+#define PRODUCT "Maya"
+#else
+#define PRODUCT "3ds Max"
+#endif
 
 int	SceneIFC::LogAnimInfo(VActor *Thing, TCHAR* AnimName)
 {
@@ -33,7 +38,7 @@ int	SceneIFC::LogAnimInfo(VActor *Thing, TCHAR* AnimName)
 	_stprintf(LogFileName,_T("\\X_AnimInfo_%s%s"),AnimName,_T(".LOG"));
 	DLog.Open( LogPath, LogFileName,DOLOGFILE);
 
-   	DLog.Logf(_T("\n\n Unreal skeletal exporter for 3DS Max - Animation information for [%s.psa] \n\n"),AnimName );
+   	DLog.Logf(_T("\n\n Unreal skeletal exporter for ") _T(PRODUCT) _T(" - Animation information for [%s.psa] \n\n"),AnimName );
 	// DLog.Logf(" Frames: %i\n", Thing->BetaNumFrames);
 	// DLog.Logf(" Time Total: %f\n seconds", Thing->FrameTimeInfo * 0.001 );
 	DLog.Logf(" Bones: %i\n", Thing->RefSkeletonBones.Num() );
@@ -66,7 +71,7 @@ int	SceneIFC::LogSkinInfo( VActor *Thing, TCHAR* SkinName ) // char* ModelName )
 
 	if( DLog.Error() ) return 0;
 
-   	DLog.Logf("\n\n Unreal skeletal exporter for 3DS MAX - Model information for [%s.psk] \n\n",SkinName );
+   	DLog.Logf("\n\n Unreal skeletal exporter for " PRODUCT " - Model information for [%s.psk] \n\n",SkinName );
 
 	DLog.Logf(" Skin faces: %6i\n",Thing->SkinData.Faces.Num());
 	DLog.Logf(" Skin vertices: %6i\n",Thing->SkinData.Points.Num());

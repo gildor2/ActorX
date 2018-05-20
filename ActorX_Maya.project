@@ -17,16 +17,11 @@ LIBRARIES = $SDK_LIB
 
 LIBS      = kernel32 user32 advapi32 comdlg32 shell32 Foundation OpenMaya OpenMayaAnim
 
+INCLUDES += ActorX_3DSMAX Common
+
 sources(MAYA) = {
-	ActorX_MAYA/ActorX.cpp
-	ActorX_MAYA/ActorY.cpp
-	ActorX_MAYA/BrushExport.cpp
-	ActorX_MAYA/Dialogs.cpp
-	ActorX_MAYA/mayaHelper.cpp
-	ActorX_MAYA/MayaInterface.cpp
-	ActorX_MAYA/SceneIFC.cpp
-	ActorX_MAYA/UnSkeletal.cpp
-	ActorX_MAYA/Win32IO.cpp
+	ActorX_MAYA/*.cpp
+	Common/*.cpp
 	ActorX_MAYA/Res/ActorX.rc
 }
 
