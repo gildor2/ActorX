@@ -87,7 +87,7 @@ CAPTION "About ActorX"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,48,179,50,14
-    CTEXT           "Unreal Actor Exporter\n\n Version: Max 2.50 \n\n (c) 1998-2017  Epic Games, Inc.\n\n All Rights Reserved.",IDC_STATIC,20,95,108,62
+    CTEXT           "Unreal Actor Exporter\n\n Version: Max 2.50 \n\n (c) 1998-2019  Epic Games, Inc.\n\n All Rights Reserved.",IDC_STATIC,20,95,108,62
     CONTROL         130,IDC_STATIC,"Static",SS_BITMAP | SS_SUNKEN,29,20,95,39
 END
 
@@ -309,7 +309,7 @@ BEGIN
             VALUE "FileDescription", "ActorX"
             VALUE "FileVersion", "1, 0, 0, 1"
             VALUE "InternalName", "ActorX"
-            VALUE "LegalCopyright", "Copyright 1998-2017 Epic Games, Inc. All Rights Reserved."
+            VALUE "LegalCopyright", "Copyright 1998-2019 Epic Games, Inc. All Rights Reserved."
             VALUE "OriginalFilename", "ActorX.dlu"
             VALUE "ProductName", "Epic Games ActorX"
             VALUE "ProductVersion", "1, 0, 0, 1"

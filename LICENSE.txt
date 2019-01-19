@@ -1,4 +1,4 @@
-Copyright 2017, Epic Games, Inc.
+Copyright 2019, Epic Games, Inc.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
