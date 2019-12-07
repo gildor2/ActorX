@@ -429,6 +429,7 @@ struct VBlendCurve
 	{
 		Memzero(this, sizeof(VBlendCurve));
 		strcpysafe(RawCurveName, Other.RawCurveName, 128);
+		assert(Other.RawWeightKeys.Num());
 		RawWeightKeys.AddZeroed(Other.RawWeightKeys.Num());
 		for (INT I=0; I<Other.RawWeightKeys.Num(); ++I)
 		{

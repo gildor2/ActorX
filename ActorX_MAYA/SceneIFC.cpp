@@ -563,6 +563,7 @@ int	SceneIFC::DoUnSmoothVerts(VActor *Thing, INT DoTangentVectorSeams  )
 
 	if( DoTangentVectorSeams )
 	{
+		assert(Thing->SkinData.Faces.Num());
 		FaceDeterminants.AddZeroed( Thing->SkinData.Faces.Num());
 
 		for( INT FaceIndex=0; FaceIndex< Thing->SkinData.Faces.Num(); FaceIndex++)

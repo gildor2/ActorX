@@ -30,9 +30,7 @@
 
 #define INITIALSIZE (128)
 
-#include "Win32IO.h"
-
-extern TextFile MemLog;
+#include <assert.h>
 
 // #define debugassert(X,Y) {if(!(X))MemLog.Logf(" Assertion failed:  %s \n",Y);}
 
@@ -388,10 +386,6 @@ void TArray<Type>::TRealloc(int s)
 
 			// Delete it as a raw byte pointer.
 			delete OldData;
-		}
-		else
-		{
-			MemLog.LogfLn(" First allocation for data ptr at [%i] is %i elements of size %i.",(BYTE*)Data, ArrayMax, sizeof(Type) );
 		}
 	}
 

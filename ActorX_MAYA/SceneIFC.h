@@ -413,12 +413,8 @@ public:
 	int			MarkBonesOfSystem(int RIndex);
 	int         RecurseValidBones(int RIndex, int &BoneCount);
 
-    // Modifier*   FindPhysiqueModifier(AXNode* nodePtr);
 	int			EvaluateBone(int RIndex);
-	// int         HasMesh(AXNode* node);
-	int         HasTexture(AXNode* node);
 	int         EvaluateSkeleton(INT RequireBones);
-	int         DigestMaterial(AXNode *node, INT matIndex, TArray<void*> &MatList);
 
 	// Static mesh export
 	int         DigestStaticMeshes();
@@ -439,7 +435,7 @@ public:
 	TArray< GMaterial >          StaticMeshMaterials;
 
 	// Skeletal meshes.
-	AXNode*			 OurSkin;
+//	int			OurSkin;
 	TArray <SkinInf> OurSkins;
 	AXNode*      OurRootBone;
 	int         RootBoneIndex;

@@ -41,7 +41,7 @@ BEGIN
     EDITTEXT        IDC_ANIMNAME,12,313,106,12,ES_AUTOHSCROLL
     EDITTEXT        IDC_ANIMRANGE,12,337,106,12,ES_AUTOHSCROLL
     PUSHBUTTON      "Animation manager",IDC_ANIMMANAGER,24,354,81,14
-    CTEXT           "Version Maya 2.50 \n (c) 1998-2017 Epic Games, Inc.",IDC_STATIC,5,55,119,19
+    CTEXT           "Version Maya 2.50 \n (c) 1998-2019 Epic Games, Inc.",IDC_STATIC,5,55,119,19
     LTEXT           "Output folder",IDC_STATIC,13,127,40,8
     LTEXT           "Animation sequence name",IDC_STATIC,13,302,84,8
     LTEXT           "Mesh file name",IDC_STATIC,13,159,48,8

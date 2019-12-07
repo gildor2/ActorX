@@ -11,7 +11,7 @@ using `nmake` for Visual Studio or `make` for gcc.
 There's a build script which iterates over all available SDKs and issues build for all available SDK platofrms.
 This script could be found in `./build.sh`
 
-ActorX is compiled using Visual Studio. Currently build is performed with Visual C++ 2010, but in theory
+ActorX is compiled using Visual Studio. Currently build is performed with Visual C++ 2019, but in theory
 almost all Visual Studio versions should be supported (perhaps except Visual C++ 6.0 and Visual C++ 2001).
 
 Build system utilizes GNU Tools for building, in particular - Bash and Perl. I've packaged Windows versions

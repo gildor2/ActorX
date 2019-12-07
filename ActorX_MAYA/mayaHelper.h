@@ -124,7 +124,7 @@ public:
 
 
 	};
-	typedef struct Triangle
+	struct Triangle
 	{
 		Index	Indices[3];
 		int		ShadingGroupIndex;	// index for ShadingGroups

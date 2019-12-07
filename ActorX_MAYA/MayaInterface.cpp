@@ -662,7 +662,7 @@ UBOOL isObjectSelected( const MDagPath & path )
 //
 int SceneIFC::SerializeSceneTree()
 {
-	OurSkin=NULL;
+//	OurSkin=NULL;
 	OurRootBone=NULL;
 
 	/*
@@ -1284,6 +1284,10 @@ int GetAliasName(const char * AttributeName, char * Output, INT OutputLen)
 int SceneIFC::InitializeCurve(VActor *Thing, INT TotalFrameCount )
 {
 	INT TotalNumCurves = GetTotalNumOfBlendCurves();
+	if (TotalNumCurves == 0)
+	{
+		return 1;
+	}
 
 	// allocate memory for # of curves
 	Thing->RawCurveKeys.Empty();
@@ -1293,6 +1297,7 @@ int SceneIFC::InitializeCurve(VActor *Thing, INT TotalFrameCount )
 	for (INT I=0;I<TotalNumCurves; ++I)
 	{
 		Thing->RawCurveKeys[I].RawWeightKeys.Empty();
+		assert(TotalFrameCount);
 		Thing->RawCurveKeys[I].RawWeightKeys.AddZeroed(TotalFrameCount);
 	}
 
@@ -3106,17 +3111,6 @@ int	SceneIFC::FixMaterials(VActor *Thing )
 	}
 
 	return 1;
-}
-
-
-int SceneIFC::DigestMaterial(AXNode *node,  INT matIndex,  TArray<void*>& RawMaterials)
-{
-	void* ThisMtl = (void*) matIndex;
-
-	// The different material properties can be investigated at the end, for now we care about uniqueness only.
-	RawMaterials.AddUniqueItem( (void*) ThisMtl );
-
-	return( RawMaterials.Where( (void*) ThisMtl ) );
 }
 
 
@@ -6115,6 +6109,7 @@ void MeshProcessor::createNewSmoothingGroupsFromTriangulatedMesh( triangulatedMe
 		return; //SafeGuard.
 
 	VertEdgePools.Empty();
+	assert(edgeTableSize);
 	VertEdgePools.AddZeroed( edgeTableSize );
 
 	// Add entries, for each edge, to the lookup table
@@ -6135,6 +6130,7 @@ void MeshProcessor::createNewSmoothingGroupsFromTriangulatedMesh( triangulatedMe
 	}
 	// Fill FacePools table: for each face, a pool of smoothly touching faces and a pool of nonsmoothly touching ones.
 
+	assert(numPolygons);
 	FacePools.AddZeroed( numPolygons );
 	for (int p =0; p <  mesh.triangles.size(); p++ ) // Iterate over edges.
 	{
@@ -6176,6 +6172,7 @@ void MeshProcessor::createNewSmoothingGroupsFromTriangulatedMesh( triangulatedMe
 
 
 	PolyProcessFlags.Empty();
+	assert(numPolygons);
 	PolyProcessFlags.AddZeroed( numPolygons );
 	{for ( INT i=0; i< numPolygons; i++ )
 	{
@@ -6200,6 +6197,7 @@ void MeshProcessor::createNewSmoothingGroupsFromTriangulatedMesh( triangulatedMe
 	//
 	// Fill GroupTouchPools: for each group, this notes which other groups touch it or overlap it in any way.
 	//
+	assert(CurrentGroup);
 	GroupTouchPools.AddZeroed( CurrentGroup );
 	for( INT f=0; f< numPolygons; f++)
 	{
@@ -6331,6 +6329,7 @@ void MeshProcessor::createNewSmoothingGroups( MDagPath& mesh )
 		return; //SafeGuard.
 
 	VertEdgePools.Empty();
+	assert(edgeTableSize);
 	VertEdgePools.AddZeroed( edgeTableSize );
 
 	// Add entries, for each edge, to the lookup table
@@ -6369,6 +6368,7 @@ void MeshProcessor::createNewSmoothingGroups( MDagPath& mesh )
     }
 
 	// Fill FacePools table: for each face, a pool of smoothly touching faces and a pool of nonsmoothly touching ones.
+	assert(numPolygons);
 	FacePools.AddZeroed( numPolygons );
 	{for ( INT p=0; p< numPolygons; p++ )
 	{
@@ -6410,6 +6410,7 @@ void MeshProcessor::createNewSmoothingGroups( MDagPath& mesh )
 	}}
 
 	PolyProcessFlags.Empty();
+	assert(numPolygons);
 	PolyProcessFlags.AddZeroed( numPolygons );
 	{for ( INT i=0; i< numPolygons; i++ )
 	{
@@ -6434,6 +6435,7 @@ void MeshProcessor::createNewSmoothingGroups( MDagPath& mesh )
 	//
 	// Fill GroupTouchPools: for each group, this notes which other groups touch it or overlap it in any way.
 	//
+	assert(CurrentGroup);
 	GroupTouchPools.AddZeroed( CurrentGroup );
 	for( INT f=0; f< numPolygons; f++)
 	{
