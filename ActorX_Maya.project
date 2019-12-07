@@ -22,6 +22,11 @@ INCLUDES += Common
 sources(MAYA) = {
 	ActorX_MAYA/*.cpp
 	Common/*.cpp
+}
+
+# Place resources to common directory
+OBJDIR = obj/MayaCommon
+sources(MAYA) = {
 	ActorX_MAYA/Res/ActorX.rc
 }
 

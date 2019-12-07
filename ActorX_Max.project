@@ -29,6 +29,11 @@ ALLOW_MISSING_INCLUDES=1
 sources(MAX) = {
 	ActorX_3DSMAX/*.cpp
 	Common/*.cpp
+}
+
+# Place resources to common directory
+OBJDIR = obj/MaxCommon
+sources(MAX) = {
 	ActorX_3DSMAX/Res/ActorX.rc
 }
 
