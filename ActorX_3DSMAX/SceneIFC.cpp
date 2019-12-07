@@ -286,9 +286,10 @@ int	SceneIFC::WriteScriptFile( VActor *Thing, TCHAR* ScriptName, TCHAR* BaseName
 		char NumStr[10];
 		_itoa(i,NumStr,10);
 		// Override default skin number with TextureIndex:
-		char TexName[100];
-		sprintf(TexName,"%s%s%s",ScriptName,"Tex",NumStr);
-		DLog.Logf("#EXEC MESHMAP SETTEXTURE MESHMAP=%s NUM=%i TEXTURE=%s\n",MeshName,i,TexName);
+		TCHAR TexName[MAX_PATH];
+		_stprintf(TexName,_T("%sTex%d"),ScriptName,i);
+
+		DLog.Logf(_T("#EXEC MESHMAP SETTEXTURE MESHMAP=%s NUM=%i TEXTURE=%s\n"),MeshName,i,TexName);
 	}}
 	DLog.Logf("\n");
 

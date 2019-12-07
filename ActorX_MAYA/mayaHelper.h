@@ -17,10 +17,8 @@
 
 
 #include "MayaInclude.h"
-
 #include "UnSkeletal.h"
 
-using namespace std;
 #include <vector>
 
 
@@ -48,7 +46,7 @@ public:
 		for (INT i =0; i< _vertEdges.size(); i++)
 			if (_vertEdges[i]) delete _vertEdges[i];
 	}
-	typedef struct edge
+	struct edge
 	{
 		int	v1;
 		int v2;
@@ -56,14 +54,12 @@ public:
 		int f2;
 		bool smooth;
 		edge()
-		{
-			v1=-1;
-			v2=-1;
-			f1=-1;
-			f2=-1;
-			smooth =true;
-		};
-
+			: v1(-1)
+			, v2(-1)
+			, f1(-1)
+			, f2(-1)
+			, smooth(true)
+		{}
 	};
 
 
@@ -71,9 +67,9 @@ public:
 	void setEdgeSmoothing (MDagPath & );	// sets smoothing flag via maya polygon edge iterator
 	bool findFaces (int v1, int v2, int fases[2]  ); // returns edge faces from verts
 	edge * find (int v1, int v2  ); // returns valid edge from verts
-	vector  <edge *>	_edges;
-	vector  <MIntArray *>	_vertsPairs; // size of numVerts
-	vector  <MIntArray *>	_vertEdges; // size of numVerts
+	std::vector  <edge *>	_edges;
+	std::vector  <MIntArray *>	_vertsPairs; // size of numVerts
+	std::vector  <MIntArray *>	_vertEdges; // size of numVerts
 
 private:
 
@@ -137,7 +133,7 @@ public:
 	bool triangulate(MDagPath & _d);
 	bool createEdgesPool();
 
-	vector <Triangle *>	triangles;
+	std::vector <Triangle *>	triangles;
 
 	MFloatArray uArray[NUM_EXTRA_UV_SETS+1];
 	MFloatArray vArray[NUM_EXTRA_UV_SETS+1];

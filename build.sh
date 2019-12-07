@@ -1,6 +1,6 @@
 #!/bin/bash
 
-vc_ver=2013
+vc_ver=latest
 
 # create directory for placing makefiles
 mkdir -p obj
