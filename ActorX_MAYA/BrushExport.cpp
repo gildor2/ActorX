@@ -325,7 +325,7 @@ int	SceneIFC::ProcessStaticMesh( int TreeIndex )
 	//PCF BEGIN
 
 	////	dirty valid maya triangulation via mel command - soon replaced by api
-	////	Suppouse that we need always to triangulate (true?)
+	////	Suppose that we need always to triangulate (true?)
 
 	//MStringArray triangNode;
 	//MString triangulateCmd = "polyTriangulate -ch 1 " + DagNode.name();

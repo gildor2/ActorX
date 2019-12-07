@@ -4415,9 +4415,8 @@ void SaveCurrentSceneSkin()
 		// WarningBox(" Warning: Skin triangles found: %i ",TempActor.SkinData.Points.Num() );
 
 		// TCHAR MessagePopup[512];
-		TCHAR to_ext[32];
-		_tcscpy(to_ext, _T("PSK"));
-		_stprintf(DestPath,_T("%s\\%s.%s"),(char*)to_path,(char*)to_skinfile,to_ext);
+		const TCHAR* to_ext = _T("psk");
+		_stprintf(DestPath,_T("%s\\%s.%s"), to_path,  to_skinfile, to_ext);
 		FastFileClass OutFile;
 
 		if ( OutFile.CreateNewFile(DestPath) != 0) // Error!
@@ -4438,7 +4437,7 @@ void SaveCurrentSceneSkin()
 
 		if( !OurScene.DoSuppressAnimPopups )
 		{
-			PopupBox(_T(" Skin file %s.%s written."),to_skinfile,to_ext );
+			PopupBox(_T(" Skin file %s.%s written."), to_skinfile, to_ext );
 		}
 
 	}

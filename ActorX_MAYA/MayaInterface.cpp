@@ -3782,8 +3782,7 @@ MStatus AXWriteSequence(BOOL bUseSourceOutPath)
 	//
 	// Save it.
 	//
-	char to_ext[32];
-	_tcscpy_s(to_ext, ("PSA"));
+	const char* to_ext = "psa";
 	if( !bUseSourceOutPath )
 	{
 		strcpysafe( OutFolder, to_path, MAX_PATH );
@@ -3863,8 +3862,7 @@ MStatus AXWritePoses()
 		// Save it.
 		//
 
-		char to_ext[32];
-		_tcscpy_s(to_ext, ("PSA"));
+		const char* to_ext = "psa";
 		sprintf_s( OutPath,"%s\\%s%i.%s",(char*)to_path,(char*)SceneName,FrameSweepCounter,to_ext);
 
 		if ( TempActor.OutAnims.Num() == 0)
@@ -4428,8 +4426,7 @@ MStatus ActorXTool11::doIt( const MArgList& args )
 		}
 
 		// Save animation - as done in Dialogs.cpp
-		char to_ext[32];
-		_tcscpy_s(to_ext, ("PSA"));
+		const char* to_ext = "psa";
 		sprintf_s(DestPath,"%s\\%s.%s",(char*)to_path,(char*)to_animfile,to_ext);
 		SaveAnimSet( DestPath );    // No error popups...
 
@@ -4871,9 +4868,8 @@ void SaveCurrentSceneSkin(const char * OutputFile, TArray<char*>& LogList)
 		// WarningBox(" Warning: Skin triangles found: %i ",TempActor.SkinData.Points.Num() );
 
 		// TCHAR MessagePopup[512];
-		TCHAR to_ext[32];
-		_tcscpy_s(to_ext, ("PSK"));
-		sprintf_s(DestPath,"%s\\%s.%s",(char*)to_path,(char*)OutputFile,to_ext);
+		const TCHAR* to_ext = _T("psk");
+		sprintf_s(DestPath,"%s\\%s.%s",(char*)to_path,(char*)OutputFile, to_ext);
 		FastFileClass OutFile;
 
 		if ( OutFile.CreateNewFile(DestPath) != 0) // Error!
@@ -5071,8 +5067,7 @@ static INT_PTR CALLBACK PanelOneDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 					INT FreshSequences = TempActor.Animations.Num();
 
 					// If 'QUICKDISK' is on, load to output package, move/overwrite, and save all at once.
-					char to_ext[32];
-					_tcscpy_s(to_ext, ("PSA"));
+					const char* to_ext = "psa";
 					sprintf_s(DestPath,"%s\\%s.%s",(char*)to_path,(char*)to_animfile,to_ext);
 
 					// Optionally load them from the existing on disk..
@@ -6050,8 +6045,7 @@ INT_PTR CALLBACK BrushPanelDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lP
 							WarningBox(" Warning: no valid geometry digested (missing mapping or selection?)");
 						else
 						{
-							TCHAR to_ext[32];
-							_tcscpy_s(to_ext,("T3D"));
+							const TCHAR* to_ext = "t3d";
 							sprintf_s(DestPath,"%s\\%s.%s", (char*)to_brushpath, (char*)to_brushfile, to_ext);
 							FastFileClass OutFile;
 

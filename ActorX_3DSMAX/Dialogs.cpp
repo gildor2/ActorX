@@ -741,7 +741,7 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 				case IDC_LOADANIMAS:
 				{
 					//char to_ext[32];
-					//_tcscpy(to_ext, ("PSA"));
+					//_tcscpy(to_ext, ("psa"));
 					//sprintf(DestPath,"%s\\%s.%s",(char*)to_path,(char*)to_animfile,to_ext);
 
 					static const TCHAR filterList[] = _T("PSA Files (*.psa)\0*.psa\0PSA Files (*.psa)\0*.psa\0");
@@ -797,7 +797,7 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 					// Save with interface-specified name & output path.
 				case IDC_ANIMSAVE:
 					{
-						_stprintf(DestPath,_T("%s\\%s.psa"),(char*)to_path,(char*)to_animfile);
+						_stprintf(DestPath,_T("%s\\%s.psa"), to_path, to_animfile);
 
 						SaveAnimSet( DestPath );
 					}

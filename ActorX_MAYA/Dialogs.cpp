@@ -665,8 +665,7 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 				// Load the same name and folder as specified.
 				case IDC_ANIMLOAD:
 				{
-					char to_ext[32];
-					_tcscpy_s(to_ext, ("PSA"));
+					const char* to_ext = "psa";
 					sprintf_s(DestPath,"%s\\%s.%s",(char*)to_path,(char*)to_animfile,to_ext);
 					FastFileClass InFile;
 					if ( InFile.OpenExistingFileForReading(DestPath) != 0) // Error!
@@ -688,7 +687,7 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 				case IDC_LOADANIMAS:
 				{
 					//char to_ext[32];
-					//_tcscpy(to_ext, ("PSA"));
+					//_tcscpy(to_ext, ("psa"));
 					//sprintf(DestPath,"%s\\%s.%s",(char*)to_path,(char*)to_animfile,to_ext);
 
 					char filterList[] = "PSA Files (*.psa)\0*.psa\0PSA Files (*.psa)\0*.psa\0";
@@ -743,8 +742,7 @@ INT_PTR CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 				// Save with interface-specified name & output path.
 				case IDC_ANIMSAVE:
 				{
-					char to_ext[32];
-					_tcscpy_s(to_ext, ("PSA"));
+					const char* to_ext = "psa";
 					sprintf_s(DestPath,"%s\\%s.%s",(char*)to_path,(char*)to_animfile,to_ext);
 
 					SaveAnimSet( DestPath );

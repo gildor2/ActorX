@@ -542,8 +542,7 @@ XSI::CStatus ActorXSaveMesh_Execute( const XSI::CRef& in_context )
 		// Save.
 
 		// TCHAR MessagePopup[512];
-		TCHAR to_ext[32];
-		_tcscpy(to_ext, _T("PSK"));
+		const TCHAR* to_ext = _T("psk");
 		sprintf(DestPath,"%s\\%s.%s",(char*)to_path,(char*)to_skinfile,to_ext);
 		FastFileClass OutFile;
 		DebugBox("DestPath: %s",DestPath);
