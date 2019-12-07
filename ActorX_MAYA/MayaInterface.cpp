@@ -212,8 +212,8 @@ void MayaLog(char* LogString, ... )
 
 
 
-
-void SceneIFC::StoreNodeTree(AXNode* node)
+// Used only for root node, node == 0
+void SceneIFC::StoreNodeTree(int node)
 {
 	MStatus	stat;
 
@@ -280,7 +280,7 @@ void SceneIFC::StoreNodeTree(AXNode* node)
 				}
 
 				NodeInfo NewNode;
-				NewNode.node = (void*) ObjectCount;
+				NewNode.nodeIndex = ObjectCount;
 				NewNode.NumChildren = 0;
 
 				SerialTree.AddItem( NewNode ); // Store index rather than Object.
@@ -702,14 +702,14 @@ int SceneIFC::SerializeSceneTree()
 	for(int  i=0; i<SerialTree.Num(); i++)
 	{
 		int ParentIndex = -1;
-		MFnDagNode DagNode = AxSceneObjects[(int)SerialTree[i].node]; // object to DagNode...
+		MFnDagNode DagNode = AxSceneObjects[SerialTree[i].nodeIndex]; // object to DagNode...
 
 		MObject ParentNode = DagNode.parent(0);
 		// Match to AxSceneObjects
 		//int InSceneIdx = AxSceneObjects.Where(ParentNode);
 		int InSceneIdx = WhereInMobjectArray( AxSceneObjects, ParentNode );
 
-		ParentIndex = MatchNodeToIndex( (void*) InSceneIdx ); // find parent
+		ParentIndex = MatchNodeToIndex(InSceneIdx); // find parent
 		SerialTree[i].ParentIndex = ParentIndex;
 
 
@@ -863,7 +863,7 @@ int SceneIFC::GetSceneInfo()
 
 	for( int i=0; i<SerialTree.Num(); i++)
 	{
-		MFnDagNode DagNode = AxSceneObjects[ (int)SerialTree[i].node ];
+		MFnDagNode DagNode = AxSceneObjects[SerialTree[i].nodeIndex];
 		MObject	Object = DagNode.object();
 
 		// A mesh or geometry ? #TODO check against untextured geometry...
@@ -907,7 +907,7 @@ int SceneIFC::GetSceneInfo()
 			// Multiple physique nodes...
 			SkinInf NewSkin;
 
-			NewSkin.Node = SerialTree[i].node;
+			NewSkin.Node = SerialTree[i].nodeIndex;
 			NewSkin.IsSmoothSkinned = HasCluster;
 			NewSkin.IsTextured = 1;
 			NewSkin.SceneIndex = i;
@@ -934,7 +934,7 @@ int SceneIFC::GetSceneInfo()
 			// Multiple physique nodes...
 			SkinInf NewSkin;
 
-			NewSkin.Node = SerialTree[i].node;
+			NewSkin.Node = SerialTree[i].nodeIndex;
 			NewSkin.IsSmoothSkinned = 0;
 			NewSkin.IsTextured = 1;
 			NewSkin.SceneIndex = i;
@@ -1009,7 +1009,7 @@ int SceneIFC::GetSceneInfo()
 	for(INT i=0; i<SerialTree.Num(); i++)
 	{
 		// 'physique / skincluster modifier' detection
-		MFnDagNode DagNode = AxSceneObjects[ (int)SerialTree[i].node ];
+		MFnDagNode DagNode = AxSceneObjects[SerialTree[i].nodeIndex];
 
 		// No skeleton available yet!
 		// INT IsRoot = ( TempActor.MatchNodeToSkeletonIndex( (void*) i ) == 0 );
@@ -1019,7 +1019,7 @@ int SceneIFC::GetSceneInfo()
 		INT MeshVerts = 0;
 		if( SerialTree[i].IsSkin )
 		{
-			MFnMesh MeshFunction( AxSceneObjects[ (int)SerialTree[i].node ], &stat );
+			MFnMesh MeshFunction( AxSceneObjects[SerialTree[i].nodeIndex], &stat);
 			MeshVerts = MeshFunction.numVertices();
 			MeshFaces = MeshFunction.numPolygons();
 		}
@@ -1033,7 +1033,7 @@ int SceneIFC::GetSceneInfo()
 			SerialTree[i].IsSkin,
 			SerialTree[i].IsSmooth,
 			SerialTree[i].LinksToSkin,
-			(INT)SerialTree[i].node,
+			SerialTree[i].nodeIndex,
 			SerialTree[i].ModifierIdx,
 			SerialTree[i].ParentIndex,
 			SerialTree[i].NumChildren,
@@ -1427,11 +1427,11 @@ int SceneIFC::DigestAnim(class VActor *Thing,char *SequenceName,char *RangeStrin
 		{
 			if ( SerialTree[i].InSkeleton )
 			{
-				MFnDagNode DagNode  = AxSceneObjects[ (int)SerialTree[i].node ];
-				MObject JointObject = AxSceneObjects[ (int)SerialTree[i].node ];
+				MFnDagNode DagNode  = AxSceneObjects[ SerialTree[i].nodeIndex ];
+				MObject JointObject = AxSceneObjects[ SerialTree[i].nodeIndex ];
 
 				// Check whether root bone
-				INT RootCheck = ( Thing->MatchNodeToSkeletonIndex( (void*) i ) == 0) ? 1:0 ;
+				INT RootCheck = ( Thing->MatchNodeToSkeletonIndex(i) == 0) ? 1:0 ;
 
 				DLog.LogfLn("#DIGESTANIM Skeletal bone name [] num %i parent %i  NumChildren %i  Isroot %i RootCheck %i",i,(int)SerialTree[i].ParentIndex,SerialTree[i].NumChildren, (i != RootBoneIndex)?0:1,RootCheck );
 
@@ -1763,10 +1763,10 @@ int SceneIFC::WriteVertexAnims(VActor *Thing, char* DestFileName, char* RangeStr
 // PCF START
 //	maya triangulation
 // PCF STOP
-int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin& LocalSkin, INT SmoothSkin )
+int	SceneIFC::ProcessMesh(int SkinNode, int TreeIndex, VActor *Thing, VSkin& LocalSkin, INT SmoothSkin )
 {
 	MStatus	stat;
-	MObject SkinObject = AxSceneObjects[ (INT)SkinNode ];
+	MObject SkinObject = AxSceneObjects[SkinNode];
 	MFnDagNode currentDagNode( SkinObject, &stat );
 
 
@@ -1811,7 +1811,7 @@ int	SceneIFC::ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin&
 
 	if( ParentJoint < 0) ParentJoint = 0;
 
-	INT MatchedNode = Thing->MatchNodeToSkeletonIndex( (void*)ParentJoint ); // SkinNode ) ;
+	INT MatchedNode = Thing->MatchNodeToSkeletonIndex(ParentJoint); // SkinNode ) ;
 
 	// Not linked to a joint?
 	if( (MatchedNode < 0) )
@@ -2726,8 +2726,8 @@ int	SceneIFC::DigestSkin(VActor *Thing )
 		// so that it is definitely part of the skin.
 		if( SerialTree[i].IsSkin )
 		{
-			MObject Object = AxSceneObjects[ (INT)SerialTree[i].node ];
-			MObject RootBoneObj( AxSceneObjects[(INT)Thing->RefSkeletonNodes[0]] );
+			MObject Object = AxSceneObjects[ SerialTree[i].nodeIndex ];
+			MObject RootBoneObj( AxSceneObjects[Thing->RefSkeletonNodes[0]] );
 			MFnDagNode RootNode( RootBoneObj );
 			if( RootNode.hasChild(Object) )
 				HasRootAsParent = 1;
@@ -2745,12 +2745,12 @@ int	SceneIFC::DigestSkin(VActor *Thing )
 			if( SerialTree[i].IsSmooth)
 			{
 				// Skincluster deformable mesh.
-				ProcessMesh( (void*)((INT)SerialTree[i].node), i, Thing, LocalSkin, 1 );
+				ProcessMesh(SerialTree[i].nodeIndex, i, Thing, LocalSkin, 1);
 			}
 			else
 			{
 				// Regular mesh - but throw away if its parent is ROOT !
-				ProcessMesh( (void*)((INT)SerialTree[i].node), i, Thing, LocalSkin, 0 );
+				ProcessMesh(SerialTree[i].nodeIndex, i, Thing, LocalSkin, 0);
 			}
 
 			DLog.LogfLn(" New points %i faces %i Wedges %i rawweights %i", LocalSkin.Points.Num(), LocalSkin.Faces.Num(), LocalSkin.Wedges.Num(), LocalSkin.RawWeights.Num() );
@@ -2844,12 +2844,12 @@ int SceneIFC::DigestBrush( VActor *Thing )
 		// so that it is definitely part of the skin.
 		if( SerialTree[i].IsSkin )
 		{
-			MObject Object = AxSceneObjects[ (INT)SerialTree[i].node ];
+			MObject Object = AxSceneObjects[SerialTree[i].nodeIndex];
 
 			// Allow for zero-bone mesh digesting
 			if( Thing->RefSkeletonNodes.Num() )
 			{
-				MObject RootBoneObj( AxSceneObjects[(INT)Thing->RefSkeletonNodes[0]] );
+				MObject RootBoneObj( AxSceneObjects[Thing->RefSkeletonNodes[0]] );
 				MFnDagNode RootNode( RootBoneObj );
 				if( RootNode.hasChild(Object) )
 					HasRootAsParent = 1;
@@ -2876,12 +2876,12 @@ int SceneIFC::DigestBrush( VActor *Thing )
 			if( SerialTree[i].IsSmooth )
 			{
 				// Skincluster deformable mesh.
-				ProcessMesh( (void*)((INT)SerialTree[i].node), i, Thing, LocalSkin, 1 );
+				ProcessMesh(SerialTree[i].nodeIndex, i, Thing, LocalSkin, 1 );
 			}
 			else
 			{
 				// Regular mesh - but throw away if its parent is ROOT !
-				ProcessMesh( (void*)((INT)SerialTree[i].node), i, Thing, LocalSkin, 0 );
+				ProcessMesh(SerialTree[i].nodeIndex, i, Thing, LocalSkin, 0 );
 			}
 
 			// PopupBox(" New points %i faces %i Wedges %i rawweights %i", LocalSkin.Points.Num(), LocalSkin.Faces.Num(), LocalSkin.Wedges.Num(), LocalSkin.RawWeights.Num() );
@@ -3197,7 +3197,7 @@ int SceneIFC::EvaluateSkeleton(INT RequireBones)
 
 	//PopupBox("ROOTBONE is: [%i]", RootBoneIndex );
 
-	OurRootBone = SerialTree[RootBoneIndex].node;
+	OurRootBone = SerialTree[RootBoneIndex].nodeIndex;
 	OurBoneTotal = BonesMax;
 
 	/*
@@ -3234,8 +3234,8 @@ int SceneIFC::EvaluateSkeleton(INT RequireBones)
 	{
 		if ( SerialTree[i].InSkeleton )
 		{
-			MFnDagNode DagNode = AxSceneObjects[ (int)SerialTree[i].node ];
-			MObject JointObject = AxSceneObjects[ (int)SerialTree[i].node ];
+			MFnDagNode DagNode = AxSceneObjects[SerialTree[i].nodeIndex];
+			MObject JointObject = AxSceneObjects[SerialTree[i].nodeIndex];
 
 			// Grab the name of this bone.  If the name has a prefix because it came from a reference
 			// file, we'll strip that off first.
@@ -3518,8 +3518,8 @@ int SceneIFC::DigestSkeleton(VActor *Thing)
 
 			//INode* ThisNode = (INode*) SerialTree[i].node;
 
-			MFnDagNode DagNode = AxSceneObjects[ (int)SerialTree[i].node ];
-			MObject JointObject = AxSceneObjects[ (int)SerialTree[i].node ];
+			MFnDagNode DagNode = AxSceneObjects[SerialTree[i].nodeIndex];
+			MObject JointObject = AxSceneObjects[SerialTree[i].nodeIndex];
 
 			INT RootCheck = 0; // Thing->MatchNodeToSkeletonIndex( (void*) i );- skeletal hierarchy not yet digested.
 
@@ -3664,7 +3664,7 @@ int SceneIFC::DigestSkeleton(VActor *Thing)
 
 			//ThisBone.BonePos.Orientation.Normalize();
 
-			Thing->RefSkeletonNodes.AddItem( (void*) (int)SerialTree[i].node ); //index
+			Thing->RefSkeletonNodes.AddItem(SerialTree[i].nodeIndex);
 			Thing->RefSkeletonBones.AddItem(ThisBone);
 		}
 	}

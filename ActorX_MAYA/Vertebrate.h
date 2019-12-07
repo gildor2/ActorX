@@ -597,7 +597,7 @@ public:
 
 	// Single skeleton digestion (reference)
 	TArray <FNamedBoneBinary>    RefSkeletonBones;
-	TArray <AXNode*>		     RefSkeletonNodes;     // The node* array for each bone index....
+	TArray <int>			     RefSkeletonNodes;     // The node* array for each bone index....
 
 
 	// Raw animation, 'RawAnimKeys' structure
@@ -616,7 +616,7 @@ public:
 	int		  AnimationBoneNumber; // Bone number consistency check..
 
 
-	int	MatchNodeToSkeletonIndex(AXNode* ANode)
+	int	MatchNodeToSkeletonIndex(int ANode)
 	{
 		for (int t=0; t<RefSkeletonBones.Num(); t++)
 		{

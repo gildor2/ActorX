@@ -22,6 +22,10 @@ https://github.com/gildor2/ActorX
 
 Changes:
 ~~~~~~~~
+07.12.2019
+- refactored code for Visual Studio 2015 and later
+- added Max 2020 version
+
 20.01.2019
 - added Maya 2019 version
 

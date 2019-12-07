@@ -49,7 +49,7 @@ extern INT 	ExportBlendShapes;
 class NodeInfo
 {
 public:
-	AXNode*  node;
+	int		nodeIndex;
 	int		IsBone;   // in the sense of a valid hierarchical node for physique...
 	int     IsCulled;
 	int		IsBiped;
@@ -295,9 +295,9 @@ class GeometryPrimitive
 {
 
 public:
-	AXNode* node;         // Original scene node.
-	XString   Name;       //
-	INT  Selected;
+	int			node;         // Original scene node. Unused.
+	XString		Name;
+	INT			Selected;
 
 	TArray<FVector>	Vertices;
 	TArray<GWedge>	Wedges;
@@ -381,7 +381,7 @@ public:
 class SkinInf
 {
 	public:
-	AXNode*	Node;
+	INT		Node;
 	INT		IsSmoothSkinned;
 	INT		IsTextured;
 	INT		SeparateMesh;
@@ -400,7 +400,7 @@ public:
 	int         DigestSkin( VActor *Thing );
 	int         DigestBrush( VActor *Thing );
 	int         FixMaterials( VActor *Thing ); // internal
-	int	        ProcessMesh(AXNode* SkinNode, int TreeIndex, VActor *Thing, VSkin& LocalSkin, INT SmoothSkin);
+	int	        ProcessMesh(int SkinNode, int TreeIndex, VActor *Thing, VSkin& LocalSkin, INT SmoothSkin);
 	int         LogSkinInfo( VActor *Thing, const char* SkinName);
 	int			WriteScriptFile( VActor *Thing, char* ScriptName, char* BaseName, char* SkinFileName, char* AnimFileName );
 	int         DigestAnim(VActor *Thing, char* AnimName, char* RangeString );
@@ -437,7 +437,7 @@ public:
 	// Skeletal meshes.
 //	int			OurSkin;
 	TArray <SkinInf> OurSkins;
-	AXNode*      OurRootBone;
+	int			OurRootBone;
 	int         RootBoneIndex;
 	// LH: deprecating this variable -
 	// This is almost identical as TotalBones except
@@ -549,11 +549,11 @@ public:
 		Cleanup();
 	}
 
-	int	MatchNodeToIndex(AXNode* ANode)
+	int	MatchNodeToIndex(int ANode)
 	{
 		for (int t=0; t<SerialTree.Num(); t++)
 		{
-			if ( (void*)(SerialTree[t].node) == (void*)ANode) return t;
+			if ( SerialTree[t].nodeIndex == ANode) return t;
 		}
 		return -1; // no matching node found.
 	}
@@ -583,7 +583,7 @@ public:
 
 private:
 
-	void		StoreNodeTree(AXNode* node);
+	void		StoreNodeTree(int node);
 	int			SerializeSceneTree();
 	void        ParseFrameRange(char* pString, INT startFrame,INT endFrame);
 

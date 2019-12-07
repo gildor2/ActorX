@@ -305,8 +305,8 @@ int	SceneIFC::ProcessStaticMesh( int TreeIndex )
 {
     // <Path>.fullPathName().asChar()
 	MStatus	stat;
-	MObject MeshObject = AxSceneObjects[ (int)SerialTree[TreeIndex].node ];
-	MFnDagNode DagNode = AxSceneObjects[ (int)SerialTree[TreeIndex].node ];
+	MObject MeshObject = AxSceneObjects[SerialTree[TreeIndex].nodeIndex];
+	MFnDagNode DagNode = AxSceneObjects[SerialTree[TreeIndex].nodeIndex];
 	MDagPath  DagPath;
 	DagNode.getPath( DagPath );
 
@@ -935,15 +935,15 @@ int SceneIFC::DigestStaticMeshes()
 	INT NumMeshes = 0;
 	for( INT i=0; i<SerialTree.Num(); i++)
 	{
-		MFnDagNode DagNode = AxSceneObjects[ (int)SerialTree[i].node ];
-		INT IsRoot = ( TempActor.MatchNodeToSkeletonIndex( (void*) i ) == 0 );
+		MFnDagNode DagNode = AxSceneObjects[SerialTree[i].nodeIndex];
+		INT IsRoot = ( TempActor.MatchNodeToSkeletonIndex(i) == 0 );
 
 		// If mesh, determine
 		INT MeshFaces = 0;
 		INT MeshVerts = 0;
 		if( SerialTree[i].IsSkin )
 		{
-			MFnMesh MeshFunction( AxSceneObjects[ (int)SerialTree[i].node ], &stat );
+			MFnMesh MeshFunction( AxSceneObjects[SerialTree[i].nodeIndex], &stat );
 			MeshVerts = MeshFunction.numVertices();
 			MeshFaces = MeshFunction.numPolygons();
 		}
