@@ -118,7 +118,7 @@ class TextFile
 		wcstombs(TempStr2, TempStr, 4096);
 		if( LStream )
 		{
-			fprintf(LStream, "%s", TempStr);
+			fprintf(LStream, "%s", TempStr2);
 		}
 	}
 #endif
