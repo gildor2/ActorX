@@ -22,6 +22,12 @@ https://github.com/gildor2/ActorX
 
 Changes:
 ~~~~~~~~
+05.09.2021
+- added Max 2022 support
+
+25.12.2020
+- added Max 2021 and Maya 2020 builds
+
 07.12.2019
 - refactored code for Visual Studio 2015 and later
 - added Max 2020 version

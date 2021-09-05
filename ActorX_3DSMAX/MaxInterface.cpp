@@ -64,6 +64,9 @@ class ActorXClassDesc:public ClassDesc {
 	int 			IsPublic() {return 1;}
 	void *			Create(BOOL loading = FALSE) {return &ThisMaxPlugin;}
 	const TCHAR*	ClassName() {return GetString(IDS_CLASS_NAME);}
+#if MAX_PRODUCT_YEAR_NUMBER >= 2022
+	const TCHAR*	NonLocalizedClassName() {return GetString(IDS_CLASS_NAME);}
+#endif
 	SClass_ID		SuperClassID() {return UTILITY_CLASS_ID;}
 	Class_ID		ClassID() {return ACTORX_CLASS_ID;}
 	const TCHAR* 	Category() {return GetString(IDS_CATEGORY);}
